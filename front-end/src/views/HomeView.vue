@@ -1,18 +1,29 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div class="center">
+    <div class="container">
+      <div class="button center" @click="join">Join a Game</div>
+      <div class="button center" @click="create">Create a Game</div>
+    </div>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
-
 export default {
-  name: 'HomeView',
-  components: {
-    HelloWorld
-  }
-}
+  name: "HomeView",
+  methods: {
+    join() {
+      this.$router.push('/join');
+    },
+    create() {
+      this.$router.push('/create');
+    }
+  },
+};
 </script>
+
+<style scoped>
+.button {
+  aspect-ratio: 3/2;
+  font-size: 1.4rem;
+}
+</style>
