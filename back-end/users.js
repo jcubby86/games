@@ -16,6 +16,18 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', userSchema);
 
+const checkGameExists = async (game) => {
+  if (!game) {
+    return false;
+  }
+  if (game.state === 'end' || new Date() - game.timestamp > 1000 * 60 * 60 * 2){
+    game.state = 'end';
+    await game.save();
+    return false;
+  }
+  return true;
+};
+
 const validUser = async (req, res, next) => {
   if (!req.session.userID)
     return res.status(403).send({
@@ -25,18 +37,19 @@ const validUser = async (req, res, next) => {
     const user = await User.findOne({
       _id: req.session.userID
     }).populate('game');
+
     if (!user) {
       return res.status(403).send({
         message: "not logged in"
       });
     }
 
-    if (user.game.state === 'end'){
-      req.session = null;
-      res.status(400).send({
-        message: "Game has ended"
-      });
+    let gameExists = await checkGameExists(user.game);
+    if (!gameExists){
+      user.game = null;
+      await user.save();
     }
+
     // set the user field in the request
     req.user = user;
   } catch (error) {
@@ -66,10 +79,12 @@ const uniqueUsername = async (name, game, id) => {
 
 router.post('/', async (req, res) => {
   try {
-    const game = await Game.findOne({code: req.body.game});
-    if (!game || game.state !== "join") {
+    let game = await Game.findOne({code: req.body.code, state: 'join'});
+
+    const gameExists = await checkGameExists(game);
+    if (!gameExists){
       return res.status(400).send({
-        message: "Invalid game id"
+        message: "game doesn't exist"
       });
     }
 
@@ -79,6 +94,7 @@ router.post('/', async (req, res) => {
         _id: req.session.userID
       });
     }
+
     if (user){
       user.game = game;
       user.nickname = req.body.nickname;
@@ -88,13 +104,13 @@ router.post('/', async (req, res) => {
         nickname: req.body.nickname
       });
     }
-    
+
     const unique = await uniqueUsername(req.body.nickname, game, user._id);
-    if (!unique) {
-      return res.status(400).send({
-        message: "Name already taken"
-      });
-    }
+      if (!unique) {
+        return res.status(400).send({
+          message: "username already taken"
+        });
+      }
 
     req.session.userID = user._id;
 

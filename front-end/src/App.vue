@@ -6,10 +6,10 @@
     <div class="main">
       <router-view/>
     </div>
-    <div class="footer" v-if="user">
-      <div class="left">{{user.nickname}}
+    <div class="footer" v-if="user&&user.game" @click="rejoin">
+      <div style="left: 0;">{{user.nickname}}
       </div>
-      <div class="right">code: {{user.game.code}}
+      <div style="right: 0;">code: {{user.game.code}}
       </div>
     </div>
   </div>
@@ -20,6 +20,18 @@ export default {
   computed: {
     user() {
       return this.$root.$data.user;
+    }
+  },
+  async created() {
+    try {
+      await this.$root.getUser();
+    } catch (error) {
+      console.log(error);
+    }
+  },
+  methods: {
+    async rejoin(){
+      this.$router.push("/" + this.user.game.type);
     }
   }
 };
@@ -67,19 +79,13 @@ export default {
   width: 100%;
   background-color: var(--darkest);
   height: 30px;
+  cursor: pointer;
 }
 
-.left, .right {
+.footer > div {
   margin: 5px;
   position: fixed;
   color: white;
-}
-
-.left {
-  left: 0;
-}
-.right {
-  right: 0;
 }
 
 .main {

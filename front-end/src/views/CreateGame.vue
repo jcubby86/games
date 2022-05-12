@@ -33,27 +33,11 @@ export default {
       nickname: "",
     };
   },
-  computed: {
-    user() {
-      return this.$root.$data.user;
-    },
-  },
   async created() {
-    await this.getUser();
-    if (this.user){
-      this.nickname = this.user.nickname;
-    }
+    let user = await this.$root.getUser()
+    this.nickname = user?.nickname;
   },
   methods: {
-    async getUser() {
-      if (this.user) return;
-      try {
-        let response = await axios.get("/api/users");
-        this.$root.$data.user = response.data.user;
-      } catch (error) {
-        this.$root.$data.user = null;
-      }
-    },
     async create() {
       if (this.nickname === '' || (this.selected!=='story' && this.selected!=='names')){
         alert('Please enter a nickname and select a game type.');
@@ -63,10 +47,14 @@ export default {
         const response1 = await axios.post("/api/games/" + this.selected);
         const response2 = await axios.post("/api/users", {
           nickname: this.nickname,
-          game: response1.data.code,
+          code: response1.data.code,
         });
         this.$root.$data.user = response2.data;
-        this.$router.push('/' + this.user.game.type);
+        if (response2.data.game){
+          this.$router.push('/' + response2.data.game.type);
+        } else {
+          alert(response2.data.message);
+        }
       } catch (error) {
         console.log(error);
       }

@@ -26,43 +26,35 @@ export default {
       code: "",
     };
   },
-  computed: {
-    user() {
-      return this.$root.$data.user;
-    },
-  },
   async created() {
-    await this.getUser();
-    if (this.user){
-      this.code = this.user.game.code;
-      this.nickname = this.user.nickname;
-    }
-    if (this.$route.params.code) {
-      this.code = this.$route.params.code;
+    try {
+      let user = await this.$root.getUser();
+      this.nickname = user?.nickname;
+      this.code = user?.game?.code;
+      if (this.$route.params.code) {
+        this.code = this.$route.params.code;
+      }
+    } catch (error) {
+      console.log(error);
     }
   },
   methods: {
-    async getUser() {
-      if (this.user) return;
-      try {
-        let response = await axios.get("/api/users");
-        this.$root.$data.user = response.data.user;
-      } catch (error) {
-        this.$root.$data.user = null;
-      }
-    },
     async join() {
-      if (this.nickname === '' || this.code.length !== 4){
-        alert('Please enter a nickname and a code.');
+      if (this.nickname === "" || this.code.length !== 4) {
+        alert("Please enter a nickname and a code.");
         return;
       }
       try {
         const response = await axios.post("/api/users", {
           nickname: this.nickname,
-          game: this.code,
+          code: this.code,
         });
         this.$root.$data.user = response.data;
-        this.$router.push('/' + this.user.game.type);
+        if (response.data.game) {
+          this.$router.push("/" + response.data.game.type);
+        } else {
+          alert(response.data.message);
+        }
       } catch (error) {
         console.log(error);
       }

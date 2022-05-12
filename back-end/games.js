@@ -6,7 +6,8 @@ const router = express.Router();
 const gameSchema = new mongoose.Schema({
   type: String,
   code: String,
-  state: String
+  state: String,
+  timestamp: Date
 });
 
 
@@ -33,7 +34,8 @@ router.post("/:type", async (req, res) => {
   const game = new Game({
     type: req.params.type,
     code: code,
-    state: "join"
+    state: "join",
+    timestamp: new Date()
   });
 
   try {
