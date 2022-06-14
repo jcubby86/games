@@ -34,5 +34,8 @@ app.use("/api/games", games.routes);
 const users = require("./users.js");
 app.use("/api/users", users.routes);
 
+const names = require("./names.js");
+app.use("/api/names", names.routes);
+
 app.listen(3003, () => console.log('Server listening on port 3003!'));
 

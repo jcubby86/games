@@ -4,12 +4,12 @@
       <tr>
         <td>Nickname:</td>
         <td>
-          <input placeholder="enter a nickname" v-model="nickname" />
+          <input autocomplete='off' spellcheck='false' autocorrect='off' placeholder="enter a nickname" v-model="nickname" />
         </td>
       </tr>
       <tr>
         <td>Code:</td>
-        <td><input placeholder="enter 4-letter code" v-model="code" /></td>
+        <td><input autocomplete='off' spellcheck='false' autocorrect='off' placeholder="enter 4-letter code" v-model="code" /></td>
       </tr>
     </table>
     <div class="button center" @click="join">Join Game</div>
@@ -40,24 +40,32 @@ export default {
   },
   methods: {
     async join() {
-      if (this.nickname === "" || this.code.length !== 4) {
-        alert("Please enter a nickname and a code.");
-        return;
-      }
       try {
+        if (this.nickname === "" || this.code?.length !== 4) {
+          alert("Please enter a nickname and a code.");
+          return;
+        }
         const response = await axios.post("/api/users", {
-          nickname: this.nickname,
-          code: this.code,
+          nickname: this.nickname.toLowerCase(),
+          code: this.code.toLowerCase(),
         });
-        this.$root.$data.user = response.data;
-        if (response.data.game) {
-          this.$router.push("/" + response.data.game.type);
+
+        if (response.data.success) {
+          this.$root.$data.user = response.data.user;
+          this.$router.push("/" + this.user.game.type);
         } else {
           alert(response.data.message);
+          this.user.game = null;
         }
       } catch (error) {
         console.log(error);
+        this.user.game = null;
       }
+    },
+  },
+  computed: {
+    user() {
+      return this.$root.$data.user;
     },
   },
 };

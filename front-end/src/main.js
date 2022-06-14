@@ -12,10 +12,14 @@ new Vue({
   router,
   methods: {
     async getUser() {
-      if (!this.user){
+      if (!this.user) {
         try {
           let response = await axios.get("/api/users");
-          this.user = response.data.user;
+          if (response.data.success) {
+            this.user = response.data.user;
+          } else {
+            this.user = null;
+          }
         } catch (error) {
           this.user = null;
           console.log(error);

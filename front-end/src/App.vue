@@ -4,13 +4,11 @@
       <router-link class="simple" to="/"> Games </router-link>
     </div>
     <div class="main">
-      <router-view/>
+      <router-view />
     </div>
-    <div class="footer" v-if="user&&user.game" @click="rejoin">
-      <div style="left: 0;">{{user.nickname}}
-      </div>
-      <div style="right: 0;">code: {{user.game.code}}
-      </div>
+    <div class="footer" v-if="user && user.game" @click="rejoin">
+      <div style="left: 0">{{ user.nickname }}</div>
+      <div style="right: 0">code: {{ user.game.code }}</div>
     </div>
   </div>
 </template>
@@ -20,7 +18,7 @@ export default {
   computed: {
     user() {
       return this.$root.$data.user;
-    }
+    },
   },
   async created() {
     try {
@@ -30,20 +28,20 @@ export default {
     }
   },
   methods: {
-    async rejoin(){
+    async rejoin() {
       this.$router.push("/" + this.user.game.type);
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style>
 :root {
-  --lightest: #ADD7F6;
-  --lighter: #87BFFF;
-  --primary: #3F8EFC;
-  --darker: #2667FF;
-  --darkest: #3B28CC;
+  --lightest: #add7f6;
+  --lighter: #87bfff;
+  --primary: #3f8efc;
+  --darker: #2667ff;
+  --darkest: #3b28cc;
 }
 
 #app {
@@ -72,7 +70,7 @@ export default {
 }
 
 .footer {
-  position:fixed;
+  position: fixed;
   bottom: 0;
   left: 0;
   height: 30px;
@@ -113,8 +111,7 @@ export default {
 
 .container {
   display: flex;
-  width: min(100% - 2rem, 500px);
-  margin-inline: auto;
+  width: min(100% - 2rem, 450px);
 }
 
 .container > div {
@@ -127,4 +124,9 @@ export default {
   color: white;
 }
 
+input,
+select,
+textarea {
+  font-size: 16px !important;
+}
 </style>
