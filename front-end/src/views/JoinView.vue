@@ -4,12 +4,26 @@
       <tr>
         <td>Nickname:</td>
         <td>
-          <input autocomplete='off' spellcheck='false' autocorrect='off' placeholder="enter a nickname" v-model="nickname" />
+          <input
+            autocomplete="off"
+            spellcheck="false"
+            autocorrect="off"
+            placeholder="enter a nickname"
+            v-model="nickname"
+          />
         </td>
       </tr>
       <tr>
         <td>Code:</td>
-        <td><input autocomplete='off' spellcheck='false' autocorrect='off' placeholder="enter 4-letter code" v-model="code" /></td>
+        <td>
+          <input
+            autocomplete="off"
+            spellcheck="false"
+            autocorrect="off"
+            placeholder="enter 4-letter code"
+            v-model="code"
+          />
+        </td>
       </tr>
     </table>
     <div class="button center" @click="join">Join Game</div>
@@ -41,13 +55,13 @@ export default {
   methods: {
     async join() {
       try {
-        if (this.nickname === "" || this.code?.length !== 4) {
+        if (!this.nickname || this.nickname === "" || this.code?.length !== 4) {
           alert("Please enter a nickname and a code.");
           return;
         }
         const response = await axios.post("/api/users", {
-          nickname: this.nickname.toLowerCase(),
-          code: this.code.toLowerCase(),
+          nickname: this.nickname?.toLowerCase(),
+          code: this.code?.toLowerCase(),
         });
 
         if (response.data.success) {

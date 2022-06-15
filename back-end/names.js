@@ -17,12 +17,16 @@ router.get('/', validUser, async (req, res) => {
     }
 
     if (game.state === 'join') {
-      for (const element of game.names) {
-        if (element.owner === user.nickname) {
-          return res.send({ message: "wait", success: true });
+      if (game.subtype === 'mod' && game.creator === user.nickname) {
+        return res.send({ message: "wait", success: true });
+      } else {
+        for (const element of game.names) {
+          if (element.owner === user.nickname) {
+            return res.send({ message: "wait", success: true });
+          }
         }
+        return res.send({ message: "enter", success: true });
       }
-      return res.send({ message: "enter", success: true });
     } else if (game.state === 'ready') {
       return res.send({ message: "ready", success: true, game: game });
     } else {
@@ -47,7 +51,7 @@ router.post('/', validUser, async (req, res) => {
       for (const element of game.names) {
         if (element.owner === user.nickname) {
           return res.send({ message: "You already submitted a name.", success: false });
-        } else if (element.name === req.body.name) {
+        } else if (element.name.toLowerCase() === req.body.name.toLowerCase()) {
           return res.send({ message: "That name is already in use.", success: false });
         }
       }

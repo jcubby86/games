@@ -16,9 +16,15 @@
         Name Game
       </div>
     </div>
-    <div class="desc" v-if="selectedType==='story'">Not working yet :&lpar;</div>
-    <div class="desc" v-else-if="selectedType==='names'">
-      Name Game description
+    <div class="desc" v-if="selectedType === 'story'">
+      Not working yet :&lpar;
+    </div>
+    <div class="desc" v-else-if="selectedType === 'names'">
+      Everyone secretly enters the name of a person &lpar;real or fictional&rpar; that
+      others would know. Players then take turns guessing each other's names
+      until only one remains!
+      <br />
+      If you choose to have a moderator, you will be the moderator.
       <div class="container sub">
         <div
           class="button center"
@@ -36,16 +42,24 @@
         </div>
       </div>
     </div>
-    <table v-if="selectedType==='names'">
+    <table v-if="selectedType === 'names'">
       <tr>
         <td>Nickname:</td>
         <td>
-          <input autocomplete='off' spellcheck='false' autocorrect='off' placeholder="enter a nickname" v-model="nickname" />
+          <input
+            autocomplete="off"
+            spellcheck="false"
+            autocorrect="off"
+            placeholder="enter a nickname"
+            v-model="nickname"
+          />
         </td>
       </tr>
     </table>
     <br />
-    <div v-if="selectedType==='names'" class="button center" @click="create">Create Game</div>
+    <div v-if="selectedType === 'names'" class="button center" @click="create">
+      Create Game
+    </div>
   </div>
 </template>
 
@@ -67,6 +81,7 @@ export default {
   methods: {
     async create() {
       if (
+        !this.nickname ||
         this.nickname === "" ||
         (this.selectedType !== "story" && this.selectedType !== "names")
       ) {
@@ -75,11 +90,11 @@ export default {
       }
       try {
         const response1 = await axios.post("/api/games/" + this.selectedType, {
-          creator: this.nickname,
+          creator: this.nickname?.toLowerCase(),
           subtype: this.selectedSubtype,
         });
         const response2 = await axios.post("/api/users", {
-          nickname: this.nickname.toLowerCase(),
+          nickname: this.nickname?.toLowerCase(),
           code: response1.data.game.code,
         });
         if (response2.data.success) {
@@ -122,8 +137,12 @@ export default {
   aspect-ratio: 3/1;
 }
 
+.sub {
+  width: min(100% - 2rem, 300px);
+}
 .sub .button {
   font-size: 1rem;
+  aspect-ratio: 2/1;
 }
 
 .desc {

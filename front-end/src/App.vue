@@ -112,6 +112,8 @@ export default {
 .container {
   display: flex;
   width: min(100% - 2rem, 450px);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .container > div {
