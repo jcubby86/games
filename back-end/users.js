@@ -71,19 +71,23 @@ router.post('/', async (req, res) => {
     let game = await Game.findOne({ code: req.body.code, state: 'join' });
 
     const gameExists = await checkGameExists(game);
-    if (!gameExists) return res.send({ success: false, message: 'Game does not exist or can no longer be joined.' });
 
     let user;
     if (req.session.userID) {
       user = await User.findOne({
         _id: req.session.userID
-      });
+      }).populate('game');
     }
 
     if (user) {
+      if (!gameExists){
+        if (user.game !== null && req.body.code === user.game.code) return res.send({ user: user, success: true });
+        else return res.send({ success: false, message: 'Game does not exist or can no longer be joined.' });
+      }
       user.game = game;
       user.nickname = req.body.nickname;
     } else {
+      if (!gameExists) return res.send({ success: false, message: 'Game does not exist or can no longer be joined.' });
       user = new User({
         game: game,
         nickname: req.body.nickname
@@ -96,7 +100,6 @@ router.post('/', async (req, res) => {
     req.session.userID = user._id;
 
     await user.save();
-    user.game.names = null;
     res.status(201).send({ user: user, success: true });
   } catch (error) {
     console.log(error);
