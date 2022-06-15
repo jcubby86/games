@@ -81,7 +81,8 @@ router.post('/', async (req, res) => {
 
     if (user) {
       if (!gameExists){
-        if (user.game !== null && req.body.code === user.game.code) return res.send({ user: user, success: true });
+        const currGameExists = await checkGameExists(user.game);
+        if (currGameExists && req.body.code === user.game.code) return res.send({ user: user, success: true });
         else return res.send({ success: false, message: 'Game does not exist or can no longer be joined.' });
       }
       user.game = game;
