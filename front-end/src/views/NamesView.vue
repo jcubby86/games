@@ -7,13 +7,7 @@
         It should be a name that others would know, but don't make it too
         obvious!
       </p>
-      <input
-        autocomplete="off"
-        spellcheck="false"
-        autocorrect="off"
-        placeholder="enter a name"
-        v-model="name"
-      />
+      <input placeholder="enter a name" @keydown.enter="enter" v-model="name" />
       <div class="container">
         <div class="button center" @click="enter">Send</div>
       </div>

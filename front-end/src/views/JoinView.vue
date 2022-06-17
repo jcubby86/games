@@ -9,6 +9,7 @@
             spellcheck="false"
             autocorrect="off"
             placeholder="enter a nickname"
+            @keydown.enter="join"
             v-model="nickname"
           />
         </td>
@@ -21,6 +22,7 @@
             spellcheck="false"
             autocorrect="off"
             placeholder="enter 4-letter code"
+            @keydown.enter="join"
             v-model="code"
           />
         </td>

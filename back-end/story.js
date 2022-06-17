@@ -26,7 +26,6 @@ router.get('/', validUser, async (req, res) => {
         if (element.parts.length < minPhase) minPhase = element.parts.length;
       }
 
-      console.log(game.stories);
       if (userPhase === minPhase) {
         return res.send({ message: "play", success: true, phase: userPhase });
       } else {

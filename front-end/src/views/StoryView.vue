@@ -4,7 +4,7 @@
     <div class="center" v-if="this.display === 'play'">
       <div>
         <span>{{ helper }} {{ prefix }}</span>
-        <input :placeholder="prompt" v-model="input" />
+        <input :placeholder="prompt" @keydown.enter="enter" v-model="input" />
         <span>{{ suffix }}</span>
       </div>
       <div class="container">

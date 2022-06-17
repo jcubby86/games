@@ -51,6 +51,7 @@
             spellcheck="false"
             autocorrect="off"
             placeholder="enter a nickname"
+            @keydown.enter="create"
             v-model="nickname"
           />
         </td>
