@@ -37,5 +37,8 @@ app.use("/api/users", users.routes);
 const names = require("./names.js");
 app.use("/api/names", names.routes);
 
+const story = require("./story.js");
+app.use("/api/story", story.routes);
+
 app.listen(3003, () => console.log('Server listening on port 3003!'));
 

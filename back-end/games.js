@@ -10,7 +10,8 @@ const gameSchema = new mongoose.Schema({
   state: String,
   timestamp: Date,
   creator: String,
-  names: [{ owner: String, name: String }]
+  names: [{ owner: String, name: String }],
+  stories: [{ owner: String, parts: [String] }]
 });
 
 

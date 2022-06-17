@@ -80,7 +80,7 @@ router.post('/', async (req, res) => {
     }
 
     if (user) {
-      if (!gameExists){
+      if (!gameExists) {
         const currGameExists = await checkGameExists(user.game);
         if (currGameExists && req.body.code === user.game.code) return res.send({ user: user, success: true });
         else return res.send({ success: false, message: 'Game does not exist or can no longer be joined.' });
@@ -93,6 +93,10 @@ router.post('/', async (req, res) => {
         game: game,
         nickname: req.body.nickname
       });
+    }
+    if (game.type === 'story') {
+      game.stories.push({ owner: req.body.nickname, parts: [] });
+      await game.save();
     }
 
     const unique = await uniqueUsername(req.body.nickname, game, user._id);

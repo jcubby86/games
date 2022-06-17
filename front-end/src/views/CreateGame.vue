@@ -17,12 +17,12 @@
       </div>
     </div>
     <div class="desc" v-if="selectedType === 'story'">
-      Not working yet :&lpar;
+      Create a fun story reminiscent of mad libs together!
     </div>
     <div class="desc" v-else-if="selectedType === 'names'">
-      Everyone secretly enters the name of a person &lpar;real or fictional&rpar; that
-      others would know. Players then take turns guessing each other's names
-      until only one remains!
+      Everyone secretly enters the name of a person &lpar;real or
+      fictional&rpar; that others would know. Players then take turns guessing
+      each other's names until only one remains!
       <br />
       If you choose to have a moderator, you will be the moderator.
       <div class="container sub">
@@ -42,7 +42,7 @@
         </div>
       </div>
     </div>
-    <table v-if="selectedType === 'names'">
+    <table v-if="selectedType !== ''">
       <tr>
         <td>Nickname:</td>
         <td>
@@ -57,7 +57,7 @@
       </tr>
     </table>
     <br />
-    <div v-if="selectedType === 'names'" class="button center" @click="create">
+    <div v-if="selectedType !== ''" class="button center" @click="create">
       Create Game
     </div>
   </div>
