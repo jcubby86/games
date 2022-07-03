@@ -1,30 +1,30 @@
 <template>
   <div class="center">
     <h1>He Said She Said</h1>
-    <div class="center" v-if="this.display === 'play'">
+    <div class="center" v-if="display === 'play'">
       <div>
-        <span>{{ helper }} {{ prefix }}</span>
-        <input :placeholder="prompt" @keydown.enter="enter" v-model="input" />
-        <span>{{ suffix }}</span>
+        <p>{{ helper }} {{ prefix }}</p>
+        <textarea :placeholder="prompt" @keydown.enter="enter" v-model="input" />
+        <p style="margin-top: 0;">{{ suffix }}</p>
       </div>
       <div class="container">
         <div class="button center" @click="enter">Send</div>
       </div>
     </div>
-    <div class="center" v-else-if="this.display === 'read'">
+    <div class="center" v-else-if="display === 'read'">
       <h2>Story:</h2>
       <span v-for="part in story" v-bind:key="part">{{ part }}</span>
     </div>
     <div class="center" v-else>
       <h2>Please wait...</h2>
-      <!-- <p>Get ready to </p> -->
-      <p v-if="isGameCreator">Once everyone is ready, click below!</p>
+      <p v-if="isGameCreator">Players: {{numplayers}} </p>
+      <p v-if="isGameCreator && display === 'join'">Once everyone is ready, click below!</p>
     </div>
     <div v-if="isGameCreator" class="container">
-      <div v-if="this.display === 'join'" class="button center" @click="play">
+      <div v-if="display === 'join'" class="button center" @click="play">
         Ready!
       </div>
-      <div v-if="this.display === 'read'" class="button center" @click="end">
+      <div v-if="display === 'read'" class="button center" @click="end">
         End Game
       </div>
     </div>
@@ -48,14 +48,15 @@ export default {
         "Man's name",
         "Woman's name",
         "Activity",
-        "Statement",
-        "Statement",
+        "",
+        "",
         "Activity",
       ],
       helpers: ["", "(Man) ", "(Man) and (Woman) ", "", "", ""],
       prefixes: ["", "and ", "were ", 'He said, "', 'She said, "', "So they "],
       suffixes: ["", "", ". ", '." ', '." ', "."],
       story: null,
+      numplayers: 0,
     };
   },
   async created() {
@@ -69,17 +70,19 @@ export default {
       this.isGameCreator = user.game.creator === user.nickname;
 
       let result = await axios.get("/api/story");
-      if (result.data.message === "play") {
-        this.setStuff(result.data.phase);
-      } else if (
-        result.data.message === "join" ||
-        result.data.message === "wait"
-      ) {
+      let display = result.data.message;
+      this.display = display;
+
+      if (display === "join") {
+        this.numplayers = result.data.numplayers;
         this.wait();
-      } else if (result.data.message === "read") {
+      } else if (display === "wait") {
+        this.wait();
+      } else if (display === "play") {
+        this.setStuff(result.data.phase);
+      } else if (display === "read") {
         this.setStory(result.data.game);
       }
-      this.display = result.data.message;
     } catch (error) {
       console.log(error);
       this.$root.$data.user.game = null;
@@ -94,13 +97,16 @@ export default {
       try {
         while (true) {
           let result = await axios.get("/api/story");
-          if (result.data.message === "play") {
+          let display = result.data.message;
+          this.display = display;
+
+          if (display === "join") {
+            this.numplayers = result.data.numplayers;
+          } else if (result.data.message === "play") {
             this.setStuff(result.data.phase);
-            this.display = result.data.message;
             return;
           } else if (result.data.message === "read") {
             this.setStory(result.data.game);
-            this.display = result.data.message;
             return;
           }
           await this.sleep(3000);
@@ -194,6 +200,11 @@ span {
 
 input {
   display: inline-block;
+}
+
+textarea {
+  width: 90%;
+  height: 50px;
 }
 
 .container {

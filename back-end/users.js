@@ -94,16 +94,19 @@ router.post('/', async (req, res) => {
         nickname: req.body.nickname
       });
     }
-    if (game.type === 'story') {
-      game.stories.push({ owner: req.body.nickname, parts: [] });
-      await game.save();
-    }
 
     const unique = await uniqueUsername(req.body.nickname, game, user._id);
     if (!unique) return res.send({ success: false, message: 'Username is already taken.' });
 
+    if (game.type === 'story') {
+      game.stories.push({ owner: req.body.nickname, parts: [] });
+    } else if (game.type === 'names' && !(game.subtype === 'mod' && game.creator === user.nickname)) {
+      game.names.push({ owner: req.body.nickname, name: "" });
+    }
+
     req.session.userID = user._id;
 
+    await game.save();
     await user.save();
     res.status(201).send({ user: user, success: true });
   } catch (error) {

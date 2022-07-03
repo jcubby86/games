@@ -24,6 +24,7 @@
             placeholder="enter 4-letter code"
             @keydown.enter="join"
             v-model="code"
+            maxlength="4"
           />
         </td>
       </tr>

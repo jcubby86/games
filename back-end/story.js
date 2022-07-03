@@ -15,7 +15,7 @@ router.get('/', validUser, async (req, res) => {
     if (!game) {
       return res.send({ message: "not logged in", success: false });
     } else if (game.state === 'join') {
-      return res.send({ message: "join", success: true, phase: -1 });
+      return res.send({ message: "join", success: true, phase: -1, numplayers: game.stories.length });
     } else if (game.state === 'play') {
       let userPhase = 0;
       let minPhase = 10;

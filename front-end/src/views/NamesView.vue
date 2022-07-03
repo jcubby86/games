@@ -1,7 +1,15 @@
 <template>
   <div class="center">
     <h1>Name Game</h1>
-    <div class="center" v-if="this.display === 'enter'">
+    <div class="center" v-if="display === 'join'">
+      <h2>Please wait...</h2>
+      <p v-if="isGameCreator">Once everyone is ready, click below!</p>
+      <p v-if="isGameCreator">Players: {{numplayers}} </p>
+      <div v-if="isGameCreator" class="button center" @click="ready">
+        Ready!
+      </div>
+    </div>
+    <div class="center" v-else-if="display === 'enter'">
       <h2>Enter a name</h2>
       <p>
         It should be a name that others would know, but don't make it too
@@ -12,30 +20,25 @@
         <div class="button center" @click="enter">Send</div>
       </div>
     </div>
-    <div class="center" v-else-if="this.display === 'ready'">
+    <div class="center" v-else-if="display === 'ready' || display === 'mod'">
       <h2>Names:</h2>
       <span v-for="name in names" v-bind:key="name._id">{{ name.name }}</span>
     </div>
-    <div class="center" v-else-if="this.display === 'play'">
+    <div class="center" v-else-if="display === 'play'">
       <h2>Play!</h2>
       <p>Put your phone away and guess some names!</p>
     </div>
     <div class="center" v-else>
       <h2>Please wait...</h2>
-      <p>Get ready to memorize some names!</p>
-      <p v-if="isGameCreator">Once everyone is ready, click below!</p>
     </div>
     <div v-if="isGameCreator" class="container">
-      <div v-if="this.display === 'ready'" class="button center" @click="hide">
+      <div v-if="display === 'ready' || display === 'mod'" class="button center" @click="hide">
         Hide Names
       </div>
-      <div v-if="this.display === 'play'" class="button center" @click="show">
+      <div v-if="display === 'play'" class="button center" @click="show">
         Show Names
       </div>
       <div v-if="showEnd" class="button center" @click="end">End Game</div>
-      <div v-if="this.display === 'wait'" class="button center" @click="ready">
-        Ready!
-      </div>
     </div>
   </div>
 </template>
@@ -51,6 +54,7 @@ export default {
       isGameCreator: false,
       showEnd: false,
       names: null,
+      numplayers: 0,
     };
   },
   async created() {
@@ -64,18 +68,19 @@ export default {
       this.isGameCreator = user.game.creator === user.nickname;
 
       let result = await axios.get("/api/names");
-      if (result.data.message === "enter") {
-        this.display = "enter";
-      } else if (result.data.message === "play") {
+      let display = result.data.message;
+      this.display = display;
+
+      if (display === 'join') {
+        this.numplayers = result.data.numplayers;
+      }
+
+      if (display === "ready" || display === "mod") {
         this.names = result.data.game.names;
         this.showEnd = true;
-        if (result.data.game.subtype === "mod" && this.isGameCreator) {
-          this.display = "ready";
-        } else {
-          this.display = "play";
-        }
-      } else {
-        this.display = result.data.message;
+      }
+      
+      if (display === 'wait' || display === 'join' || display === 'ready') {
         this.wait();
       }
     } catch (error) {
@@ -91,22 +96,23 @@ export default {
       try {
         while (true) {
           let result = await axios.get("/api/names");
-          if (result.data.message === "ready") {
+          let display = result.data.message;
+          this.display = display;
+
+          if (display === 'join') {
+            this.numplayers = result.data.numplayers;
+          }
+
+          if (display === "ready" || display === "mod") {
             if (!this.names) {
-              this.display = "ready";
               this.names = result.data.game.names;
             }
-          } else if (result.data.message === "play") {
-            if (!this.showEnd) {
-              this.display =
-                this.isGameCreator && result.data.game.subtype === "mod"
-                  ? "ready"
-                  : "play";
-              this.names = result.data.game.names;
-              this.showEnd = true;
-            }
+            this.showEnd = true;
+          }
+          if (display === "mod" || "display" === "play" || display === "enter") {
             return;
           }
+
           await this.sleep(3000);
         }
       } catch (error) {
@@ -133,7 +139,9 @@ export default {
       }
     },
     async ready() {
-      await axios.put("/api/names/ready");
+      await axios.put("/api/names/enter");
+      this.display = "wait";
+      this.wait();
     },
     async hide() {
       await axios.put("/api/names/play");
@@ -147,7 +155,7 @@ export default {
       await axios.put("/api/names/end");
       this.user.game = null;
       this.$router.push("/");
-    },
+    }
   },
   computed: {
     user() {
