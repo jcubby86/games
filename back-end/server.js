@@ -9,7 +9,7 @@ app.use(bodyParser.urlencoded({
   extended: false
 }));
 
-mongoose.connect('mongodb://localhost:27017/games', {
+mongoose.connect('mongodb://172.17.0.1:27017/games', {
   useUnifiedTopology: true,
   useNewUrlParser: true
 });
@@ -39,6 +39,12 @@ app.use("/api/names", names.routes);
 
 const story = require("./story.js");
 app.use("/api/story", story.routes);
+
+const path = '/etc/data/front-end/dist/';
+app.use(express.static(path));
+app.get('/', function (req,res) {
+  res.sendFile(path + "index.html");
+});
 
 app.listen(3003, () => console.log('Server listening on port 3003!'));
 
