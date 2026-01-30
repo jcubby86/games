@@ -1,4 +1,3 @@
-
 import {
   Controller,
   Get,
@@ -10,7 +9,10 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './user.service';
 import { PostsService } from './post.service';
-import { User as UserModel, Post as PostModel } from './generated/prisma/client';
+import {
+  User as UserModel,
+  Post as PostModel,
+} from './generated/prisma/client';
 
 @Controller()
 export class AppController {
