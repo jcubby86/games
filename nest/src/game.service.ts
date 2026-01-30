@@ -12,6 +12,21 @@ import {
   Player,
   StoryEntry,
 } from './generated/prisma/client';
+import {
+  GameDto,
+  NameEntryDto,
+  PlayerDto,
+  StoryEntryDto,
+} from './types/game.types';
+
+type GameWithPlayers = Game & {
+  players?: PlayerWithEntries[];
+};
+
+type PlayerWithEntries = Player & {
+  nameEntries?: NameEntry[];
+  storyEntries?: StoryEntry[];
+};
 
 @Injectable()
 export class GameService {
@@ -25,30 +40,60 @@ export class GameService {
       .toUpperCase();
   }
 
-  async createGame(type: string): Promise<Game> {
+  private mapToGameDto(game: GameWithPlayers): GameDto {
+    return {
+      type: game.type,
+      code: game.code,
+      uuid: game.uuid,
+      phase: game.phase,
+      players: game.players?.map((p) => this.mapToPlayerDto(p)),
+    };
+  }
+
+  private mapToPlayerDto(player: PlayerWithEntries): PlayerDto {
+    return {
+      uuid: player.uuid,
+      nickname: player.nickname,
+      entry: player.nameEntries
+        ? ({
+            name: player.nameEntries[0]?.name,
+            order: player.nameEntries[0]?.order,
+          } as NameEntryDto)
+        : player.storyEntries
+          ? ({
+              values: player.storyEntries[0]?.values,
+              finalValue: player.storyEntries[0]?.story,
+            } as StoryEntryDto)
+          : undefined,
+    };
+  }
+
+  async createGame(type: string): Promise<GameDto> {
     if (!Object.values(GameType).includes(type as GameType)) {
       throw new BadRequestException('Invalid Game Type');
     }
 
-    return this.prisma.game.create({
+    const game = await this.prisma.game.create({
       data: {
         code: this.generateCode(),
         type: type as GameType,
       },
     });
+
+    return this.mapToGameDto(game);
   }
 
-  async getGameByCode(code: string): Promise<Game> {
+  async getGameByCode(code: string): Promise<GameDto> {
     const game = await this.prisma.game.findUnique({
       where: { code },
     });
     if (!game) {
       throw new NotFoundException('Game not found');
     }
-    return game;
+    return this.mapToGameDto(game);
   }
 
-  async getGame(uuid: string): Promise<Game & { players: Player[] }> {
+  async getGame(uuid: string): Promise<GameDto> {
     const game = await this.prisma.game.findUnique({
       where: { uuid },
       include: {
@@ -63,10 +108,10 @@ export class GameService {
     if (!game) {
       throw new NotFoundException('Game not found');
     }
-    return game;
+    return this.mapToGameDto(game);
   }
 
-  async updateGame(uuid: string, phase: string): Promise<Game> {
+  async updateGame(uuid: string, phase: string): Promise<GameDto> {
     if (!Object.values(GamePhase).includes(phase as GamePhase)) {
       throw new BadRequestException('Invalid Game Phase');
     }
@@ -79,10 +124,10 @@ export class GameService {
     if (!game) {
       throw new NotFoundException('Game not found');
     }
-    return game;
+    return this.mapToGameDto(game);
   }
 
-  async addPlayer(gameUuid: string, nickname: string): Promise<Player> {
+  async addPlayer(gameUuid: string, nickname: string): Promise<PlayerDto> {
     const game = await this.prisma.game.findUnique({
       where: { uuid: gameUuid },
     });
@@ -98,10 +143,11 @@ export class GameService {
         },
       },
     });
-    return player;
+
+    return this.mapToPlayerDto(player);
   }
 
-  async addNameEntry(playerUuid: string, name: string): Promise<NameEntry> {
+  async addNameEntry(playerUuid: string, name: string): Promise<NameEntryDto> {
     const player = await this.prisma.player.findUnique({
       where: { uuid: playerUuid },
       include: { game: true },
@@ -115,7 +161,7 @@ export class GameService {
     }
     const normalized = name.trim().toLowerCase();
 
-    return await this.prisma.nameEntry.upsert({
+    const entry = await this.prisma.nameEntry.upsert({
       where: {
         gameId_playerId: {
           gameId: player.gameId!,
@@ -134,9 +180,17 @@ export class GameService {
         gameId: player.gameId!,
       },
     });
+
+    return {
+      name: entry.name,
+      order: entry.order,
+    };
   }
 
-  async addStoryEntry(playerUuid: string, value: string): Promise<StoryEntry> {
+  async addStoryEntry(
+    playerUuid: string,
+    value: string,
+  ): Promise<StoryEntryDto> {
     const player = await this.prisma.player.findUnique({
       where: { uuid: playerUuid },
       include: { game: true },
@@ -149,7 +203,7 @@ export class GameService {
       throw new BadRequestException('Game is not of type STORY');
     }
 
-    return await this.prisma.storyEntry.upsert({
+    const entry = await this.prisma.storyEntry.upsert({
       where: {
         gameId_playerId: {
           gameId: player.gameId!,
@@ -167,5 +221,10 @@ export class GameService {
         gameId: player.gameId!,
       },
     });
+
+    return {
+      values: entry.values,
+      story: entry.story || undefined,
+    };
   }
 }
