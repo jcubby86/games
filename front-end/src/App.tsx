@@ -7,6 +7,7 @@ import Home from './pages/Home';
 import Join from './pages/Join';
 import Layout from './pages/Layout';
 import Names from './pages/Names';
+import Privacy from './pages/Privacy';
 import Story from './pages/Story';
 import StoryArchive from './pages/StoryArchive';
 import { NAMES, STORY } from './utils/constants';
@@ -29,6 +30,7 @@ function App(): JSX.Element {
             />
             <Route path={NAMES} element={<Names />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/privacy" element={<Privacy />} />
             <Route path="*" element={<Home />} />
           </Route>
         </Routes>

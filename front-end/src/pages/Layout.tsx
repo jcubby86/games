@@ -75,6 +75,13 @@ const Layout = (): JSX.Element => {
           <Icon icon="nf-mdi-email_variant" />
         </a>
         <Link
+          to="/privacy"
+          className="text-dark text-decoration-none link-secondary"
+          title="Privacy Policy"
+        >
+          <Icon icon="nf-fa-file_text" />
+        </Link>
+        <Link
           to="/admin"
           className="text-dark text-decoration-none link-success"
         >
