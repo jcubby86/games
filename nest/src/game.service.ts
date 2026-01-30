@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  HttpException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -11,7 +10,6 @@ import {
   GameType,
   NameEntry,
   Player,
-  Prisma,
   StoryEntry,
 } from './generated/prisma/client';
 

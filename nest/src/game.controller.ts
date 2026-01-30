@@ -4,19 +4,11 @@ import {
   Param,
   Post,
   Body,
-  Put,
-  Delete,
   Query,
   Patch,
 } from '@nestjs/common';
 import { GameService } from './game.service';
-import {
-  Game,
-  GameType,
-  NameEntry,
-  Player,
-  StoryEntry,
-} from './generated/prisma/client';
+import { Game } from './generated/prisma/client';
 
 interface NameEntryDto {
   name: string;
