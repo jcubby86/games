@@ -14,18 +14,119 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id    Int     @default(autoincrement()) @id
-  email String  @unique
-  name  String?
-  posts Post[]
+model Game {
+  id        Int       @id @default(autoincrement())
+  uuid      String    @unique @default(uuid())
+  code      String    @unique
+  type      GameType
+  phase     GamePhase @default(JOIN)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  hostId Int?
+  host   Player? @relation("GameHost", fields: [hostId], references: [id])
+
+  successorId Int?  @unique
+  successor   Game? @relation("RecreateHistory", fields: [successorId], references: [id])
+  predecessor Game? @relation("RecreateHistory")
+
+  nameEntries  NameEntry[]
+  storyEntries StoryEntry[]
+
+  players Player[] @relation("GamePlayers")
+
+  @@index([code])
+  @@index([uuid])
 }
 
-model Post {
-  id        Int      @default(autoincrement()) @id
-  title     String
-  content   String?
-  published Boolean? @default(false)
-  author    User?    @relation(fields: [authorId], references: [id])
-  authorId  Int?
+model Player {
+  id        Int      @id @default(autoincrement())
+  uuid      String   @unique @default(uuid())
+  nickname  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  gameId Int?
+  game   Game? @relation("GamePlayers", fields: [gameId], references: [id])
+
+  hosting Game[] @relation("GameHost")
+
+  nameEntries  NameEntry[]
+  storyEntries StoryEntry[]
+
+  @@unique([gameId, nickname])
+  @@index([uuid])
+}
+
+model NameEntry {
+  id         Int    @id @default(autoincrement())
+  order      Int    @default(0)
+  name       String
+  normalized String
+
+  gameId Int
+  game   Game @relation(fields: [gameId], references: [id])
+
+  playerId Int
+  player   Player @relation(fields: [playerId], references: [id])
+
+  @@unique([gameId, normalized])
+  @@unique([gameId, playerId])
+}
+
+model StoryEntry {
+  id         Int      @id @default(autoincrement())
+  values     String[]
+  finalValue String
+
+  gameId Int
+  game   Game @relation(fields: [gameId], references: [id])
+
+  playerId Int
+  player   Player @relation(fields: [playerId], references: [id])
+
+  @@unique([gameId, playerId])
+}
+
+model Suggestion {
+  id       Int      @id @default(autoincrement())
+  uuid     String   @unique @default(uuid())
+  category Category
+  value    String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([category, value])
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  uuid        String   @unique @default(uuid())
+  username    String   @unique
+  password    String
+  permissions String[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum GamePhase {
+  JOIN
+  PLAY
+  READ
+  END
+}
+
+enum GameType {
+  STORY
+  NAME
+}
+
+enum Category {
+  FEMALE_NAME
+  MALE_NAME
+  PAST_ACTION
+  PRESENT_ACTION
+  STATEMENT
 }
