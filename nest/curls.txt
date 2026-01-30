@@ -1,4 +1,0 @@
-curl.exe -X POST -d '{"email": "jcubby86@hotmail.com"}' -H 'Content-Type: application/json' http://localhost:3000/user
-curl.exe -X POST -d '{"authorEmail": "jcubby86@hotmail.com", "title": "test"}' -H 'Content-Type: application/json' http://localhost:3000/post
-curl.exe -X PUT http://localhost:3000/publish/1
-curl.exe -X GET http://localhost:3000/feed

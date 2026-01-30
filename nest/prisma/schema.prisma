@@ -5,9 +5,9 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
-  moduleFormat    = "cjs"
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
 }
 
 datasource db {
@@ -23,17 +23,9 @@ model Game {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
-  hostId Int?
-  host   Player? @relation("GameHost", fields: [hostId], references: [id])
-
-  successorId Int?  @unique
-  successor   Game? @relation("RecreateHistory", fields: [successorId], references: [id])
-  predecessor Game? @relation("RecreateHistory")
-
   nameEntries  NameEntry[]
   storyEntries StoryEntry[]
-
-  players Player[] @relation("GamePlayers")
+  players      Player[]
 
   @@index([code])
   @@index([uuid])
@@ -45,12 +37,9 @@ model Player {
   nickname  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  gameId    Int?
 
-  gameId Int?
-  game   Game? @relation("GamePlayers", fields: [gameId], references: [id])
-
-  hosting Game[] @relation("GameHost")
-
+  game         Game?        @relation(fields: [gameId], references: [id])
   nameEntries  NameEntry[]
   storyEntries StoryEntry[]
 
@@ -63,52 +52,38 @@ model NameEntry {
   order      Int    @default(0)
   name       String
   normalized String
+  gameId     Int
+  playerId   Int
 
-  gameId Int
-  game   Game @relation(fields: [gameId], references: [id])
-
-  playerId Int
-  player   Player @relation(fields: [playerId], references: [id])
+  game   Game   @relation(fields: [gameId], references: [id])
+  player Player @relation(fields: [playerId], references: [id])
 
   @@unique([gameId, normalized])
   @@unique([gameId, playerId])
 }
 
 model StoryEntry {
-  id         Int      @id @default(autoincrement())
-  values     String[]
-  finalValue String
-
-  gameId Int
-  game   Game @relation(fields: [gameId], references: [id])
-
+  id       Int      @id @default(autoincrement())
+  values   String[]
+  story    String?
+  gameId   Int
   playerId Int
-  player   Player @relation(fields: [playerId], references: [id])
+
+  game   Game   @relation(fields: [gameId], references: [id])
+  player Player @relation(fields: [playerId], references: [id])
 
   @@unique([gameId, playerId])
 }
 
 model Suggestion {
-  id       Int      @id @default(autoincrement())
-  uuid     String   @unique @default(uuid())
-  category Category
-  value    String
-
+  id        Int      @id @default(autoincrement())
+  uuid      String   @unique @default(uuid())
+  category  Category
+  value     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([category, value])
-}
-
-model User {
-  id          Int      @id @default(autoincrement())
-  uuid        String   @unique @default(uuid())
-  username    String   @unique
-  password    String
-  permissions String[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 enum GamePhase {

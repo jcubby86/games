@@ -1,0 +1,21 @@
+meta {
+  name: POST /games/:uid/players
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:3000/api/games/:uid/players
+  body: json
+  auth: none
+}
+
+params:path {
+  uid: c273aaaa-976c-42a1-b658-4b5a84d4ae43
+}
+
+body:json {
+  {
+    "nickname": "test"
+  }
+}
