@@ -10,11 +10,17 @@ import {
   Patch,
 } from '@nestjs/common';
 import { GameService } from './game.service';
-import { Game, GameType, NameEntry, Player, StoryEntry } from './generated/prisma/client';
+import {
+  Game,
+  GameType,
+  NameEntry,
+  Player,
+  StoryEntry,
+} from './generated/prisma/client';
 
 interface NameEntryDto {
   name: string;
-  order: number
+  order: number;
 }
 
 interface StoryEntryDto {
@@ -34,13 +40,11 @@ interface GameDto {
   type: string;
   phase: string;
   players?: PlayerDto[];
-};
+}
 
 @Controller('api')
 export class GameController {
-  constructor(
-    private readonly gameService: GameService,
-  ) { }
+  constructor(private readonly gameService: GameService) {}
 
   toDto(game: Game & { players?: any[] }): GameDto {
     return {
@@ -51,40 +55,36 @@ export class GameController {
       players: game.players?.map((p) => ({
         uuid: p.uuid,
         nickname: p.nickname,
-        entry: p.nameEntries?.length > 0
-          ? {
-            name: p.nameEntries[0]?.name,
-            order: p.nameEntries[0]?.order,
-          } as NameEntryDto
-          : p.storyEntries?.length > 0 ? {
-            values: p.storyEntries[0]?.values,
-            finalValue: p.storyEntries[0]?.finalValue,
-          } as StoryEntryDto
-            : undefined
+        entry:
+          p.nameEntries?.length > 0
+            ? ({
+                name: p.nameEntries[0]?.name,
+                order: p.nameEntries[0]?.order,
+              } as NameEntryDto)
+            : p.storyEntries?.length > 0
+              ? ({
+                  values: p.storyEntries[0]?.values,
+                  finalValue: p.storyEntries[0]?.finalValue,
+                } as StoryEntryDto)
+              : undefined,
       })),
     };
   }
 
   @Post('games')
-  async createGame(
-    @Body() data: { type: string },
-  ): Promise<GameDto> {
+  async createGame(@Body() data: { type: string }): Promise<GameDto> {
     const game = await this.gameService.createGame(data.type);
     return this.toDto(game);
   }
 
   @Get('games')
-  async getGameByCode(
-    @Query('code') code: string,
-  ): Promise<GameDto> {
+  async getGameByCode(@Query('code') code: string): Promise<GameDto> {
     const game = await this.gameService.getGameByCode(code);
     return this.toDto(game);
   }
 
   @Get('games/:uuid')
-  async getGame(
-    @Param('uuid') uuid: string,
-  ): Promise<GameDto> {
+  async getGame(@Param('uuid') uuid: string): Promise<GameDto> {
     const game = await this.gameService.getGame(uuid);
     return this.toDto(game);
   }
@@ -106,7 +106,7 @@ export class GameController {
     const player = await this.gameService.addPlayer(uuid, data.nickname);
     return {
       uuid: player.uuid,
-      nickname: player.nickname
+      nickname: player.nickname,
     };
   }
 
@@ -121,7 +121,7 @@ export class GameController {
       order: entry.order,
     };
   }
-  
+
   @Post('players/:uuid/story-entries')
   async addStoryEntry(
     @Param('uuid') uuid: string,

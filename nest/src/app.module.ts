@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { GameController } from './game.controller';
 import { AppService } from './app.service';
-import { ConfigModule } from '@nestjs/config';
 import { PrismaService } from './prisma.service';
 import { GameService } from './game.service';
 

@@ -1,10 +1,23 @@
-import { BadRequestException, HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from './prisma.service';
-import { Game, GamePhase, GameType, NameEntry, Player, Prisma, StoryEntry } from './generated/prisma/client';
+import {
+  Game,
+  GamePhase,
+  GameType,
+  NameEntry,
+  Player,
+  Prisma,
+  StoryEntry,
+} from './generated/prisma/client';
 
 @Injectable()
 export class GameService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   generateCode(): string {
     return Math.random()
@@ -13,7 +26,6 @@ export class GameService {
       .substring(0, 4)
       .toUpperCase();
   }
-
 
   async createGame(type: string): Promise<Game> {
     if (!Object.values(GameType).includes(type as GameType)) {
@@ -45,9 +57,9 @@ export class GameService {
         players: {
           include: {
             storyEntries: true,
-            nameEntries: true
-          }
-        }
+            nameEntries: true,
+          },
+        },
       },
     });
     if (!game) {
@@ -122,7 +134,7 @@ export class GameService {
         order: Math.floor(Math.random() * 1000000),
         playerId: player.id,
         gameId: player.gameId!,
-      }
+      },
     });
   }
 
@@ -155,8 +167,7 @@ export class GameService {
         values: [value],
         playerId: player.id,
         gameId: player.gameId!,
-      }
+      },
     });
   }
-
 }
