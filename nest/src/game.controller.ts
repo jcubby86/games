@@ -6,9 +6,15 @@ import {
   Body,
   Query,
   Patch,
+  UseGuards,
+  Res,
 } from '@nestjs/common';
 import { GameService } from './game.service';
 import { Game } from './generated/prisma/client';
+import { GameAuthGuard } from './auth/game-auth.guard';
+import { PlayerAuthGuard } from './auth/player-auth.guard';
+import { HmacService } from './auth/hmac.service';
+import type { Response } from 'express';
 
 interface NameEntryDto {
   name: string;
@@ -36,7 +42,10 @@ interface GameDto {
 
 @Controller('api')
 export class GameController {
-  constructor(private readonly gameService: GameService) {}
+  constructor(
+    private readonly gameService: GameService,
+    private readonly hmacService: HmacService,
+  ) {}
 
   toDto(game: Game & { players?: any[] }): GameDto {
     return {
@@ -81,6 +90,7 @@ export class GameController {
     return this.toDto(game);
   }
 
+  @UseGuards(GameAuthGuard)
   @Patch('games/:uuid')
   async updateGame(
     @Param('uuid') uuid: string,
@@ -94,14 +104,20 @@ export class GameController {
   async addPlayer(
     @Param('uuid') uuid: string,
     @Body() data: { nickname: string },
+    @Res({ passthrough: true }) res: Response,
   ): Promise<PlayerDto> {
     const player = await this.gameService.addPlayer(uuid, data.nickname);
+
+    const token = this.hmacService.generateCombinedTokens(uuid, player.uuid);
+    res.setHeader('Authorization', `Bearer ${token}`);
+
     return {
       uuid: player.uuid,
       nickname: player.nickname,
     };
   }
 
+  @UseGuards(PlayerAuthGuard)
   @Post('players/:uuid/name-entries')
   async addNameEntry(
     @Param('uuid') uuid: string,
@@ -114,6 +130,7 @@ export class GameController {
     };
   }
 
+  @UseGuards(PlayerAuthGuard)
   @Post('players/:uuid/story-entries')
   async addStoryEntry(
     @Param('uuid') uuid: string,

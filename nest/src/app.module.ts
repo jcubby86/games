@@ -5,11 +5,21 @@ import { AppService } from './app.service';
 import { PrismaService } from './prisma.service';
 import { GameService } from './game.service';
 import { LoggerMiddleware } from './middleware/logger.middleware';
+import { HmacService } from './auth/hmac.service';
+import { GameAuthGuard } from './auth/game-auth.guard';
+import { PlayerAuthGuard } from './auth/player-auth.guard';
 
 @Module({
   imports: [ConfigModule.forRoot({ isGlobal: true })],
   controllers: [GameController],
-  providers: [AppService, PrismaService, GameService],
+  providers: [
+    AppService,
+    PrismaService,
+    GameService,
+    HmacService,
+    GameAuthGuard,
+    PlayerAuthGuard,
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
