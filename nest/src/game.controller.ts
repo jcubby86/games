@@ -67,6 +67,15 @@ export class GameController {
   }
 
   @UseGuards(PlayerAuthGuard)
+  @Patch('players/:uuid')
+  async updatePlayer(
+    @Param('uuid') uuid: string,
+    @Body() data: { nickname: string },
+  ): Promise<PlayerDto> {
+    return this.gameService.updatePlayer(uuid, data.nickname);
+  }
+
+  @UseGuards(PlayerAuthGuard)
   @Post('players/:uuid/name-entries')
   async addNameEntry(
     @Param('uuid') uuid: string,

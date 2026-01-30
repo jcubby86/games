@@ -139,13 +139,24 @@ export class GameService {
 
     const player = await this.prisma.player.create({
       data: {
-        nickname,
+        nickname: nickname.toLowerCase(),
         game: {
           connect: { id: game.id },
         },
       },
     });
 
+    return this.mapToPlayerDto(player);
+  }
+
+  async updatePlayer(uuid: string, nickname: string): Promise<PlayerDto> {
+    const player = await this.prisma.player.update({
+      where: { uuid },
+      data: { nickname: nickname.toLowerCase() },
+    });
+    if (!player) {
+      throw new NotFoundException('Player not found');
+    }
     return this.mapToPlayerDto(player);
   }
 
