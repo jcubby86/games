@@ -5,13 +5,17 @@ meta {
 }
 
 patch {
-  url: {{baseUrl}}/api/games/:uid
+  url: {{baseUrl}}/api/games/:uuid
   body: json
   auth: none
 }
 
 params:path {
-  uid: c273aaaa-976c-42a1-b658-4b5a84d4ae43
+  uuid: {{gameUuid}}
+}
+
+headers {
+  Authorization: {{token}}
 }
 
 body:json {

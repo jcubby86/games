@@ -15,3 +15,7 @@ body:json {
     "type": "STORY"
   }
 }
+
+script:post-response {
+  bru.setEnvVar('gameUuid', res.body.uuid)
+}

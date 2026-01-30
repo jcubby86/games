@@ -1,0 +1,26 @@
+meta {
+  name: POST /games/:uid/players
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/games/:uuid/players
+  body: json
+  auth: none
+}
+
+params:path {
+  uuid: {{gameUuid}}
+}
+
+body:json {
+  {
+    "nickname": "test10"
+  }
+}
+
+script:post-response {
+  bru.setEnvVar('token', res.getHeader('authorization'))
+  bru.setEnvVar('playerUuid', res.body.uuid)
+}

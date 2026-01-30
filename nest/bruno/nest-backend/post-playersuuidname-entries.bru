@@ -5,13 +5,17 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/api/players/:uid/name-entries
+  url: {{baseUrl}}/api/players/:uuid/name-entries
   body: json
   auth: none
 }
 
 params:path {
-  uid: 46e86c43-6bd7-4d3a-b106-60bee79c10bd
+  uuid: {{playerUuid}}
+}
+
+headers {
+  Authorization: {{token}}
 }
 
 body:json {
