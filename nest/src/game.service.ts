@@ -51,21 +51,23 @@ export class GameService {
   }
 
   private mapToPlayerDto(player: PlayerWithEntries): PlayerDto {
-    return {
+    const dto = {
       uuid: player.uuid,
       nickname: player.nickname,
-      entry: player.nameEntries
-        ? ({
-            name: player.nameEntries[0]?.name,
-            order: player.nameEntries[0]?.order,
-          } as NameEntryDto)
-        : player.storyEntries
-          ? ({
-              values: player.storyEntries[0]?.values,
-              finalValue: player.storyEntries[0]?.story,
-            } as StoryEntryDto)
-          : undefined,
-    };
+    } as PlayerDto;
+
+    if (player.nameEntries && player.nameEntries.length > 0) {
+      dto.entry = {
+        name: player.nameEntries[0]?.name,
+        order: player.nameEntries[0]?.order,
+      } as NameEntryDto;
+    } else if (player.storyEntries && player.storyEntries.length > 0) {
+      dto.entry = {
+        values: player.storyEntries[0]?.values,
+        story: player.storyEntries[0]?.story || undefined,
+      } as StoryEntryDto;
+    }
+    return dto;
   }
 
   async createGame(type: string): Promise<GameDto> {

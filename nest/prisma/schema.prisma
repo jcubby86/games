@@ -45,6 +45,7 @@ model Player {
 
   @@unique([gameId, nickname])
   @@index([uuid])
+  @@index([gameId])
 }
 
 model NameEntry {
@@ -60,6 +61,8 @@ model NameEntry {
 
   @@unique([gameId, normalized])
   @@unique([gameId, playerId])
+  @@index([gameId])
+  @@index([playerId])
 }
 
 model StoryEntry {
@@ -73,6 +76,8 @@ model StoryEntry {
   player Player @relation(fields: [playerId], references: [id])
 
   @@unique([gameId, playerId])
+  @@index([gameId])
+  @@index([playerId])
 }
 
 model Suggestion {
@@ -84,6 +89,7 @@ model Suggestion {
   updatedAt DateTime @updatedAt
 
   @@unique([category, value])
+  @@index([category])
 }
 
 enum GamePhase {
