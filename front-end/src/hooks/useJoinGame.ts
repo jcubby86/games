@@ -13,7 +13,7 @@ const useJoinGame = () => {
     const player: PlayerDto = response.data;
 
     dispatchContext({
-      type: 'join',
+      type: 'save',
       state: {
         playerUuid: player.uuid,
         nickname: player.nickname,

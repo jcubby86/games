@@ -18,7 +18,7 @@ const Layout = (): JSX.Element => {
           Authorization: context.token
         }
       });
-      dispatchContext({ type: 'leave' });
+      dispatchContext({ type: 'clear' });
 
       navigate('/');
     } catch (err: unknown) {

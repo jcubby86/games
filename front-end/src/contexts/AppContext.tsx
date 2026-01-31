@@ -35,7 +35,7 @@ const saveToStorage = (state: AppState) => {
   if (state.token) localStorage.setItem(STORAGE_KEYS.TOKEN, state.token);
 };
 
-const loadFromStorage = (): Partial<AppState> => {
+const loadFromStorage = (): AppState => {
   try {
     return {
       playerUuid: localStorage.getItem(STORAGE_KEYS.PLAYER_ID) || undefined,
@@ -51,19 +51,16 @@ const clearStorage = () => {
   Object.values(STORAGE_KEYS).forEach((key) => localStorage.removeItem(key));
 };
 
-type Action =
-  | { type: 'leave' }
-  | { type: 'join'; state: AppState }
-  | { type: 'loadFromStorage'; state: Partial<AppState> };
+type Action = { type: 'clear' } | { type: 'save'; state: AppState };
 
 const reducer = (prev: AppState, action: Action): AppState => {
   let newState: AppState;
 
   switch (action.type) {
-    case 'leave':
+    case 'clear':
       clearStorage();
       return {};
-    case 'join': {
+    case 'save': {
       newState = {
         ...prev,
         ...action.state
@@ -71,11 +68,8 @@ const reducer = (prev: AppState, action: Action): AppState => {
       saveToStorage(newState);
       return newState;
     }
-    case 'loadFromStorage':
-      return {
-        ...prev,
-        ...action.state
-      };
+    default:
+      return prev;
   }
 };
 
@@ -90,46 +84,44 @@ export const AppContextProvider = ({
   const [context, dispatch] = useReducer(reducer, {});
 
   useEffect(() => {
-    const controller = new AbortController();
+  const controller = new AbortController();
+  const storedState = loadFromStorage();
 
-    // Load from localStorage first
-    const storedState = loadFromStorage();
-    if (storedState.playerUuid || storedState.gameUuid) {
-      dispatch({ type: 'loadFromStorage', state: storedState });
-    }
+  // apply cached values immediately
+  if (storedState.playerUuid || storedState.gameUuid || storedState.token) {
+    dispatch({ type: 'save', state: storedState as AppState });
+  }
 
-    async function fetchPlayer() {
-      try {
-        // Only fetch if we have stored player/game data
-        if (storedState.playerUuid && storedState.gameUuid) {
-          const response = await axios.get(
-            `/api/players/${storedState.playerUuid}`,
-            { signal: controller.signal }
-          );
-          const player: PlayerDto = response.data;
-
-          dispatch({
-            type: 'join',
-            state: {
-              playerUuid: player.uuid,
-              gameUuid: player.game?.uuid,
-              gameCode: player.game?.code,
-              token: response.headers.authorization,
-              nickname: player.nickname
-            }
-          });
-        }
-      } catch (err: unknown) {
-        logError(err);
-        // If fetch fails, we still have the stored state from above
-        console.warn('Failed to sync with server, using cached player data');
+  async function fetchPlayer() {
+    try {
+      if (storedState.playerUuid && storedState.gameUuid && storedState.token) {
+        const response = await axios.get(
+          `/api/players/${storedState.playerUuid}`,
+          { signal: controller.signal, headers: { Authorization: storedState.token } }
+        );
+        
+        const player : PlayerDto = response.data;
+        dispatch({
+          type: 'save',
+          state: {
+            playerUuid: player.uuid,
+            nickname: player.nickname,
+            gameUuid: player.game?.uuid,
+            gameCode: player.game?.code,
+            gameType: player.game?.type,
+            token: storedState.token
+          }
+        });
       }
+    } catch (err) {
+      logError(err);
+      console.warn('Failed to sync with server, using cached player data');
     }
+  }
 
-    fetchPlayer();
-
-    return () => controller.abort();
-  }, []);
+  fetchPlayer();
+  return () => controller.abort();
+}, []);
 
   return (
     <AppContext.Provider value={context}>

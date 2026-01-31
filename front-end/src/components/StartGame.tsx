@@ -54,7 +54,7 @@ const StartGame = ({
             <input
               className="form-control"
               type="text"
-              value={context.gameCode}
+              value={context.gameCode ?? ''}
               aria-label="game code"
               readOnly
               id="gameCode"
@@ -73,7 +73,7 @@ const StartGame = ({
             <input
               className="form-control"
               type="text"
-              value={players?.length ?? 0}
+              value={String(players?.length ?? 0)}
               aria-label="player count"
               readOnly
               id="playerCount"
