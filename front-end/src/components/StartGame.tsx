@@ -1,24 +1,21 @@
+import axios from 'axios';
 import { useRef } from 'react';
 
 import List from './List';
 import { useAppContext } from '../contexts/AppContext';
-import axios from '../utils/axiosWrapper';
 import { PLAY } from '../utils/constants';
 import { alertError } from '../utils/errorHandler';
-import { UpdateGameReqBody } from '../utils/types';
 
 interface StartGameProps {
-  setPhase: () => void;
+  callback: () => void;
   title: string;
   players?: string[];
-  isHost?: boolean;
 }
 
 const StartGame = ({
-  setPhase,
+  callback,
   title,
-  players,
-  isHost
+  players
 }: StartGameProps): JSX.Element => {
   const { context } = useAppContext();
   const codeRef = useRef<HTMLInputElement>(null);
@@ -26,10 +23,18 @@ const StartGame = ({
   const startGame = async (e: React.FormEvent) => {
     try {
       e.preventDefault();
-      await axios.put<UpdateGameReqBody>(`/api/game/${context.gameId}`, {
-        phase: PLAY
-      });
-      setPhase();
+      await axios.patch(
+        `/api/games/${context.gameUuid}`,
+        {
+          phase: PLAY
+        },
+        {
+          headers: {
+            Authorization: context.token
+          }
+        }
+      );
+      callback();
     } catch (err: unknown) {
       alertError('Unable to start game. Please try again', err);
     }
@@ -74,13 +79,11 @@ const StartGame = ({
               id="playerCount"
             />
           </div>
-          {isHost && (
-            <input
-              type="submit"
-              value="Start Game"
-              className="form-control btn btn-success mt-4 col-12"
-            />
-          )}
+          <input
+            type="submit"
+            value="Start Game"
+            className="form-control btn btn-success mt-4 col-12"
+          />
         </form>
         <h3 className="text-center mt-5">Players:</h3>
         <List items={players} />

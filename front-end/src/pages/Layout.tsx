@@ -1,8 +1,8 @@
+import axios from 'axios';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 
 import Icon from '../components/Icon';
 import { useAppContext } from '../contexts/AppContext';
-import axios from '../utils/axiosWrapper';
 import { alertError } from '../utils/errorHandler';
 
 const Layout = (): JSX.Element => {
@@ -13,7 +13,11 @@ const Layout = (): JSX.Element => {
     try {
       e.preventDefault();
 
-      await axios.delete('/api/player');
+      await axios.delete('/api/players/' + context.playerUuid, {
+        headers: {
+          Authorization: context.token
+        }
+      });
       dispatchContext({ type: 'leave' });
 
       navigate('/');
@@ -31,7 +35,7 @@ const Layout = (): JSX.Element => {
               <i className="nf-fa-home px-3"></i>Games
             </Link>
 
-            {context.gameCode && (
+            {context.gameUuid && (
               <div className="d-flex justify-content-start">
                 <button className="btn btn-outline-danger" onClick={leaveGame}>
                   <Icon icon="nf-mdi-account_off" className="pe-2" />
@@ -80,12 +84,6 @@ const Layout = (): JSX.Element => {
           title="Privacy Policy"
         >
           <Icon icon="nf-fa-file_text" />
-        </Link>
-        <Link
-          to="/admin"
-          className="text-dark text-decoration-none link-success"
-        >
-          <Icon icon="nf-fa-gear" />
         </Link>
       </footer>
     </>

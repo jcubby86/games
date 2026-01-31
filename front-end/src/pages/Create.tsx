@@ -1,13 +1,12 @@
+import axios from 'axios';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useAppContext } from '../contexts/AppContext';
 import useJoinGame from '../hooks/useJoinGame';
-import axios from '../utils/axiosWrapper';
 import { alertError } from '../utils/errorHandler';
 import { gameVariants } from '../utils/gameVariants';
 import generateNickname from '../utils/nicknameGeneration';
-import { CreateGameReqBody, GameDto } from '../utils/types';
 
 const Create = (): JSX.Element => {
   const { context } = useAppContext();
@@ -25,10 +24,9 @@ const Create = (): JSX.Element => {
         return;
       }
 
-      const gameResponse = await axios.post<CreateGameReqBody, GameDto>(
-        '/api/game',
-        { type: gameType }
-      );
+      const gameResponse = await axios.post('/api/games', {
+        type: gameType.toUpperCase()
+      });
       await joinGame(
         nicknameRef.current?.value || suggestionRef.current,
         gameResponse.data.uuid

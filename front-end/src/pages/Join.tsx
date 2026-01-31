@@ -1,17 +1,16 @@
+import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useAppContext } from '../contexts/AppContext';
 import useJoinGame from '../hooks/useJoinGame';
-import axios from '../utils/axiosWrapper';
 import { alertError, logError } from '../utils/errorHandler';
 import { gameVariants } from '../utils/gameVariants';
 import generateNickname from '../utils/nicknameGeneration';
-import { GameDto } from '../utils/types';
 import { eqIgnoreCase as eq } from '../utils/utils';
 
 type JoinState =
-  | { validity: 'valid'; gameId: string; gameType: string }
+  | { validity: 'valid'; gameUuid: string; gameType: string }
   | { validity: 'unknown' | 'invalid' };
 
 const Join = (): JSX.Element => {
@@ -32,7 +31,7 @@ const Join = (): JSX.Element => {
 
       const player = await joinGame(
         nicknameRef.current?.value || suggestionRef.current,
-        state.gameId
+        state.gameUuid
       );
       navigate('/' + player.game.type);
     } catch (err: unknown) {
@@ -49,13 +48,12 @@ const Join = (): JSX.Element => {
     async function checkGameType(code: string) {
       try {
         if (code.length === 4) {
-          const result = await axios.get<GameDto>(
-            `/api/game/${code}`,
-            controller
-          );
+          const result = await axios.get(`/api/games?code=${code}`, {
+            signal: controller.signal
+          });
           setState({
             gameType: result.data.type,
-            gameId: result.data.uuid,
+            gameUuid: result.data.uuid,
             validity: 'valid'
           });
         } else {
@@ -90,7 +88,7 @@ const Join = (): JSX.Element => {
             value={code}
             onChange={(e) => {
               e.preventDefault();
-              setCode(e.target.value.toLowerCase());
+              setCode(e.target.value.toUpperCase());
             }}
           />
         </div>

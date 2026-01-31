@@ -9,7 +9,7 @@ const Home = (): JSX.Element => {
   return (
     <>
       <div className="row justify-content-center gap-4 w-100 m-0">
-        {context.gameId && (
+        {context.gameUuid && (
           <Link
             role="button"
             to={context.gameType!}

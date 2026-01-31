@@ -1,31 +1,27 @@
+import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
 
 import Icon from '../components/Icon';
 import List from '../components/List';
-import RecreateButton from '../components/RecreateButton';
-import ShareButton from '../components/ShareButton';
 import StartGame from '../components/StartGame';
 import { useAppContext } from '../contexts/AppContext';
-import axios from '../utils/axiosWrapper';
 import { JOIN, PLAY, READ, WAIT } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
 import { StoryVariant } from '../utils/gameVariants';
-import { EntryReqBody, StoryResBody } from '../utils/types';
-
-const initialState = {
-  phase: ''
-};
+import { PlayerDto } from '../utils/types';
 
 const Story = (): JSX.Element => {
   const { context } = useAppContext();
-  const [state, setState] = useState<StoryResBody>(initialState);
+  const [state, setState] = useState<PlayerDto | null>(null);
   const entryRef = useRef<HTMLTextAreaElement>(null);
 
   const pollStatus = async (controller?: AbortController) => {
     try {
-      const response = await axios.get<StoryResBody>('/api/story', controller);
+      const response = await axios.get('/api/players/' + context.playerUuid, {
+        signal: controller?.signal,
+        headers: { Authorization: context.token }
+      });
       setState({ ...response.data });
     } catch (err: unknown) {
       logError(err);
@@ -35,9 +31,14 @@ const Story = (): JSX.Element => {
   useEffect(() => {
     const controller = new AbortController();
 
-    if (!state.phase) pollStatus(controller);
+    if (!state?.game?.phase) pollStatus(controller);
     const timer = setInterval(() => {
-      if (state.phase === JOIN || state.phase === WAIT) pollStatus(controller);
+      if (
+        state?.game?.phase === JOIN ||
+        state?.game?.phase === WAIT ||
+        (state?.game?.phase === PLAY && !state?.canPlayerSubmit)
+      )
+        pollStatus(controller);
     }, 3000);
 
     return () => {
@@ -51,22 +52,21 @@ const Story = (): JSX.Element => {
       try {
         e.preventDefault();
         if (!entryRef.current?.value) {
-          if (
-            !window.confirm(
-              "You haven't typed anything in! Do you want to use the placeholder text?"
-            )
-          )
-            return;
+          alert('Please enter a response');
+          return;
         }
 
-        await axios.put<EntryReqBody>('/api/story', {
-          value: (entryRef.current?.value || state.suggestion?.value) ?? ''
-        });
-        setState((prev) => ({ ...prev, phase: '' }));
-
-        if (entryRef.current) {
-          entryRef.current.value = '';
-        }
+        await axios.post(
+          `/api/players/${context.playerUuid}/story-entries`,
+          {
+            value: entryRef.current.value
+          },
+          {
+            headers: { Authorization: context.token }
+          }
+        );
+        setState(null);
+        entryRef.current.value = '';
       } catch (err: unknown) {
         alertError('An error has occurred', err);
       }
@@ -79,17 +79,17 @@ const Story = (): JSX.Element => {
 
     return (
       <form className="w-100" onSubmit={submit}>
-        <h3 className="text-center w-100">{state.prompt}</h3>
+        <h3 className="text-center w-100">{state?.entry?.hints?.prompt}</h3>
         <p className="form-label">
-          {state.filler} {state.prefix}
+          {state?.entry?.hints?.filler} {state?.entry?.hints?.prefix}
         </p>
         <textarea
-          placeholder={state.suggestion?.value}
+          placeholder=""
           ref={entryRef}
           className="form-control"
           rows={3}
         />
-        <p className="form-label">{state.suffix}</p>
+        <p className="form-label">{state?.entry?.hints?.suffix}</p>
         <div className="container-fluid mt-4">
           <div className="row gap-4">
             <input
@@ -114,35 +114,11 @@ const Story = (): JSX.Element => {
   };
 
   const Read = (): JSX.Element => {
-    const reset = () => {
-      setState((prev) => ({
-        ...prev,
-        phase: JOIN,
-        players: [context.nickname!],
-        isHost: false
-      }));
-    };
-
     return (
       <div className="w-100">
-        <p className="lh-lg fs-5 px-2 w-100 text-break">{state.story}</p>
-        <div className="container-fluid">
-          <div className="row gap-4">
-            <RecreateButton reset={reset} className="col btn btn-success" />
-            <Link
-              to={`/story/${context.gameId}`}
-              className="col btn btn-outline-success"
-            >
-              See all
-            </Link>
-            <ShareButton
-              className="btn col-2"
-              path={`/story/${context.gameId}/${context.playerId}`}
-              title={'Games: ' + StoryVariant.title}
-              text="Read my hilarious story!"
-            />
-          </div>
-        </div>
+        <p className="lh-lg fs-5 px-2 w-100 text-break">
+          {state?.entry?.story}
+        </p>
       </div>
     );
   };
@@ -151,23 +127,24 @@ const Story = (): JSX.Element => {
     return (
       <div className="w-100">
         <h3 className="text-center w-100">Waiting for other players...</h3>
-        {state.phase === WAIT && <List items={state.players} />}
+        {state?.game?.phase === WAIT && (
+          <List items={state.game.players?.map((p) => p.nickname ?? '')} />
+        )}
       </div>
     );
   };
 
-  if (state.phase === JOIN) {
+  if (state?.game?.phase === JOIN) {
     return (
       <StartGame
-        players={state.players}
-        isHost={state.isHost}
+        players={state.game.players?.map((p) => p.nickname ?? '')}
         title={StoryVariant.title}
-        setPhase={() => setState((prev) => ({ ...prev, phase: '' }))}
+        callback={() => setState(null)}
       />
     );
-  } else if (state.phase === PLAY) {
+  } else if (state?.game?.phase === PLAY && state?.canPlayerSubmit) {
     return <Play />;
-  } else if (state.phase === READ) {
+  } else if (state?.game?.phase === READ) {
     return <Read />;
   } else {
     return <Wait />;

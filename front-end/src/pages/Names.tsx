@@ -1,23 +1,25 @@
+import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
 
 import List from '../components/List';
-import RecreateButton from '../components/RecreateButton';
 import StartGame from '../components/StartGame';
 import { useAppContext } from '../contexts/AppContext';
-import axios from '../utils/axiosWrapper';
 import { END, JOIN, PLAY, READ, WAIT } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
 import { NameVariant } from '../utils/gameVariants';
-import { EntryReqBody, NamesResBody, UpdateGameReqBody } from '../utils/types';
+import { PlayerDto } from '../utils/types';
 
 const Names = (): JSX.Element => {
   const { context } = useAppContext();
-  const [state, setState] = useState<NamesResBody>({ phase: '' });
+  const [state, setState] = useState<PlayerDto | null>(null);
   const entryRef = useRef<HTMLInputElement>(null);
 
   const pollStatus = async (controller?: AbortController) => {
     try {
-      const response = await axios.get<NamesResBody>('/api/names', controller);
+      const response = await axios.get('/api/players/' + context.playerUuid, {
+        signal: controller?.signal,
+        headers: { Authorization: context.token }
+      });
       setState({ ...response.data });
     } catch (err: unknown) {
       logError(err);
@@ -27,9 +29,14 @@ const Names = (): JSX.Element => {
   useEffect(() => {
     const controller = new AbortController();
 
-    if (!state.phase) pollStatus(controller);
+    if (!state?.game?.phase) pollStatus(controller);
     const timer = setInterval(() => {
-      if (state.phase === JOIN || state.phase === WAIT || state.phase === READ)
+      if (
+        state?.game?.phase === JOIN ||
+        state?.game?.phase === WAIT ||
+        state?.game?.phase === READ ||
+        (state?.game?.phase === PLAY && !state?.canPlayerSubmit)
+      )
         pollStatus(controller);
     }, 3000);
 
@@ -48,10 +55,16 @@ const Names = (): JSX.Element => {
           return;
         }
 
-        await axios.put<EntryReqBody>('/api/names', {
-          value: entryRef.current.value
-        });
-        setState((prev) => ({ ...prev, phase: '' }));
+        await axios.post(
+          `/api/players/${context.playerUuid}/name-entries`,
+          {
+            name: entryRef.current.value
+          },
+          {
+            headers: { Authorization: context.token }
+          }
+        );
+        setState(null);
       } catch (err: unknown) {
         alertError('Error saving entry', err);
       }
@@ -60,11 +73,7 @@ const Names = (): JSX.Element => {
     return (
       <form className="w-100" onSubmit={sendEntry}>
         <h3 className="text-center w-100">Enter a name:</h3>
-        <input
-          placeholder={state.suggestion?.value}
-          ref={entryRef}
-          className="form-control"
-        />
+        <input placeholder="" ref={entryRef} className="form-control" />
         <input
           type="submit"
           value="Send"
@@ -78,13 +87,14 @@ const Names = (): JSX.Element => {
     const endGame = async (e: React.MouseEvent) => {
       try {
         e.preventDefault();
-        await axios.put<UpdateGameReqBody>(`/api/game/${context.gameId}`, {
-          phase: END
-        });
-        setState((prev) => ({
-          ...prev,
-          phase: END
-        }));
+        await axios.patch(
+          `/api/games/${context.gameUuid}`,
+          {
+            phase: END
+          },
+          { headers: { Authorization: context.token } }
+        );
+        setState(null);
       } catch (err: unknown) {
         alertError('Error updating game', err);
       }
@@ -94,34 +104,20 @@ const Names = (): JSX.Element => {
       <div className="w-100 d-flex flex-column">
         <div className="w-100">
           <h3 className="text-center w-100">Names:</h3>
-          <List items={state.names ?? []} />
+          <List items={state?.entries?.map((e) => e.name ?? '')} />
         </div>
 
-        {state.isHost && (
-          <button className={'btn btn-danger mt-4'} onClick={endGame}>
-            Hide Names
-          </button>
-        )}
+        <button className={'btn btn-danger mt-4'} onClick={endGame}>
+          Hide Names
+        </button>
       </div>
     );
   };
 
   const End = (): JSX.Element => {
-    const reset = () => {
-      setState((prev) => ({
-        ...prev,
-        phase: JOIN,
-        players: [context.nickname!],
-        isHost: false
-      }));
-    };
-
     return (
       <div className="w-100">
         <h3 className="w-100 text-center pb-3">Enjoy the game!</h3>
-        <div className="d-flex justify-content-center">
-          <RecreateButton reset={reset} className="btn btn-success" />
-        </div>
       </div>
     );
   };
@@ -130,25 +126,26 @@ const Names = (): JSX.Element => {
     return (
       <div className="w-100">
         <h3 className="text-center w-100">Waiting for other players...</h3>
-        {state.phase === WAIT && <List items={state.players} />}
+        {state?.game?.phase === WAIT && (
+          <List items={state.game.players?.map((p) => p.nickname ?? '')} />
+        )}
       </div>
     );
   };
 
-  if (state.phase === JOIN) {
+  if (state?.game?.phase === JOIN) {
     return (
       <StartGame
-        players={state.players}
-        isHost={state.isHost}
+        players={state.game.players?.map((p) => p.nickname ?? '')}
         title={NameVariant.title}
-        setPhase={() => setState((prev) => ({ ...prev, phase: '' }))}
+        callback={() => setState(null)}
       />
     );
-  } else if (state.phase === PLAY) {
+  } else if (state?.game?.phase === PLAY && state?.canPlayerSubmit) {
     return <Play />;
-  } else if (state.phase === READ) {
+  } else if (state?.game?.phase === READ) {
     return <Read />;
-  } else if (state.phase === END) {
+  } else if (state?.game?.phase === END) {
     return <End />;
   } else {
     return <Wait />;

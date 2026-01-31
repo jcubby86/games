@@ -1,3 +1,4 @@
+import axios from 'axios';
 import {
   Dispatch,
   createContext,
@@ -6,44 +7,40 @@ import {
   useReducer
 } from 'react';
 
-import axios from '../utils/axiosWrapper';
 import { logError } from '../utils/errorHandler';
 import { PlayerDto } from '../utils/types';
 
 export interface AppState {
+  playerUuid?: string;
   nickname?: string;
+  gameUuid?: string;
   gameCode?: string;
   gameType?: string;
-  playerId?: string;
-  gameId?: string;
+  token?: string;
 }
 
 // Storage keys
 const STORAGE_KEYS = {
   PLAYER_ID: 'games-v2-player-id',
   GAME_ID: 'games-v2-game-id',
-  NICKNAME: 'games-v2-nickname',
-  GAME_CODE: 'games-v2-game-code',
-  GAME_TYPE: 'games-v2-game-type',
+  TOKEN: 'games-v2-token'
 } as const;
 
 // Helper functions for localStorage
 const saveToStorage = (state: AppState) => {
-  if (state.playerId) localStorage.setItem(STORAGE_KEYS.PLAYER_ID, state.playerId);
-  if (state.gameId) localStorage.setItem(STORAGE_KEYS.GAME_ID, state.gameId);
-  if (state.nickname) localStorage.setItem(STORAGE_KEYS.NICKNAME, state.nickname);
-  if (state.gameCode) localStorage.setItem(STORAGE_KEYS.GAME_CODE, state.gameCode);
-  if (state.gameType) localStorage.setItem(STORAGE_KEYS.GAME_TYPE, state.gameType);
+  if (state.playerUuid)
+    localStorage.setItem(STORAGE_KEYS.PLAYER_ID, state.playerUuid);
+  if (state.gameUuid)
+    localStorage.setItem(STORAGE_KEYS.GAME_ID, state.gameUuid);
+  if (state.token) localStorage.setItem(STORAGE_KEYS.TOKEN, state.token);
 };
 
 const loadFromStorage = (): Partial<AppState> => {
   try {
     return {
-      playerId: localStorage.getItem(STORAGE_KEYS.PLAYER_ID) || undefined,
-      gameId: localStorage.getItem(STORAGE_KEYS.GAME_ID) || undefined,
-      nickname: localStorage.getItem(STORAGE_KEYS.NICKNAME) || undefined,
-      gameCode: localStorage.getItem(STORAGE_KEYS.GAME_CODE) || undefined,
-      gameType: localStorage.getItem(STORAGE_KEYS.GAME_TYPE) || undefined,
+      playerUuid: localStorage.getItem(STORAGE_KEYS.PLAYER_ID) || undefined,
+      gameUuid: localStorage.getItem(STORAGE_KEYS.GAME_ID) || undefined,
+      token: localStorage.getItem(STORAGE_KEYS.TOKEN) || undefined
     };
   } catch {
     return {};
@@ -51,35 +48,25 @@ const loadFromStorage = (): Partial<AppState> => {
 };
 
 const clearStorage = () => {
-  Object.values(STORAGE_KEYS).forEach(key => localStorage.removeItem(key));
+  Object.values(STORAGE_KEYS).forEach((key) => localStorage.removeItem(key));
 };
 
-type Action = 
-  | { type: 'leave' } 
-  | { type: 'join'; player: PlayerDto }
+type Action =
+  | { type: 'leave' }
+  | { type: 'join'; state: AppState }
   | { type: 'loadFromStorage'; state: Partial<AppState> };
 
 const reducer = (prev: AppState, action: Action): AppState => {
   let newState: AppState;
-  
+
   switch (action.type) {
     case 'leave':
+      clearStorage();
+      return {};
+    case 'join': {
       newState = {
         ...prev,
-        gameCode: undefined,
-        gameType: undefined,
-        gameId: undefined
-      };
-      clearStorage();
-      return newState;
-    case 'join': {
-      const player = action.player;
-      newState = {
-        nickname: player.nickname,
-        playerId: player.uuid,
-        gameCode: player.game.code,
-        gameType: player.game.type,
-        gameId: player.game.uuid
+        ...action.state
       };
       saveToStorage(newState);
       return newState;
@@ -107,16 +94,30 @@ export const AppContextProvider = ({
 
     // Load from localStorage first
     const storedState = loadFromStorage();
-    if (storedState.playerId || storedState.gameId) {
+    if (storedState.playerUuid || storedState.gameUuid) {
       dispatch({ type: 'loadFromStorage', state: storedState });
     }
 
     async function fetchPlayer() {
       try {
         // Only fetch if we have stored player/game data
-        if (storedState.playerId && storedState.gameId) {
-          const response = await axios.get<PlayerDto>('/api/player', controller);
-          dispatch({ type: 'join', player: response.data });
+        if (storedState.playerUuid && storedState.gameUuid) {
+          const response = await axios.get(
+            `/api/players/${storedState.playerUuid}`,
+            { signal: controller.signal }
+          );
+          const player: PlayerDto = response.data;
+
+          dispatch({
+            type: 'join',
+            state: {
+              playerUuid: player.uuid,
+              gameUuid: player.game?.uuid,
+              gameCode: player.game?.code,
+              token: response.headers.authorization,
+              nickname: player.nickname
+            }
+          });
         }
       } catch (err: unknown) {
         logError(err);
