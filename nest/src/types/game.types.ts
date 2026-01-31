@@ -17,8 +17,11 @@ export interface StoryEntryDto {
 export interface PlayerDto {
   uuid: string;
   nickname: string;
-  entry?: NameEntryDto | StoryEntryDto;
+  entry?: StoryEntryDto;
+  entries?: NameEntryDto[];
   canPlayerSubmit?: boolean;
+  gameType?: string;
+  gamePhase?: string;
 }
 
 export interface GameDto {

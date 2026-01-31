@@ -95,4 +95,12 @@ export class NameService {
       });
     }
   }
+
+  async getAllNames(gameUuid: string): Promise<NameEntry[]> {
+    return this.prisma.nameEntry.findMany({
+      where: {
+        game: { uuid: gameUuid },
+      },
+    });
+  }
 }

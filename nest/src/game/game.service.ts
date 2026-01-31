@@ -25,6 +25,7 @@ type PlayerWithEntries = Player & {
   nameEntries?: NameEntry[];
   storyEntries?: StoryEntry[];
   canPlayerSubmit?: boolean;
+  game?: Game | null;
 };
 
 interface PlayerJoinedEvent {
@@ -37,6 +38,7 @@ export class GameService {
   constructor(
     private prisma: PrismaService,
     private storyService: StoryService,
+    private nameService: NameService,
     private eventEmitter: EventEmitter2,
   ) {}
 
@@ -54,24 +56,24 @@ export class GameService {
       code: game.code,
       uuid: game.uuid,
       phase: game.phase,
-      players: game.players?.map((p) => GameService.mapToPlayerDto(p, game)),
+      players: game.players?.map((p) => GameService.mapToPlayerDto(p)),
     };
   }
 
-  static mapToPlayerDto(
-    player: PlayerWithEntries,
-    game: Game,
-    cascade = false,
-  ): PlayerDto {
-    const dto = {
+  static mapToPlayerDto(player: PlayerWithEntries): PlayerDto {
+    const dto: PlayerDto = {
       uuid: player.uuid,
       nickname: player.nickname,
       canPlayerSubmit: player.canPlayerSubmit,
-    } as PlayerDto;
+      gameType: player.game?.type,
+      gamePhase: player.game?.phase,
+    };
 
-    if (game.type === GameType.NAME && cascade) {
-      dto.entry = NameService.mapToNameEntryDto(player.nameEntries?.[0]);
-    } else if (cascade) {
+    if (player.game?.type === GameType.NAME) {
+      dto.entries = player.nameEntries?.map((entry) =>
+        NameService.mapToNameEntryDto(entry),
+      );
+    } else if (player.game?.type === GameType.STORY) {
       dto.entry = StoryService.mapToStoryEntryDto(player.storyEntries?.[0]);
     }
     return dto;
@@ -157,7 +159,7 @@ export class GameService {
       playerUuid: player.uuid,
     } as PlayerJoinedEvent);
 
-    return GameService.mapToPlayerDto(player, game);
+    return GameService.mapToPlayerDto(player);
   }
 
   async updatePlayer(uuid: string, nickname: string): Promise<PlayerDto> {
@@ -169,7 +171,13 @@ export class GameService {
     if (!player) {
       throw new NotFoundException('Player not found');
     }
-    return GameService.mapToPlayerDto(player, player.game!, true);
+
+    this.eventEmitter.emit('player.joined', {
+      gameUuid: player.game!.uuid,
+      playerUuid: player.uuid,
+    } as PlayerJoinedEvent);
+
+    return GameService.mapToPlayerDto(player);
   }
 
   async getPlayer(uuid: string): Promise<PlayerDto> {
@@ -181,22 +189,27 @@ export class GameService {
         storyEntries: true,
       },
     });
-    if (!player) {
+    if (!player || !player.game) {
       throw new NotFoundException('Player not found');
     }
+    const game = player.game;
 
-    let canPlayerSubmit: boolean = player.game!.phase === GamePhase.PLAY;
-    if (canPlayerSubmit && player.game!.type === GameType.STORY) {
-      canPlayerSubmit = await this.storyService.canPlayerSubmit(
-        player.game!.uuid,
+    const response: PlayerWithEntries = {
+      ...player,
+      canPlayerSubmit: game.phase === GamePhase.PLAY,
+    };
+
+    if (response.canPlayerSubmit && game.type === GameType.STORY) {
+      response.canPlayerSubmit = await this.storyService.canPlayerSubmit(
+        game.uuid,
         player.uuid,
       );
     }
+    if (game.phase === GamePhase.READ && game.type === GameType.NAME) {
+      const allEntries = await this.nameService.getAllNames(game.uuid);
+      player.nameEntries = allEntries;
+    }
 
-    return GameService.mapToPlayerDto(
-      { ...player, canPlayerSubmit },
-      player.game!,
-      true,
-    );
+    return GameService.mapToPlayerDto(response);
   }
 }
