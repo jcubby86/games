@@ -1,0 +1,19 @@
+meta {
+  name: Leave Game
+  type: http
+  seq: 12
+}
+
+delete {
+  url: {{baseUrl}}/api/players/:uuid
+  body: none
+  auth: none
+}
+
+params:path {
+  uuid: {{playerUuid}}
+}
+
+headers {
+  Authorization: {{token}}
+}
