@@ -5,9 +5,17 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import { GamePhase, GameType, NameEntry } from 'src/generated/prisma/client';
+
+import {
+  Game,
+  GamePhase,
+  GameType,
+  NameEntry,
+  Player,
+} from 'src/generated/prisma/client';
+import { GameService } from 'src/game/game.service';
 import { PrismaService } from 'src/prisma.service';
-import { NameEntryDto } from 'src/types/game.types';
+import { NameEntryDto, PlayerDto } from 'src/types/game.types';
 
 interface NameUpdatedEvent {
   gameUuid: string;
@@ -101,15 +109,48 @@ export class NameService {
     }
   }
 
-  async getAllNames(gameUuid: string): Promise<NameEntry[]> {
-    const players = await this.prisma.player.findMany({
+  async getPlayer(player: Player, game: Game): Promise<PlayerDto> {
+    const gamePlayers = await this.prisma.player.findMany({
       where: {
-        game: { uuid: gameUuid },
+        gameId: game.id,
       },
       include: {
         nameEntries: true,
       },
     });
-    return players.map((player) => player.nameEntries).flat();
+
+    interface entry {
+      name?: string;
+      order?: number;
+      canSubmit: boolean;
+    }
+    const playerMap = new Map<string, entry>();
+    for (const gp of gamePlayers) {
+      const entry = gp.nameEntries?.[0];
+      playerMap.set(gp.uuid, {
+        name: entry?.name,
+        order: entry?.order,
+        canSubmit: game.phase === GamePhase.PLAY && !entry,
+      });
+    }
+
+    const response = GameService.mapToPlayerDto(
+      player,
+      GameService.mapToGameDto(
+        game,
+        gamePlayers.map((p) => {
+          const canSubmit = playerMap.get(p.uuid)!.canSubmit;
+          return GameService.mapToPlayerDto(p, undefined, canSubmit);
+        }),
+      ),
+      playerMap.get(player.uuid)!.canSubmit,
+    );
+
+    if (game.phase === GamePhase.READ) {
+      const entries = gamePlayers.map((p) => p.nameEntries).flat();
+      response.entries = entries.map((e) => NameService.mapToNameEntryDto(e));
+    }
+
+    return response;
   }
 }

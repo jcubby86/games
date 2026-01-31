@@ -5,9 +5,17 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import { GamePhase, GameType, StoryEntry } from '../generated/prisma/client';
-import { PrismaService } from '../prisma.service';
-import { StoryEntryDto } from 'src/types/game.types';
+
+import {
+  Game,
+  GamePhase,
+  GameType,
+  Player,
+  StoryEntry,
+} from '../generated/prisma/client';
+import { GameService } from 'src/game/game.service';
+import { PrismaService } from 'src/prisma.service';
+import { PlayerDto, StoryEntryDto } from 'src/types/game.types';
 
 interface StoryUpdatedEvent {
   gameUuid: string;
@@ -183,5 +191,60 @@ export class StoryService {
     );
 
     return minStoryLength == -1 || playerStoryLength <= minStoryLength;
+  }
+
+  async getPlayer(player: Player, game: Game): Promise<PlayerDto> {
+    const gamePlayers = await this.prisma.player.findMany({
+      where: {
+        gameId: game.id,
+      },
+      include: {
+        storyEntries: true,
+      },
+    });
+
+    interface entry {
+      values: string[];
+      currentLength: number;
+      canSubmit: () => boolean;
+    }
+    const playerMap = new Map<string, entry>();
+    let minLength = -1;
+
+    for (const gp of gamePlayers) {
+      const entry = gp.storyEntries?.[0];
+      const currentLength = entry?.values.length ?? 0;
+      if (minLength === -1 || currentLength < minLength) {
+        minLength = currentLength;
+      }
+
+      playerMap.set(gp.uuid, {
+        values: entry?.values || [],
+        currentLength,
+        canSubmit: () =>
+          game.phase === GamePhase.PLAY && currentLength <= minLength,
+      });
+    }
+
+    const response = GameService.mapToPlayerDto(
+      player,
+      GameService.mapToGameDto(
+        game,
+        gamePlayers.map((p) => {
+          const canSubmit = playerMap.get(p.uuid)!.canSubmit();
+          return GameService.mapToPlayerDto(p, undefined, canSubmit);
+        }),
+      ),
+      playerMap.get(player.uuid)!.canSubmit(),
+    );
+
+    if (game.phase === GamePhase.PLAY) {
+      response.entry = {
+        values: playerMap.get(player.uuid)!.values ?? [],
+        hints: StoryService.getHints(playerMap.get(player.uuid)!.currentLength),
+      };
+    }
+
+    return response;
   }
 }
