@@ -18,6 +18,7 @@ export interface PlayerDto {
   uuid: string;
   nickname: string;
   entry?: NameEntryDto | StoryEntryDto;
+  canPlayerSubmit?: boolean;
 }
 
 export interface GameDto {

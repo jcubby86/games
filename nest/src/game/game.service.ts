@@ -24,6 +24,7 @@ type GameWithPlayers = Game & {
 type PlayerWithEntries = Player & {
   nameEntries?: NameEntry[];
   storyEntries?: StoryEntry[];
+  canPlayerSubmit?: boolean;
 };
 
 interface PlayerJoinedEvent {
@@ -35,6 +36,7 @@ interface PlayerJoinedEvent {
 export class GameService {
   constructor(
     private prisma: PrismaService,
+    private storyService: StoryService,
     private eventEmitter: EventEmitter2,
   ) {}
 
@@ -56,15 +58,20 @@ export class GameService {
     };
   }
 
-  static mapToPlayerDto(player: PlayerWithEntries, game: Game): PlayerDto {
+  static mapToPlayerDto(
+    player: PlayerWithEntries,
+    game: Game,
+    cascade = false,
+  ): PlayerDto {
     const dto = {
       uuid: player.uuid,
       nickname: player.nickname,
+      canPlayerSubmit: player.canPlayerSubmit,
     } as PlayerDto;
 
-    if (game.type === GameType.NAME) {
+    if (game.type === GameType.NAME && cascade) {
       dto.entry = NameService.mapToNameEntryDto(player.nameEntries?.[0]);
-    } else {
+    } else if (cascade) {
       dto.entry = StoryService.mapToStoryEntryDto(player.storyEntries?.[0]);
     }
     return dto;
@@ -130,6 +137,10 @@ export class GameService {
     });
     if (!game) {
       throw new NotFoundException('Game not found');
+    } else if (game.phase !== GamePhase.JOIN) {
+      throw new BadRequestException(
+        'Cannot join a game that has already started',
+      );
     }
 
     const player = await this.prisma.player.create({
@@ -158,7 +169,7 @@ export class GameService {
     if (!player) {
       throw new NotFoundException('Player not found');
     }
-    return GameService.mapToPlayerDto(player, player.game!);
+    return GameService.mapToPlayerDto(player, player.game!, true);
   }
 
   async getPlayer(uuid: string): Promise<PlayerDto> {
@@ -174,6 +185,18 @@ export class GameService {
       throw new NotFoundException('Player not found');
     }
 
-    return GameService.mapToPlayerDto(player, player.game!);
+    let canPlayerSubmit: boolean = player.game!.phase === GamePhase.PLAY;
+    if (canPlayerSubmit && player.game!.type === GameType.STORY) {
+      canPlayerSubmit = await this.storyService.canPlayerSubmit(
+        player.game!.uuid,
+        player.uuid,
+      );
+    }
+
+    return GameService.mapToPlayerDto(
+      { ...player, canPlayerSubmit },
+      player.game!,
+      true,
+    );
   }
 }

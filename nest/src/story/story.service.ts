@@ -65,6 +65,8 @@ export class StoryService {
       throw new BadRequestException('Game is not of type STORY');
     } else if (player.game!.phase !== GamePhase.PLAY) {
       throw new BadRequestException('Game is not in PLAY phase');
+    } else if (!(await this.canPlayerSubmit(player.game!.uuid, player.uuid))) {
+      throw new BadRequestException('Player cannot submit entry at this time');
     }
 
     const entry = await this.prisma.storyEntry.upsert({
@@ -146,5 +148,40 @@ export class StoryService {
 
       entries[i].story = s;
     }
+  }
+
+  async canPlayerSubmit(
+    gameUuid?: string,
+    playerUuid?: string,
+  ): Promise<boolean> {
+    const game = await this.prisma.game.findUniqueOrThrow({
+      where: { uuid: gameUuid },
+      include: {
+        players: {
+          include: { storyEntries: true },
+        },
+      },
+    });
+
+    let minStoryLength = -1;
+    let playerStoryLength = 0;
+
+    for (const player of game.players) {
+      if (player.uuid === playerUuid) {
+        playerStoryLength = player.storyEntries[0]?.values.length ?? 0;
+      } else {
+        const story = player.storyEntries[0];
+        const length = story?.values?.length ?? 0;
+        if (minStoryLength === -1 || length < minStoryLength) {
+          minStoryLength = length;
+        }
+      }
+    }
+
+    this.logger.debug(
+      `Player ${playerUuid} story length: ${playerStoryLength}, min story length among others: ${minStoryLength}`,
+    );
+
+    return minStoryLength == -1 || playerStoryLength <= minStoryLength;
   }
 }
