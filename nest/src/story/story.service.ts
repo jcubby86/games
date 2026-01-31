@@ -14,11 +14,15 @@ import {
   StoryEntry,
 } from '../generated/prisma/client';
 import { GameService } from 'src/game/game.service';
+import type { GameUpdatedEvent } from 'src/game/game.service';
 import { PrismaService } from 'src/prisma.service';
 import { PlayerDto, StoryEntryDto } from 'src/types/game.types';
 
-interface StoryUpdatedEvent {
-  gameUuid: string;
+interface StoryMapEntry {
+  player: Player;
+  entry?: StoryEntry;
+  length: number;
+  canSubmit: () => boolean;
 }
 
 const fillers = ['', '(Man) ', '(Man) and (Woman) ', '', '', ''];
@@ -73,7 +77,7 @@ export class StoryService {
       throw new BadRequestException('Game is not of type STORY');
     } else if (player.game!.phase !== GamePhase.PLAY) {
       throw new BadRequestException('Game is not in PLAY phase');
-    } else if (!(await this.canPlayerSubmit(player.game!.uuid, player.uuid))) {
+    } else if (!(await this.canPlayerSubmit(player, player.game!))) {
       throw new BadRequestException('Player cannot submit entry at this time');
     }
 
@@ -97,8 +101,10 @@ export class StoryService {
     });
 
     this.eventEmitter.emit('story.updated', {
-      gameUuid: player.game!.uuid,
-    } as StoryUpdatedEvent);
+      game: player.game,
+      action: 'story.entry.added',
+      player,
+    } as GameUpdatedEvent);
 
     return {
       values: entry.values,
@@ -107,23 +113,25 @@ export class StoryService {
   }
 
   @OnEvent('story.updated')
-  async handleStoryUpdatedEvent(payload: StoryUpdatedEvent) {
+  async handleStoryUpdatedEvent(event: GameUpdatedEvent) {
     const players = await this.prisma.player.findMany({
       where: {
-        game: { uuid: payload.gameUuid },
+        game: { id: event.game.id },
       },
       include: {
         storyEntries: true,
       },
     });
 
-    const minStoryLength = Math.min(
-      ...players.map((p) => p.storyEntries[0]?.values.length ?? 0),
-    );
+    const playerMap = await this.getPlayerSubmissionMap(event.game);
+    const entries = Array.from(playerMap.values());
 
-    if (minStoryLength >= prefixes.length) {
+    const allSubmitted = entries.every((entry) => entry.canSubmit());
+    const minLength = Math.min(...entries.map((entry) => entry.length));
+
+    if (allSubmitted && minLength >= prompts.length) {
       this.logger.log(
-        `All story entries completed for game ${payload.gameUuid}, generating stories. Transitioning to READ phase.`,
+        `All story entries completed for game ${event.game.uuid}, generating stories. Transitioning to READ phase.`,
       );
 
       const stories = players.map((p) => p.storyEntries[0]);
@@ -139,9 +147,23 @@ export class StoryService {
       );
 
       await this.prisma.game.update({
-        where: { uuid: payload.gameUuid },
+        where: { id: event.game.id },
         data: { phase: GamePhase.READ },
       });
+
+      this.eventEmitter.emit('game.updated', {
+        game: event.game,
+        action: 'game.phase.completed',
+      } as GameUpdatedEvent);
+    } else if (allSubmitted) {
+      this.logger.log(
+        `All players have submitted their current story entry for game ${event.game.uuid}.`,
+      );
+
+      this.eventEmitter.emit('game.updated', {
+        game: event.game,
+        action: 'story.round.completed',
+      } as GameUpdatedEvent);
     }
   }
 
@@ -158,42 +180,12 @@ export class StoryService {
     }
   }
 
-  async canPlayerSubmit(
-    gameUuid?: string,
-    playerUuid?: string,
-  ): Promise<boolean> {
-    const game = await this.prisma.game.findUniqueOrThrow({
-      where: { uuid: gameUuid },
-      include: {
-        players: {
-          include: { storyEntries: true },
-        },
-      },
-    });
-
-    let minStoryLength = -1;
-    let playerStoryLength = 0;
-
-    for (const player of game.players) {
-      if (player.uuid === playerUuid) {
-        playerStoryLength = player.storyEntries[0]?.values.length ?? 0;
-      } else {
-        const story = player.storyEntries[0];
-        const length = story?.values?.length ?? 0;
-        if (minStoryLength === -1 || length < minStoryLength) {
-          minStoryLength = length;
-        }
-      }
-    }
-
-    this.logger.debug(
-      `Player ${playerUuid} story length: ${playerStoryLength}, min story length among others: ${minStoryLength}`,
-    );
-
-    return minStoryLength == -1 || playerStoryLength <= minStoryLength;
+  async canPlayerSubmit(player: Player, game: Game): Promise<boolean> {
+    const playerMap = await this.getPlayerSubmissionMap(game);
+    return playerMap.get(player.uuid)!.canSubmit();
   }
 
-  async getPlayer(player: Player, game: Game): Promise<PlayerDto> {
+  private async getPlayerSubmissionMap(game: Game) {
     const gamePlayers = await this.prisma.player.findMany({
       where: {
         gameId: game.id,
@@ -203,45 +195,52 @@ export class StoryService {
       },
     });
 
-    interface entry {
-      values: string[];
-      currentLength: number;
-      canSubmit: () => boolean;
-    }
-    const playerMap = new Map<string, entry>();
+    const playerMap = new Map<string, StoryMapEntry>();
     let minLength = -1;
 
     for (const gp of gamePlayers) {
-      const entry = gp.storyEntries?.[0];
+      const entry = gp.storyEntries[0];
       const currentLength = entry?.values.length ?? 0;
       if (minLength === -1 || currentLength < minLength) {
         minLength = currentLength;
       }
 
       playerMap.set(gp.uuid, {
-        values: entry?.values || [],
-        currentLength,
+        player: gp,
+        entry,
+        length: currentLength,
         canSubmit: () =>
           game.phase === GamePhase.PLAY && currentLength <= minLength,
       });
     }
 
+    return playerMap;
+  }
+
+  async getPlayer(player: Player, game: Game): Promise<PlayerDto> {
+    const playerMap = await this.getPlayerSubmissionMap(game);
+    const entries = Array.from(playerMap.values());
+
     const response = GameService.mapToPlayerDto(
       player,
+      playerMap.get(player.uuid)!.canSubmit(),
       GameService.mapToGameDto(
         game,
-        gamePlayers.map((p) => {
-          const canSubmit = playerMap.get(p.uuid)!.canSubmit();
-          return GameService.mapToPlayerDto(p, undefined, canSubmit);
-        }),
+        entries.map((e) => GameService.mapToPlayerDto(e.player, e.canSubmit())),
       ),
-      playerMap.get(player.uuid)!.canSubmit(),
     );
 
     if (game.phase === GamePhase.PLAY) {
+      const playerEntry = playerMap.get(player.uuid)!;
       response.entry = {
-        values: playerMap.get(player.uuid)!.values ?? [],
-        hints: StoryService.getHints(playerMap.get(player.uuid)!.currentLength),
+        values: playerEntry.entry?.values ?? [],
+        hints: StoryService.getHints(playerEntry.length),
+      };
+    } else if (game.phase === GamePhase.READ) {
+      const playerEntry = playerMap.get(player.uuid)!;
+      response.entry = {
+        values: playerEntry.entry!.values,
+        story: playerEntry.entry!.story!,
       };
     }
 

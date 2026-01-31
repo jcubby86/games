@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import {
@@ -38,12 +37,17 @@ export class EventGateway implements OnGatewayInit {
   }
 
   @OnEvent('game.updated')
-  emitGameUpdate(payload: GameUpdatedEvent) {
+  emitGameUpdate(event: GameUpdatedEvent) {
+    const payload = JSON.stringify({
+      gameUuid: event.game.uuid,
+      playerUuid: event.player?.uuid,
+      nickname: event.player?.nickname,
+      action: event.action,
+    });
+
     this.logger.log(
-      `Emitting game update for game ${payload.gameUuid}: ${JSON.stringify(payload)}`,
+      `Emitting game update for game ${event.game.uuid}: ${JSON.stringify(payload)}`,
     );
-    this.server
-      .to(payload.gameUuid)
-      .emit('game.updated', JSON.stringify(payload));
+    this.server.to(event.game.uuid).emit('game.updated', payload);
   }
 }

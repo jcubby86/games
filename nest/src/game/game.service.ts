@@ -13,9 +13,8 @@ import { StoryService } from 'src/story/story.service';
 import { GameDto, PlayerDto } from 'src/types/game.types';
 
 export interface GameUpdatedEvent {
-  gameUuid: string;
-  playerUuid?: string;
-  nickname?: string;
+  game: Game;
+  player?: Player;
   action: string;
 }
 
@@ -50,8 +49,8 @@ export class GameService {
 
   static mapToPlayerDto(
     player: Player,
-    game?: GameDto,
     canPlayerSubmit?: boolean,
+    game?: GameDto,
   ): PlayerDto {
     return {
       uuid: player.uuid,
@@ -117,7 +116,7 @@ export class GameService {
     }
 
     this.eventEmitter.emit('game.updated', {
-      gameUuid: game.uuid,
+      game,
       action: 'game.phase.updated',
     } as GameUpdatedEvent);
 
@@ -146,9 +145,8 @@ export class GameService {
     });
 
     this.eventEmitter.emit('game.updated', {
-      gameUuid: game.uuid,
-      playerUuid: player.uuid,
-      nickname: player.nickname,
+      game,
+      player,
       action: 'game.player.joined',
     } as GameUpdatedEvent);
 
@@ -166,9 +164,8 @@ export class GameService {
     }
 
     this.eventEmitter.emit('game.updated', {
-      gameUuid: player.game!.uuid,
-      playerUuid: player.uuid,
-      nickname: player.nickname,
+      game: player.game,
+      player,
       action: 'game.player.updated',
     } as GameUpdatedEvent);
 
@@ -211,8 +208,8 @@ export class GameService {
       });
 
       this.eventEmitter.emit('game.updated', {
-        gameUuid: player.game.uuid,
-        playerUuid: player.uuid,
+        game: player.game,
+        player,
         action: 'game.player.left',
       } as GameUpdatedEvent);
 

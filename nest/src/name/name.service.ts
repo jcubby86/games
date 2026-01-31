@@ -14,11 +14,14 @@ import {
   Player,
 } from 'src/generated/prisma/client';
 import { GameService } from 'src/game/game.service';
+import type { GameUpdatedEvent } from 'src/game/game.service';
 import { PrismaService } from 'src/prisma.service';
 import { NameEntryDto, PlayerDto } from 'src/types/game.types';
 
-interface NameUpdatedEvent {
-  gameUuid: string;
+interface NameMapEntry {
+  player: Player;
+  entry?: NameEntry;
+  canSubmit: () => boolean;
 }
 
 @Injectable()
@@ -72,8 +75,10 @@ export class NameService {
     });
 
     this.eventEmitter.emit('name.updated', {
-      gameUuid: player.game!.uuid,
-    } as NameUpdatedEvent);
+      game: player.game,
+      action: 'name.entry.added',
+      player,
+    } as GameUpdatedEvent);
 
     return {
       name: entry.name,
@@ -82,10 +87,10 @@ export class NameService {
   }
 
   @OnEvent('name.updated')
-  async handleNameUpdatedEvent(event: NameUpdatedEvent) {
+  async handleNameUpdatedEvent(event: GameUpdatedEvent) {
     const players = await this.prisma.player.findMany({
       where: {
-        game: { uuid: event.gameUuid },
+        game: { uuid: event.game.uuid },
       },
       include: { nameEntries: true },
     });
@@ -95,21 +100,21 @@ export class NameService {
 
     if (completed) {
       this.logger.log(
-        `All players have submitted names for game ${event.gameUuid}. Transitioning to READ phase.`,
+        `All players have submitted names for game ${event.game.uuid}. Transitioning to READ phase.`,
       );
       await this.prisma.game.update({
-        where: { uuid: event.gameUuid },
+        where: { id: event.game.id },
         data: { phase: GamePhase.READ },
       });
 
       this.eventEmitter.emit('game.updated', {
-        gameUuid: event.gameUuid,
+        game: event.game,
         action: 'game.phase.updated',
-      });
+      } as GameUpdatedEvent);
     }
   }
 
-  async getPlayer(player: Player, game: Game): Promise<PlayerDto> {
+  private async getPlayerSubmissionMap(game: Game) {
     const gamePlayers = await this.prisma.player.findMany({
       where: {
         gameId: game.id,
@@ -119,36 +124,37 @@ export class NameService {
       },
     });
 
-    interface entry {
-      name?: string;
-      order?: number;
-      canSubmit: boolean;
-    }
-    const playerMap = new Map<string, entry>();
+    const playerMap = new Map<string, NameMapEntry>();
+
     for (const gp of gamePlayers) {
-      const entry = gp.nameEntries?.[0];
+      const entry = gp.nameEntries[0];
       playerMap.set(gp.uuid, {
-        name: entry?.name,
-        order: entry?.order,
-        canSubmit: game.phase === GamePhase.PLAY && !entry,
+        player: gp,
+        entry,
+        canSubmit: () => game.phase === GamePhase.PLAY && !entry,
       });
     }
 
+    return playerMap;
+  }
+
+  async getPlayer(player: Player, game: Game): Promise<PlayerDto> {
+    const playerMap = await this.getPlayerSubmissionMap(game);
+    const entries = Array.from(playerMap.values());
+
     const response = GameService.mapToPlayerDto(
       player,
+      playerMap.get(player.uuid)!.canSubmit(),
       GameService.mapToGameDto(
         game,
-        gamePlayers.map((p) => {
-          const canSubmit = playerMap.get(p.uuid)!.canSubmit;
-          return GameService.mapToPlayerDto(p, undefined, canSubmit);
-        }),
+        entries.map((e) => GameService.mapToPlayerDto(e.player, e.canSubmit())),
       ),
-      playerMap.get(player.uuid)!.canSubmit,
     );
 
     if (game.phase === GamePhase.READ) {
-      const entries = gamePlayers.map((p) => p.nameEntries).flat();
-      response.entries = entries.map((e) => NameService.mapToNameEntryDto(e));
+      response.entries = entries.map((e) =>
+        NameService.mapToNameEntryDto(e.entry),
+      );
     }
 
     return response;
