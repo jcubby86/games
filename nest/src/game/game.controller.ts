@@ -80,6 +80,12 @@ export class GameController {
   }
 
   @UseGuards(PlayerAuthGuard)
+  @Get('players/:uuid')
+  async getPlayer(@Param('uuid') uuid: string): Promise<PlayerDto> {
+    return this.gameService.getPlayer(uuid);
+  }
+
+  @UseGuards(PlayerAuthGuard)
   @Post('players/:uuid/name-entries')
   async addNameEntry(
     @Param('uuid') uuid: string,

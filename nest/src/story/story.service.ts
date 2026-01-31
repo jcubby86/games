@@ -13,17 +13,17 @@ interface StoryUpdatedEvent {
   gameUuid: string;
 }
 
-// const fillers = ['', '(Man) ', '(Man) and (Woman) ', '', '', ''];
+const fillers = ['', '(Man) ', '(Man) and (Woman) ', '', '', ''];
 const prefixes = ['', 'and ', 'were ', 'He said, "', 'She said, "', 'So they '];
 const suffixes = [' ', ' ', ' ', '" ', '" ', ''];
-// const prompts = [
-//   "Man's name:",
-//   "Woman's name:",
-//   'Activity:',
-//   'Statement:',
-//   'Statement:',
-//   'Activity:',
-// ];
+const prompts = [
+  "Man's name:",
+  "Woman's name:",
+  'Activity:',
+  'Statement:',
+  'Statement:',
+  'Activity:',
+];
 
 @Injectable()
 export class StoryService {
@@ -33,6 +33,23 @@ export class StoryService {
     private prisma: PrismaService,
     private eventEmitter: EventEmitter2,
   ) {}
+
+  static getHints(round: number) {
+    return {
+      filler: fillers[round],
+      prefix: prefixes[round],
+      suffix: suffixes[round],
+      prompt: prompts[round],
+    };
+  }
+
+  static mapToStoryEntryDto(entry?: StoryEntry): StoryEntryDto {
+    return {
+      values: entry?.values || [],
+      story: entry?.story || undefined,
+      hints: StoryService.getHints(entry?.values.length ?? 0),
+    };
+  }
 
   async addStoryEntry(
     playerUuid: string,

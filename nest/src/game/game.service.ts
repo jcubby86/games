@@ -12,13 +12,10 @@ import {
   Player,
   StoryEntry,
 } from '../generated/prisma/client';
-import {
-  GameDto,
-  NameEntryDto,
-  PlayerDto,
-  StoryEntryDto,
-} from '../types/game.types';
+import { GameDto, PlayerDto } from '../types/game.types';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { StoryService } from 'src/story/story.service';
+import { NameService } from 'src/name/name.service';
 
 type GameWithPlayers = Game & {
   players?: PlayerWithEntries[];
@@ -49,32 +46,26 @@ export class GameService {
       .toUpperCase();
   }
 
-  private mapToGameDto(game: GameWithPlayers): GameDto {
+  static mapToGameDto(game: GameWithPlayers): GameDto {
     return {
       type: game.type,
       code: game.code,
       uuid: game.uuid,
       phase: game.phase,
-      players: game.players?.map((p) => this.mapToPlayerDto(p)),
+      players: game.players?.map((p) => GameService.mapToPlayerDto(p, game)),
     };
   }
 
-  private mapToPlayerDto(player: PlayerWithEntries): PlayerDto {
+  static mapToPlayerDto(player: PlayerWithEntries, game: Game): PlayerDto {
     const dto = {
       uuid: player.uuid,
       nickname: player.nickname,
     } as PlayerDto;
 
-    if (player.nameEntries && player.nameEntries.length > 0) {
-      dto.entry = {
-        name: player.nameEntries[0]?.name,
-        order: player.nameEntries[0]?.order,
-      } as NameEntryDto;
-    } else if (player.storyEntries && player.storyEntries.length > 0) {
-      dto.entry = {
-        values: player.storyEntries[0]?.values,
-        story: player.storyEntries[0]?.story || undefined,
-      } as StoryEntryDto;
+    if (game.type === GameType.NAME) {
+      dto.entry = NameService.mapToNameEntryDto(player.nameEntries?.[0]);
+    } else {
+      dto.entry = StoryService.mapToStoryEntryDto(player.storyEntries?.[0]);
     }
     return dto;
   }
@@ -91,7 +82,7 @@ export class GameService {
       },
     });
 
-    return this.mapToGameDto(game);
+    return GameService.mapToGameDto(game);
   }
 
   async getGameByCode(code: string): Promise<GameDto> {
@@ -101,25 +92,20 @@ export class GameService {
     if (!game) {
       throw new NotFoundException('Game not found');
     }
-    return this.mapToGameDto(game);
+    return GameService.mapToGameDto(game);
   }
 
   async getGame(uuid: string): Promise<GameDto> {
     const game = await this.prisma.game.findUnique({
       where: { uuid },
       include: {
-        players: {
-          include: {
-            storyEntries: true,
-            nameEntries: true,
-          },
-        },
+        players: true,
       },
     });
     if (!game) {
       throw new NotFoundException('Game not found');
     }
-    return this.mapToGameDto(game);
+    return GameService.mapToGameDto(game);
   }
 
   async updateGame(uuid: string, phase: string): Promise<GameDto> {
@@ -135,7 +121,7 @@ export class GameService {
     if (!game) {
       throw new NotFoundException('Game not found');
     }
-    return this.mapToGameDto(game);
+    return GameService.mapToGameDto(game);
   }
 
   async addPlayer(gameUuid: string, nickname: string): Promise<PlayerDto> {
@@ -160,17 +146,34 @@ export class GameService {
       playerUuid: player.uuid,
     } as PlayerJoinedEvent);
 
-    return this.mapToPlayerDto(player);
+    return GameService.mapToPlayerDto(player, game);
   }
 
   async updatePlayer(uuid: string, nickname: string): Promise<PlayerDto> {
     const player = await this.prisma.player.update({
       where: { uuid },
+      include: { game: true },
       data: { nickname: nickname.toLowerCase() },
     });
     if (!player) {
       throw new NotFoundException('Player not found');
     }
-    return this.mapToPlayerDto(player);
+    return GameService.mapToPlayerDto(player, player.game!);
+  }
+
+  async getPlayer(uuid: string): Promise<PlayerDto> {
+    const player = await this.prisma.player.findUnique({
+      where: { uuid },
+      include: {
+        game: true,
+        nameEntries: true,
+        storyEntries: true,
+      },
+    });
+    if (!player) {
+      throw new NotFoundException('Player not found');
+    }
+
+    return GameService.mapToPlayerDto(player, player.game!);
   }
 }

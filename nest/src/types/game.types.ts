@@ -1,11 +1,17 @@
 export interface NameEntryDto {
-  name: string;
-  order: number;
+  name?: string;
+  order?: number;
 }
 
 export interface StoryEntryDto {
   values: string[];
   story?: string;
+  hints?: {
+    filler: string;
+    prefix: string;
+    suffix: string;
+    prompt: string;
+  };
 }
 
 export interface PlayerDto {

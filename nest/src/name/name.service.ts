@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import { GamePhase, GameType } from 'src/generated/prisma/client';
+import { GamePhase, GameType, NameEntry } from 'src/generated/prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import { NameEntryDto } from 'src/types/game.types';
 
@@ -21,6 +21,13 @@ export class NameService {
     private readonly prisma: PrismaService,
     private eventEmitter: EventEmitter2,
   ) {}
+
+  static mapToNameEntryDto(entry?: NameEntry): NameEntryDto {
+    return {
+      name: entry?.name,
+      order: entry?.order,
+    };
+  }
 
   async addNameEntry(playerUuid: string, name: string): Promise<NameEntryDto> {
     const player = await this.prisma.player.findUnique({
