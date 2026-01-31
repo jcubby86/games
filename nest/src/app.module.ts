@@ -1,5 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { GameController } from './game.controller';
 import { AppService } from './app.service';
 import { PrismaService } from './prisma.service';
@@ -10,7 +11,10 @@ import { GameAuthGuard } from './auth/game-auth.guard';
 import { PlayerAuthGuard } from './auth/player-auth.guard';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true })],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    EventEmitterModule.forRoot(),
+  ],
   controllers: [GameController],
   providers: [
     AppService,
