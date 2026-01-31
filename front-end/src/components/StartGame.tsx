@@ -1,15 +1,16 @@
 import axios from 'axios';
 import { useRef } from 'react';
 
-import List from './List';
+import PlayerList from './PlayerList';
 import { useAppContext } from '../contexts/AppContext';
 import { PLAY } from '../utils/constants';
 import { alertError } from '../utils/errorHandler';
+import { PlayerDto } from '../utils/types';
 
 interface StartGameProps {
   callback: () => void;
   title: string;
-  players?: string[];
+  players?: PlayerDto[];
 }
 
 const StartGame = ({
@@ -86,7 +87,7 @@ const StartGame = ({
           />
         </form>
         <h3 className="text-center mt-5">Players:</h3>
-        <List items={players} />
+        <PlayerList players={players} />
       </div>
     </>
   );

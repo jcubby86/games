@@ -1,12 +1,13 @@
 import axios from 'axios';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Tooltip } from 'react-tooltip';
 
 import Icon from '../components/Icon';
-import List from '../components/List';
+import PlayerList from '../components/PlayerList';
 import StartGame from '../components/StartGame';
 import { useAppContext } from '../contexts/AppContext';
-import { JOIN, PLAY, READ, WAIT } from '../utils/constants';
+import { useGameEvents } from '../hooks/useGameEvents';
+import { JOIN, PLAY, READ } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
 import { StoryVariant } from '../utils/gameVariants';
 import { PlayerDto } from '../utils/types';
@@ -15,37 +16,24 @@ const Story = (): JSX.Element => {
   const { context } = useAppContext();
   const [state, setState] = useState<PlayerDto | null>(null);
   const entryRef = useRef<HTMLTextAreaElement>(null);
+  const { gameUpdatedEvent } = useGameEvents();
 
-  const pollStatus = async (controller?: AbortController) => {
+  const refreshData = useCallback(async () => {
     try {
       const response = await axios.get('/api/players/' + context.playerUuid, {
-        signal: controller?.signal,
         headers: { Authorization: context.token }
       });
       setState({ ...response.data });
     } catch (err: unknown) {
       logError(err);
     }
-  };
+  }, [context.playerUuid, context.token]);
 
   useEffect(() => {
-    const controller = new AbortController();
-
-    if (!state?.game?.phase) pollStatus(controller);
-    const timer = setInterval(() => {
-      if (
-        state?.game?.phase === JOIN ||
-        state?.game?.phase === WAIT ||
-        (state?.game?.phase === PLAY && !state?.canPlayerSubmit)
-      )
-        pollStatus(controller);
-    }, 3000);
-
-    return () => {
-      controller.abort();
-      clearInterval(timer);
-    };
-  });
+    if (gameUpdatedEvent) {
+      refreshData();
+    }
+  }, [gameUpdatedEvent, refreshData]);
 
   const Play = (): JSX.Element => {
     const submit = async (e: React.FormEvent) => {
@@ -74,7 +62,7 @@ const Story = (): JSX.Element => {
 
     const resetPlaceholder = async (e: React.MouseEvent) => {
       e.preventDefault();
-      pollStatus();
+      //todo: fetch new prompt from backend
     };
 
     return (
@@ -127,9 +115,7 @@ const Story = (): JSX.Element => {
     return (
       <div className="w-100">
         <h3 className="text-center w-100">Waiting for other players...</h3>
-        {state?.game?.phase === WAIT && (
-          <List items={state.game.players?.map((p) => p.nickname ?? '')} />
-        )}
+        <PlayerList players={state?.game?.players} filter={(p) => p.canPlayerSubmit ?? true} />
       </div>
     );
   };
@@ -137,7 +123,7 @@ const Story = (): JSX.Element => {
   if (state?.game?.phase === JOIN) {
     return (
       <StartGame
-        players={state.game.players?.map((p) => p.nickname ?? '')}
+        players={state.game.players}
         title={StoryVariant.title}
         callback={() => setState(null)}
       />

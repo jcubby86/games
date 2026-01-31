@@ -2,13 +2,14 @@ import axios from 'axios';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import List from '../components/List';
+import PlayerList from '../components/PlayerList';
 import StartGame from '../components/StartGame';
 import { useAppContext } from '../contexts/AppContext';
 import { useGameEvents } from '../hooks/useGameEvents';
-import { END, JOIN, PLAY, READ, WAIT } from '../utils/constants';
+import { END, JOIN, PLAY, READ } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
 import { NameVariant } from '../utils/gameVariants';
-import { PlayerDto } from '../utils/types';
+import { NameEntryDto, PlayerDto } from '../utils/types';
 
 const Names = (): JSX.Element => {
   const { context } = useAppContext();
@@ -113,9 +114,7 @@ const Names = (): JSX.Element => {
     return (
       <div className="w-100">
         <h3 className="text-center w-100">Waiting for other players...</h3>
-        {state?.game?.phase === WAIT && (
-          <List items={state.game.players?.map((p) => p.nickname ?? '')} />
-        )}
+        <PlayerList players={state?.game?.players} filter={(p) => p.canPlayerSubmit ?? true} />
       </div>
     );
   };
@@ -123,7 +122,7 @@ const Names = (): JSX.Element => {
   if (state?.game?.phase === JOIN) {
     return (
       <StartGame
-        players={state.game.players?.map((p) => p.nickname ?? '')}
+        players={state.game.players}
         title={NameVariant.title}
         callback={() => setState(null)}
       />
