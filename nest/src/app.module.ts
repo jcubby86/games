@@ -9,13 +9,15 @@ import { PrismaService } from './prisma.service';
 import { GameService } from './game/game.service';
 import { GameController } from './game/game.controller';
 import { StoryService } from './story/story.service';
+import { SuggestionService } from './suggestion/suggestion.service';
+import { SuggestionController } from './suggestion/suggestion.controller';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     EventEmitterModule.forRoot(),
   ],
-  controllers: [GameController],
+  controllers: [GameController, SuggestionController],
   providers: [
     PrismaService,
     GameService,
@@ -23,6 +25,7 @@ import { StoryService } from './story/story.service';
     GameAuthGuard,
     PlayerAuthGuard,
     StoryService,
+    SuggestionService,
   ],
 })
 export class AppModule implements NestModule {

@@ -21,3 +21,8 @@ export interface GameDto {
   phase: string;
   players?: PlayerDto[];
 }
+
+export interface SuggestionDto {
+  value: string;
+  category: string;
+}
