@@ -1,9 +1,10 @@
 import axios from 'axios';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import List from '../components/List';
 import StartGame from '../components/StartGame';
 import { useAppContext } from '../contexts/AppContext';
+import { useGameEvents } from '../hooks/useGameEvents';
 import { END, JOIN, PLAY, READ, WAIT } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
 import { NameVariant } from '../utils/gameVariants';
@@ -13,38 +14,24 @@ const Names = (): JSX.Element => {
   const { context } = useAppContext();
   const [state, setState] = useState<PlayerDto | null>(null);
   const entryRef = useRef<HTMLInputElement>(null);
+  const { gameUpdatedEvent } = useGameEvents();
 
-  const pollStatus = async (controller?: AbortController) => {
+  const refreshData = useCallback(async () => {
     try {
       const response = await axios.get('/api/players/' + context.playerUuid, {
-        signal: controller?.signal,
         headers: { Authorization: context.token }
       });
       setState({ ...response.data });
     } catch (err: unknown) {
       logError(err);
     }
-  };
+  }, [context.playerUuid, context.token]);
 
   useEffect(() => {
-    const controller = new AbortController();
-
-    if (!state?.game?.phase) pollStatus(controller);
-    const timer = setInterval(() => {
-      if (
-        state?.game?.phase === JOIN ||
-        state?.game?.phase === WAIT ||
-        state?.game?.phase === READ ||
-        (state?.game?.phase === PLAY && !state?.canPlayerSubmit)
-      )
-        pollStatus(controller);
-    }, 3000);
-
-    return () => {
-      controller.abort();
-      clearInterval(timer);
-    };
-  });
+    if (gameUpdatedEvent) {
+      refreshData();
+    }
+  }, [gameUpdatedEvent, refreshData]);
 
   const Play = (): JSX.Element => {
     const sendEntry = async (e: React.FormEvent) => {

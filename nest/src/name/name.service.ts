@@ -93,6 +93,11 @@ export class NameService {
         where: { uuid: event.gameUuid },
         data: { phase: GamePhase.READ },
       });
+
+      this.eventEmitter.emit('game.updated', {
+        gameUuid: event.gameUuid,
+        action: 'game.phase.updated',
+      });
     }
   }
 

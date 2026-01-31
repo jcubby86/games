@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
@@ -13,9 +14,10 @@ import {
   StoryEntry,
 } from '../generated/prisma/client';
 import { GameDto, PlayerDto } from '../types/game.types';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { StoryService } from 'src/story/story.service';
 import { NameService } from 'src/name/name.service';
+import { Observable, Subject, map, startWith } from 'rxjs';
 
 type GameWithPlayers = Game & {
   players?: PlayerWithEntries[];
@@ -28,13 +30,18 @@ type PlayerWithEntries = Player & {
   game?: Game | null;
 };
 
-interface PlayerJoinedEvent {
+interface GameUpdatedEvent {
   gameUuid: string;
-  playerUuid: string;
+  playerUuid?: string;
+  nickname?: string;
+  action: string;
 }
 
 @Injectable()
 export class GameService {
+  private gameUpdates = new Map<string, Subject<any>>();
+  private readonly logger = new Logger(GameService.name);
+
   constructor(
     private prisma: PrismaService,
     private storyService: StoryService,
@@ -129,6 +136,12 @@ export class GameService {
     if (!game) {
       throw new NotFoundException('Game not found');
     }
+
+    this.eventEmitter.emit('game.updated', {
+      gameUuid: game.uuid,
+      action: 'game.phase.updated',
+    } as GameUpdatedEvent);
+
     return GameService.mapToGameDto(game);
   }
 
@@ -153,10 +166,12 @@ export class GameService {
       },
     });
 
-    this.eventEmitter.emit('player.joined', {
+    this.eventEmitter.emit('game.updated', {
       gameUuid: game.uuid,
       playerUuid: player.uuid,
-    } as PlayerJoinedEvent);
+      nickname: player.nickname,
+      action: 'game.player.joined',
+    } as GameUpdatedEvent);
 
     return this.getPlayer(player.uuid);
   }
@@ -171,10 +186,12 @@ export class GameService {
       throw new NotFoundException('Player not found');
     }
 
-    this.eventEmitter.emit('player.joined', {
+    this.eventEmitter.emit('game.updated', {
       gameUuid: player.game!.uuid,
       playerUuid: player.uuid,
-    } as PlayerJoinedEvent);
+      nickname: player.nickname,
+      action: 'game.player.updated',
+    } as GameUpdatedEvent);
 
     return GameService.mapToPlayerDto(player);
   }
@@ -224,13 +241,56 @@ export class GameService {
   }
 
   async leaveGame(playerUuid: string): Promise<PlayerDto> {
-    const player = await this.prisma.player.update({
+    const player = await this.prisma.player.findUniqueOrThrow({
       where: { uuid: playerUuid },
-      data: { gameId: null },
+      include: { game: true },
     });
     if (!player) {
       throw new NotFoundException('Player not found');
     }
+
+    await this.prisma.player.update({
+      where: { id: player.id },
+      data: { gameId: null },
+    });
+
+    this.eventEmitter.emit('game.updated', {
+      gameUuid: player.game!.uuid,
+      playerUuid: player.uuid,
+      action: 'game.player.left',
+    } as GameUpdatedEvent);
+
+    player.game = null;
     return GameService.mapToPlayerDto(player);
+  }
+
+  getGameUpdates(gameUuid: string): Observable<MessageEvent> {
+    if (!this.gameUpdates.has(gameUuid)) {
+      this.logger.log(`Creating new game updates subject for game ${gameUuid}`);
+      this.gameUpdates.set(gameUuid, new Subject());
+    }
+
+    const gameSubject = this.gameUpdates.get(gameUuid)!;
+    this.logger.log(`Subscribing to game updates for game ${gameUuid}`);
+
+    return gameSubject.pipe(
+      startWith({ gameUuid, action: 'connected' }),
+      map((payload) => {
+        return {
+          data: JSON.stringify(payload),
+        } as MessageEvent;
+      }),
+    );
+  }
+
+  @OnEvent('game.updated')
+  emitGameUpdate(payload: GameUpdatedEvent) {
+    const subject = this.gameUpdates.get(payload.gameUuid);
+    if (subject) {
+      this.logger.log(
+        `Emitting game update for game ${payload.gameUuid}: ${JSON.stringify(payload)}`,
+      );
+      subject.next(payload);
+    }
   }
 }

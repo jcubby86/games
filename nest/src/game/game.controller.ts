@@ -1,5 +1,6 @@
 import {
   Controller,
+  Sse,
   Get,
   Param,
   Post,
@@ -23,6 +24,7 @@ import {
 } from '../types/game.types';
 import type { Response } from 'express';
 import { NameService } from 'src/name/name.service';
+import { Observable } from 'rxjs';
 
 @Controller('api')
 export class GameController {
@@ -108,5 +110,10 @@ export class GameController {
   @Delete('players/:uuid')
   async leaveGame(@Param('uuid') uuid: string): Promise<PlayerDto> {
     return this.gameService.leaveGame(uuid);
+  }
+
+  @Sse('games/:uuid/events')
+  getGameUpdates(@Param('uuid') uuid: string): Observable<MessageEvent> {
+    return this.gameService.getGameUpdates(uuid);
   }
 }
