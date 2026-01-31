@@ -97,10 +97,14 @@ export class NameService {
   }
 
   async getAllNames(gameUuid: string): Promise<NameEntry[]> {
-    return this.prisma.nameEntry.findMany({
+    const players = await this.prisma.player.findMany({
       where: {
         game: { uuid: gameUuid },
       },
+      include: {
+        nameEntries: true,
+      },
     });
+    return players.map((player) => player.nameEntries).flat();
   }
 }
