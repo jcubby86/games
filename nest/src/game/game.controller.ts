@@ -21,6 +21,7 @@ import {
   StoryEntryDto,
 } from '../types/game.types';
 import type { Response } from 'express';
+import { NameService } from 'src/name/name.service';
 
 @Controller('api')
 export class GameController {
@@ -28,6 +29,7 @@ export class GameController {
     private readonly gameService: GameService,
     private readonly hmacService: HmacService,
     private readonly storyService: StoryService,
+    private readonly nameService: NameService,
   ) {}
 
   @Post('games')
@@ -83,7 +85,7 @@ export class GameController {
     @Param('uuid') uuid: string,
     @Body() data: { name: string },
   ): Promise<NameEntryDto> {
-    return this.gameService.addNameEntry(uuid, data.name);
+    return this.nameService.addNameEntry(uuid, data.name);
   }
 
   @UseGuards(PlayerAuthGuard)

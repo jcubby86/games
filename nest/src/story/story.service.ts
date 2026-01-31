@@ -9,7 +9,7 @@ import { GamePhase, GameType, StoryEntry } from '../generated/prisma/client';
 import { PrismaService } from '../prisma.service';
 import { StoryEntryDto } from 'src/types/game.types';
 
-export interface StoryUpdatedEvent {
+interface StoryUpdatedEvent {
   gameUuid: string;
 }
 
@@ -44,10 +44,10 @@ export class StoryService {
     });
     if (!player) {
       throw new NotFoundException('Player not found');
-    }
-
-    if (player.game!.type !== GameType.STORY) {
+    } else if (player.game!.type !== GameType.STORY) {
       throw new BadRequestException('Game is not of type STORY');
+    } else if (player.game!.phase !== GamePhase.PLAY) {
+      throw new BadRequestException('Game is not in PLAY phase');
     }
 
     const entry = await this.prisma.storyEntry.upsert({
@@ -81,15 +81,26 @@ export class StoryService {
 
   @OnEvent('story.updated')
   async handleStoryUpdatedEvent(payload: StoryUpdatedEvent) {
-    const stories = await this.prisma.storyEntry.findMany({
+    const players = await this.prisma.player.findMany({
       where: {
         game: { uuid: payload.gameUuid },
       },
+      include: {
+        storyEntries: true,
+      },
     });
 
-    const minStoryLength = Math.min(...stories.map((s) => s.values.length));
+    const minStoryLength = Math.min(
+      ...players.map((p) => p.storyEntries[0]?.values.length ?? 0),
+    );
 
-    if (minStoryLength === prefixes.length) {
+    if (minStoryLength >= prefixes.length) {
+      this.logger.log(
+        `All story entries completed for game ${payload.gameUuid}, generating stories. Transitioning to READ phase.`,
+      );
+
+      const stories = players.map((p) => p.storyEntries[0]);
+
       this.createStories(stories);
       await this.prisma.$transaction(
         stories.map((e) =>

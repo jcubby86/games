@@ -11,6 +11,7 @@ import { GameController } from './game/game.controller';
 import { StoryService } from './story/story.service';
 import { SuggestionService } from './suggestion/suggestion.service';
 import { SuggestionController } from './suggestion/suggestion.controller';
+import { NameService } from './name/name.service';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { SuggestionController } from './suggestion/suggestion.controller';
     PlayerAuthGuard,
     StoryService,
     SuggestionService,
+    NameService,
   ],
 })
 export class AppModule implements NestModule {

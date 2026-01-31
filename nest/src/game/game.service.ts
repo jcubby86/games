@@ -173,44 +173,4 @@ export class GameService {
     }
     return this.mapToPlayerDto(player);
   }
-
-  async addNameEntry(playerUuid: string, name: string): Promise<NameEntryDto> {
-    const player = await this.prisma.player.findUnique({
-      where: { uuid: playerUuid },
-      include: { game: true },
-    });
-    if (!player) {
-      throw new NotFoundException('Player not found');
-    }
-
-    if (player.game!.type !== GameType.NAME) {
-      throw new BadRequestException('Game is not of type NAME');
-    }
-    const normalized = name.trim().toLowerCase();
-
-    const entry = await this.prisma.nameEntry.upsert({
-      where: {
-        gameId_playerId: {
-          gameId: player.gameId!,
-          playerId: player.id,
-        },
-      },
-      update: {
-        name,
-        normalized,
-      },
-      create: {
-        name,
-        normalized,
-        order: Math.floor(Math.random() * 1000000),
-        playerId: player.id,
-        gameId: player.gameId!,
-      },
-    });
-
-    return {
-      name: entry.name,
-      order: entry.order,
-    };
-  }
 }
