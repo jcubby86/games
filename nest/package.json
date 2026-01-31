@@ -25,6 +25,8 @@
     "@nestjs/core": "^11.0.1",
     "@nestjs/event-emitter": "^3.0.1",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/platform-socket.io": "^11.1.12",
+    "@nestjs/websockets": "^11.1.12",
     "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.3.0",
     "reflect-metadata": "^0.2.2",

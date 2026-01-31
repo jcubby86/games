@@ -12,6 +12,7 @@ import { StoryService } from './story/story.service';
 import { SuggestionService } from './suggestion/suggestion.service';
 import { SuggestionController } from './suggestion/suggestion.controller';
 import { NameService } from './name/name.service';
+import { EventGateway } from './event/event.gateway';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { NameService } from './name/name.service';
     StoryService,
     SuggestionService,
     NameService,
+    EventGateway,
   ],
 })
 export class AppModule implements NestModule {

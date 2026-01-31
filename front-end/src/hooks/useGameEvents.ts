@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useAppContext } from '../contexts/AppContext';
+import { socket } from '../utils/socket';
 
 interface GameUpdatedEvent {
   gameUuid: string;
@@ -10,50 +11,63 @@ interface GameUpdatedEvent {
 }
 
 export const useGameEvents = () => {
-  const [gameUpdatedEvent, setGameUpdatedEvent] = useState<GameUpdatedEvent | null>(null);
+  const [gameUpdatedEvent, setGameUpdatedEvent] =
+    useState<GameUpdatedEvent | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const { context } = useAppContext();
 
   useEffect(() => {
     if (!context.gameUuid) {
-      console.debug('No game UUID provided, skipping SSE connection');
+      console.debug('No game UUID provided, skipping WebSocket connection');
       return;
     }
-    console.debug('Establishing SSE connection for game UUID:', context.gameUuid);
-
-    const eventSource = new EventSource(
-      `/api/games/${context.gameUuid}/events`
+    console.debug(
+      'Establishing WebSocket connection for game UUID:',
+      context.gameUuid
     );
 
-    eventSource.onopen = () => {
+    socket.on('connect', () => {
       setIsConnected(true);
       setError(null);
-      console.log('SSE connection established');
-    };
+      console.debug('WebSocket connected:', socket.id);
 
-    eventSource.onmessage = (event) => {
+      socket.emit('game.join', {
+        gameUuid: context.gameUuid,
+        playerUuid: context.playerUuid
+      });
+
+      setGameUpdatedEvent({
+        action: 'connected',
+        gameUuid: context.gameUuid!,
+        playerUuid: context.playerUuid
+      });
+    });
+
+    socket.on('disconnect', (reason) => {
+      setIsConnected(false);
+      setError(`Disconnected: ${reason}`);
+      console.warn('WebSocket disconnected:', reason);
+    });
+
+    socket.on('game.updated', (data: any) => {
       try {
-        console.debug("Received SSE data: " + event.data);
-        const parsedData: GameUpdatedEvent = JSON.parse(event.data);
+        console.debug('Received WebSocket data: ' + data);
+        const parsedData: GameUpdatedEvent = JSON.parse(data);
         setGameUpdatedEvent(parsedData);
       } catch (err) {
-        console.error('Failed to parse SSE data:', err);
+        console.error('Failed to parse WebSocket data:', err);
         setError(`Parse error: ${err}`);
       }
-    };
+    });
 
-    eventSource.onerror = (event) => {
-      setIsConnected(false);
-      setError('Connection lost');
-      console.error('SSE connection error:', event);
-    };
+    socket.connect();
 
     return () => {
-      eventSource.close();
+      socket.disconnect();
       setIsConnected(false);
     };
-  }, [context.gameUuid]);
+  }, [context.gameUuid, context.playerUuid]);
 
   return { gameUpdatedEvent, error, isConnected };
 };

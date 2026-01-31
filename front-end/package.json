@@ -4,7 +4,7 @@
   "version": "2.5.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "start:dev": "vite",
     "build": "tsc && vite build",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview",
@@ -20,7 +20,8 @@
     "react-bootstrap": "^2.9.1",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.30.3",
-    "react-tooltip": "^5.22.0"
+    "react-tooltip": "^5.22.0",
+    "socket.io-client": "^4.8.3"
   },
   "devDependencies": {
     "@types/jest": "^29.5.8",

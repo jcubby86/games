@@ -14,10 +14,9 @@ import {
   StoryEntry,
 } from '../generated/prisma/client';
 import { GameDto, PlayerDto } from '../types/game.types';
-import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { StoryService } from 'src/story/story.service';
 import { NameService } from 'src/name/name.service';
-import { Observable, Subject, map, startWith } from 'rxjs';
 
 type GameWithPlayers = Game & {
   players?: PlayerWithEntries[];
@@ -30,7 +29,7 @@ type PlayerWithEntries = Player & {
   game?: Game | null;
 };
 
-interface GameUpdatedEvent {
+export interface GameUpdatedEvent {
   gameUuid: string;
   playerUuid?: string;
   nickname?: string;
@@ -39,7 +38,6 @@ interface GameUpdatedEvent {
 
 @Injectable()
 export class GameService {
-  private gameUpdates = new Map<string, Subject<any>>();
   private readonly logger = new Logger(GameService.name);
 
   constructor(
@@ -262,35 +260,5 @@ export class GameService {
 
     player.game = null;
     return GameService.mapToPlayerDto(player);
-  }
-
-  getGameUpdates(gameUuid: string): Observable<MessageEvent> {
-    if (!this.gameUpdates.has(gameUuid)) {
-      this.logger.log(`Creating new game updates subject for game ${gameUuid}`);
-      this.gameUpdates.set(gameUuid, new Subject());
-    }
-
-    const gameSubject = this.gameUpdates.get(gameUuid)!;
-    this.logger.log(`Subscribing to game updates for game ${gameUuid}`);
-
-    return gameSubject.pipe(
-      startWith({ gameUuid, action: 'connected' }),
-      map((payload) => {
-        return {
-          data: JSON.stringify(payload),
-        } as MessageEvent;
-      }),
-    );
-  }
-
-  @OnEvent('game.updated')
-  emitGameUpdate(payload: GameUpdatedEvent) {
-    const subject = this.gameUpdates.get(payload.gameUuid);
-    if (subject) {
-      this.logger.log(
-        `Emitting game update for game ${payload.gameUuid}: ${JSON.stringify(payload)}`,
-      );
-      subject.next(payload);
-    }
   }
 }
