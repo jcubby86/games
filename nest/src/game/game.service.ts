@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from './prisma.service';
+import { PrismaService } from '../prisma.service';
 import {
   Game,
   GamePhase,
@@ -11,13 +11,14 @@ import {
   NameEntry,
   Player,
   StoryEntry,
-} from './generated/prisma/client';
+} from '../generated/prisma/client';
 import {
   GameDto,
   NameEntryDto,
   PlayerDto,
   StoryEntryDto,
-} from './types/game.types';
+} from '../types/game.types';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 type GameWithPlayers = Game & {
   players?: PlayerWithEntries[];
@@ -28,9 +29,17 @@ type PlayerWithEntries = Player & {
   storyEntries?: StoryEntry[];
 };
 
+interface PlayerJoinedEvent {
+  gameUuid: string;
+  playerUuid: string;
+}
+
 @Injectable()
 export class GameService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private eventEmitter: EventEmitter2,
+  ) {}
 
   generateCode(): string {
     return Math.random()
@@ -146,6 +155,11 @@ export class GameService {
       },
     });
 
+    this.eventEmitter.emit('player.joined', {
+      gameUuid: game.uuid,
+      playerUuid: player.uuid,
+    } as PlayerJoinedEvent);
+
     return this.mapToPlayerDto(player);
   }
 
@@ -197,47 +211,6 @@ export class GameService {
     return {
       name: entry.name,
       order: entry.order,
-    };
-  }
-
-  async addStoryEntry(
-    playerUuid: string,
-    value: string,
-  ): Promise<StoryEntryDto> {
-    const player = await this.prisma.player.findUnique({
-      where: { uuid: playerUuid },
-      include: { game: true },
-    });
-    if (!player) {
-      throw new NotFoundException('Player not found');
-    }
-
-    if (player.game!.type !== GameType.STORY) {
-      throw new BadRequestException('Game is not of type STORY');
-    }
-
-    const entry = await this.prisma.storyEntry.upsert({
-      where: {
-        gameId_playerId: {
-          gameId: player.gameId!,
-          playerId: player.id,
-        },
-      },
-      update: {
-        values: {
-          push: value,
-        },
-      },
-      create: {
-        values: [value],
-        playerId: player.id,
-        gameId: player.gameId!,
-      },
-    });
-
-    return {
-      values: entry.values,
-      story: entry.story || undefined,
     };
   }
 }

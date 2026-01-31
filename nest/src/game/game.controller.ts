@@ -10,15 +10,16 @@ import {
   Res,
 } from '@nestjs/common';
 import { GameService } from './game.service';
-import { GameAuthGuard } from './auth/game-auth.guard';
-import { PlayerAuthGuard } from './auth/player-auth.guard';
-import { HmacService } from './auth/hmac.service';
+import { StoryService } from '../story/story.service';
+import { GameAuthGuard } from '../auth/game-auth.guard';
+import { PlayerAuthGuard } from '../auth/player-auth.guard';
+import { HmacService } from '../auth/hmac.service';
 import {
   GameDto,
   PlayerDto,
   NameEntryDto,
   StoryEntryDto,
-} from './types/game.types';
+} from '../types/game.types';
 import type { Response } from 'express';
 
 @Controller('api')
@@ -26,6 +27,7 @@ export class GameController {
   constructor(
     private readonly gameService: GameService,
     private readonly hmacService: HmacService,
+    private readonly storyService: StoryService,
   ) {}
 
   @Post('games')
@@ -90,6 +92,6 @@ export class GameController {
     @Param('uuid') uuid: string,
     @Body() data: { value: string },
   ): Promise<StoryEntryDto> {
-    return await this.gameService.addStoryEntry(uuid, data.value);
+    return await this.storyService.addStoryEntry(uuid, data.value);
   }
 }
