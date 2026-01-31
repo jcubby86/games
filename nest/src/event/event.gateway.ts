@@ -36,6 +36,29 @@ export class EventGateway implements OnGatewayInit {
     void client.join(data.playerUuid);
   }
 
+  @SubscribeMessage('poke')
+  handlePoke(
+    client: Socket,
+    data: {
+      to: string;
+      from: string;
+      nickname?: string;
+    },
+  ) {
+    if (data.to === data.from) return;
+
+    this.logger.debug(
+      `Received poke event from player: ${data.from} to: ${data.to}`,
+    );
+
+    this.server.to(data.to).emit('poke', {
+      from: data.from,
+      message: `You have been poked by ${data.nickname || data.from}!`,
+      nickname: data.nickname,
+      time: new Date().toISOString(),
+    });
+  }
+
   @OnEvent('game.updated')
   emitGameUpdate(event: GameUpdatedEvent) {
     const payload = JSON.stringify({
@@ -45,7 +68,7 @@ export class EventGateway implements OnGatewayInit {
       action: event.action,
     });
 
-    this.logger.log(
+    this.logger.debug(
       `Emitting game update for game ${event.game.uuid}: ${JSON.stringify(payload)}`,
     );
     this.server.to(event.game.uuid).emit('game.updated', payload);

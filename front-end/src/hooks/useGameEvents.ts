@@ -13,6 +13,7 @@ interface GameUpdatedEvent {
 export const useGameEvents = () => {
   const [gameUpdatedEvent, setGameUpdatedEvent] =
     useState<GameUpdatedEvent | null>(null);
+  const [pokedEvent, setPokedEvent] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const { context } = useAppContext();
@@ -61,6 +62,10 @@ export const useGameEvents = () => {
       }
     });
 
+    socket.on('poke', (data: any) => {
+      setPokedEvent(data);
+    });
+
     socket.connect();
 
     return () => {
@@ -69,5 +74,5 @@ export const useGameEvents = () => {
     };
   }, [context.gameUuid, context.playerUuid]);
 
-  return { gameUpdatedEvent, error, isConnected };
+  return { gameUpdatedEvent, error, isConnected, socket, pokedEvent };
 };
