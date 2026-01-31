@@ -65,8 +65,7 @@ export class GameService {
       uuid: player.uuid,
       nickname: player.nickname,
       canPlayerSubmit: player.canPlayerSubmit,
-      gameType: player.game?.type,
-      gamePhase: player.game?.phase,
+      game: player.game ? this.mapToGameDto(player.game) : undefined,
     };
 
     if (player.game?.type === GameType.NAME) {
@@ -159,7 +158,7 @@ export class GameService {
       playerUuid: player.uuid,
     } as PlayerJoinedEvent);
 
-    return GameService.mapToPlayerDto(player);
+    return this.getPlayer(player.uuid);
   }
 
   async updatePlayer(uuid: string, nickname: string): Promise<PlayerDto> {
@@ -184,7 +183,11 @@ export class GameService {
     const player = await this.prisma.player.findUnique({
       where: { uuid },
       include: {
-        game: true,
+        game: {
+          include: {
+            players: true,
+          },
+        },
         nameEntries: true,
         storyEntries: true,
       },
@@ -204,12 +207,30 @@ export class GameService {
         game.uuid,
         player.uuid,
       );
-    }
-    if (game.phase === GamePhase.READ && game.type === GameType.NAME) {
-      const allEntries = await this.nameService.getAllNames(game.uuid);
-      player.nameEntries = allEntries;
+    } else if (game.type === GameType.NAME) {
+      if (game.phase === GamePhase.READ) {
+        const allEntries = await this.nameService.getAllNames(game.uuid);
+        response.nameEntries = allEntries;
+        response.canPlayerSubmit = false;
+      } else if (
+        game.phase === GamePhase.PLAY &&
+        (response.nameEntries?.length ?? 0) > 0
+      ) {
+        response.canPlayerSubmit = false;
+      }
     }
 
     return GameService.mapToPlayerDto(response);
+  }
+
+  async leaveGame(playerUuid: string): Promise<PlayerDto> {
+    const player = await this.prisma.player.update({
+      where: { uuid: playerUuid },
+      data: { gameId: null },
+    });
+    if (!player) {
+      throw new NotFoundException('Player not found');
+    }
+    return GameService.mapToPlayerDto(player);
   }
 }

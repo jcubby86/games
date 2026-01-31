@@ -8,6 +8,7 @@ import {
   Patch,
   UseGuards,
   Res,
+  Delete,
 } from '@nestjs/common';
 import { GameService } from './game.service';
 import { StoryService } from '../story/story.service';
@@ -101,5 +102,11 @@ export class GameController {
     @Body() data: { value: string },
   ): Promise<StoryEntryDto> {
     return await this.storyService.addStoryEntry(uuid, data.value);
+  }
+
+  @UseGuards(PlayerAuthGuard)
+  @Delete('players/:uuid')
+  async leaveGame(@Param('uuid') uuid: string): Promise<PlayerDto> {
+    return this.gameService.leaveGame(uuid);
   }
 }

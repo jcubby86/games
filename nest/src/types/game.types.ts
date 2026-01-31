@@ -20,8 +20,7 @@ export interface PlayerDto {
   entry?: StoryEntryDto;
   entries?: NameEntryDto[];
   canPlayerSubmit?: boolean;
-  gameType?: string;
-  gamePhase?: string;
+  game?: GameDto;
 }
 
 export interface GameDto {
