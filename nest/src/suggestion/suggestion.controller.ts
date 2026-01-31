@@ -9,7 +9,8 @@ export class SuggestionController {
   @Get()
   async getSuggestion(
     @Query('category') category: string,
-  ): Promise<SuggestionDto> {
-    return this.suggestionService.getSuggestion(category);
+    @Query('quantity') quantity?: number,
+  ): Promise<SuggestionDto[]> {
+    return this.suggestionService.getSuggestion(category, quantity);
   }
 }

@@ -11,7 +11,10 @@ import { SuggestionDto } from 'src/types/game.types';
 export class SuggestionService {
   constructor(private prisma: PrismaService) {}
 
-  async getSuggestion(category: string): Promise<SuggestionDto> {
+  async getSuggestion(
+    category: string,
+    quantity: number = 5,
+  ): Promise<SuggestionDto[]> {
     if (!Object.values(Category).includes(category as Category)) {
       throw new BadRequestException('Invalid category');
     }
@@ -24,11 +27,18 @@ export class SuggestionService {
       throw new NotFoundException('No suggestions found for this category');
     }
 
-    const randomIndex = Math.floor(Math.random() * suggestions.length);
-    const suggestion = suggestions[randomIndex];
-    return {
-      value: suggestion.value,
-      category: suggestion.category,
-    };
+    const response: SuggestionDto[] = [];
+
+    for (let i = 0; i < quantity && suggestions.length > 0; i++) {
+      const index = Math.floor(Math.random() * suggestions.length);
+      const suggestion = suggestions[index];
+      response.push({
+        value: suggestion.value,
+        category: suggestion.category,
+      });
+      suggestions.splice(index, 1);
+    }
+
+    return response;
   }
 }
