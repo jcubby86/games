@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import List from '../components/List';
 import PlayerList from '../components/PlayerList';
+import RecreateButton from '../components/RecreateButton';
 import StartGame from '../components/StartGame';
 import { useAppContext } from '../contexts/AppContext';
 import { useGameEvents } from '../hooks/useGameEvents';
@@ -15,7 +16,7 @@ const Names = (): JSX.Element => {
   const { context } = useAppContext();
   const [state, setState] = useState<PlayerDto | null>(null);
   const entryRef = useRef<HTMLInputElement>(null);
-  const { gameUpdatedEvent } = useGameEvents();
+  const { event } = useGameEvents();
 
   const refreshData = useCallback(async () => {
     try {
@@ -29,10 +30,14 @@ const Names = (): JSX.Element => {
   }, [context.playerUuid, context.token]);
 
   useEffect(() => {
-    if (gameUpdatedEvent) {
+    refreshData();
+  }, [refreshData]);
+
+  useEffect(() => {
+    if (event?.type === 'game.updated') {
       refreshData();
     }
-  }, [gameUpdatedEvent, refreshData]);
+  }, [event, refreshData]);
 
   const Play = (): JSX.Element => {
     const sendEntry = async (e: React.FormEvent) => {
@@ -106,6 +111,9 @@ const Names = (): JSX.Element => {
     return (
       <div className="w-100">
         <h3 className="w-100 text-center pb-3">Enjoy the game!</h3>
+        <div className="d-flex justify-content-center">
+          <RecreateButton className="btn btn-success" />
+        </div>
       </div>
     );
   };
@@ -114,7 +122,10 @@ const Names = (): JSX.Element => {
     return (
       <div className="w-100">
         <h3 className="text-center w-100">Waiting for other players...</h3>
-        <PlayerList players={state?.game?.players} filter={(p) => p.canPlayerSubmit ?? true} />
+        <PlayerList
+          players={state?.game?.players}
+          filter={(p) => p.canPlayerSubmit ?? true}
+        />
       </div>
     );
   };

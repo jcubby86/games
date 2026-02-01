@@ -4,6 +4,7 @@ import { Tooltip } from 'react-tooltip';
 
 import Icon from '../components/Icon';
 import PlayerList from '../components/PlayerList';
+import RecreateButton from '../components/RecreateButton';
 import StartGame from '../components/StartGame';
 import { useAppContext } from '../contexts/AppContext';
 import { useGameEvents } from '../hooks/useGameEvents';
@@ -16,7 +17,7 @@ const Story = (): JSX.Element => {
   const { context } = useAppContext();
   const [state, setState] = useState<PlayerDto | null>(null);
   const entryRef = useRef<HTMLTextAreaElement>(null);
-  const { gameUpdatedEvent } = useGameEvents();
+  const { event } = useGameEvents();
 
   const refreshData = useCallback(async () => {
     try {
@@ -30,10 +31,14 @@ const Story = (): JSX.Element => {
   }, [context.playerUuid, context.token]);
 
   useEffect(() => {
-    if (gameUpdatedEvent) {
+    refreshData();
+  }, [refreshData]);
+
+  useEffect(() => {
+    if (event?.type === 'game.updated') {
       refreshData();
     }
-  }, [gameUpdatedEvent, refreshData]);
+  }, [event, refreshData]);
 
   const Play = (): JSX.Element => {
     const submit = async (e: React.FormEvent) => {
@@ -107,6 +112,11 @@ const Story = (): JSX.Element => {
         <p className="lh-lg fs-5 px-2 w-100 text-break">
           {state?.entry?.story}
         </p>
+        <div className="container-fluid">
+          <div className="row gap-4">
+            <RecreateButton className="col btn btn-success" />
+          </div>
+        </div>
       </div>
     );
   };
@@ -115,7 +125,10 @@ const Story = (): JSX.Element => {
     return (
       <div className="w-100">
         <h3 className="text-center w-100">Waiting for other players...</h3>
-        <PlayerList players={state?.game?.players} filter={(p) => p.canPlayerSubmit ?? true} />
+        <PlayerList
+          players={state?.game?.players}
+          filter={(p) => p.canPlayerSubmit ?? true}
+        />
       </div>
     );
   };

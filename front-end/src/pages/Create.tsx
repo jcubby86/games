@@ -3,18 +3,17 @@ import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useAppContext } from '../contexts/AppContext';
-import useJoinGame from '../hooks/useJoinGame';
 import { alertError } from '../utils/errorHandler';
 import { gameVariants } from '../utils/gameVariants';
 import generateNickname from '../utils/nicknameGeneration';
+import { PlayerDto } from '../utils/types';
 
 const Create = (): JSX.Element => {
-  const { context } = useAppContext();
+  const { context, dispatchContext } = useAppContext();
   const [gameType, setGameType] = useState('');
   const nicknameRef = useRef<HTMLInputElement>(null);
   const suggestionRef = useRef(generateNickname());
   const navigate = useNavigate();
-  const joinGame = useJoinGame();
 
   const createGame = async (e: React.FormEvent) => {
     try {
@@ -27,11 +26,23 @@ const Create = (): JSX.Element => {
       const gameResponse = await axios.post('/api/games', {
         type: gameType.toUpperCase()
       });
-      await joinGame(
-        nicknameRef.current?.value || suggestionRef.current,
-        gameResponse.data.uuid
-      );
-      navigate('/' + gameResponse.data.type);
+      const response = await axios.post(`/api/games/${gameResponse.data.uuid}/players`, {
+        nickname: nicknameRef.current?.value || suggestionRef.current
+      });
+      const player: PlayerDto = response.data;
+
+      dispatchContext({
+        type: 'save',
+        state: {
+          playerUuid: player.uuid,
+          nickname: player.nickname,
+          gameUuid: player.game?.uuid,
+          gameCode: player.game?.code,
+          gameType: player.game?.type,
+          token: response.headers.authorization
+        }
+      });
+      navigate('/' + player.game!.type);
     } catch (err: unknown) {
       alertError(
         'Unable to create game. Please try again in a little bit.',

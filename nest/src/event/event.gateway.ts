@@ -1,19 +1,26 @@
-import { Logger } from '@nestjs/common';
+import { Logger, UseGuards } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import {
+  OnGatewayConnection,
   OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { WebsocketAuthGuard } from 'src/auth/websocket-auth.guard';
 import type { GameUpdatedEvent } from 'src/game/game.service';
 
 @WebSocketGateway({
   cors: {
     origin: '*',
   },
+  connectionStateRecovery: {
+    maxDisconnectionDuration: 2 * 60 * 1000,
+    skipMiddlewares: false,
+  },
 })
-export class EventGateway implements OnGatewayInit {
+@UseGuards(WebsocketAuthGuard)
+export class EventGateway implements OnGatewayInit, OnGatewayConnection {
   private readonly logger = new Logger(EventGateway.name);
   private server: Server;
 
@@ -22,18 +29,17 @@ export class EventGateway implements OnGatewayInit {
     this.logger.log('WebSocket server initialized');
   }
 
-  @SubscribeMessage('game.join')
-  handleEvent(
-    client: Socket,
-    data: {
-      gameUuid: string;
-      playerUuid: string;
-    },
-  ) {
-    this.logger.log(`Received game.join event from client: ${client.id}`);
+  async handleConnection(client: Socket) {
+    const headers = client.handshake.headers;
+    const gameUuid = headers['x-game-uuid'] as string;
+    const playerUuid = headers['x-player-uuid'] as string;
 
-    void client.join(data.gameUuid);
-    void client.join(data.playerUuid);
+    await client.join(gameUuid);
+    await client.join(playerUuid);
+
+    this.logger.log(
+      `Websocket client connected: ${client.id}, Player: ${playerUuid}, Game: ${gameUuid}`,
+    );
   }
 
   @SubscribeMessage('poke')

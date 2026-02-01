@@ -10,16 +10,16 @@ interface PlayerListProps {
 }
 
 const PlayerList = ({ players, filter }: PlayerListProps): JSX.Element => {
-  const { socket, isConnected, pokedEvent } = useGameEvents();
+  const { event, socket, isConnected } = useGameEvents();
   const { context } = useAppContext();
 
   useEffect(() => {
-    if (pokedEvent) {
+    if (event?.type === 'poke') {
       alert(
-        `You have been poked by ${pokedEvent.nickname || pokedEvent.from}!`
+        `You have been poked by ${event.data.nickname || event.data.from}!`
       );
     }
-  }, [pokedEvent]);
+  }, [event]);
 
   function handleClick(e: React.MouseEvent, p: PlayerDto) {
     e.stopPropagation();

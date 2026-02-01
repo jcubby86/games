@@ -84,44 +84,51 @@ export const AppContextProvider = ({
   const [context, dispatch] = useReducer(reducer, {});
 
   useEffect(() => {
-  const controller = new AbortController();
-  const storedState = loadFromStorage();
+    const controller = new AbortController();
+    const storedState = loadFromStorage();
 
-  // apply cached values immediately
-  if (storedState.playerUuid || storedState.gameUuid || storedState.token) {
-    dispatch({ type: 'save', state: storedState as AppState });
-  }
-
-  async function fetchPlayer() {
-    try {
-      if (storedState.playerUuid && storedState.gameUuid && storedState.token) {
-        const response = await axios.get(
-          `/api/players/${storedState.playerUuid}`,
-          { signal: controller.signal, headers: { Authorization: storedState.token } }
-        );
-        
-        const player : PlayerDto = response.data;
-        dispatch({
-          type: 'save',
-          state: {
-            playerUuid: player.uuid,
-            nickname: player.nickname,
-            gameUuid: player.game?.uuid,
-            gameCode: player.game?.code,
-            gameType: player.game?.type,
-            token: storedState.token
-          }
-        });
-      }
-    } catch (err) {
-      logError(err);
-      console.warn('Failed to sync with server, using cached player data');
+    // apply cached values immediately
+    if (storedState.playerUuid || storedState.gameUuid || storedState.token) {
+      dispatch({ type: 'save', state: storedState as AppState });
     }
-  }
 
-  fetchPlayer();
-  return () => controller.abort();
-}, []);
+    async function fetchPlayer() {
+      try {
+        if (
+          storedState.playerUuid &&
+          storedState.gameUuid &&
+          storedState.token
+        ) {
+          const response = await axios.get(
+            `/api/players/${storedState.playerUuid}`,
+            {
+              signal: controller.signal,
+              headers: { Authorization: storedState.token }
+            }
+          );
+
+          const player: PlayerDto = response.data;
+          dispatch({
+            type: 'save',
+            state: {
+              playerUuid: player.uuid,
+              nickname: player.nickname,
+              gameUuid: player.game?.uuid,
+              gameCode: player.game?.code,
+              gameType: player.game?.type,
+              token: storedState.token
+            }
+          });
+        }
+      } catch (err) {
+        logError(err);
+        console.warn('Failed to sync with server, using cached player data');
+      }
+    }
+
+    fetchPlayer();
+    return () => controller.abort();
+  }, []);
 
   return (
     <AppContext.Provider value={context}>

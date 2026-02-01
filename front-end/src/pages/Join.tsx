@@ -3,10 +3,10 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useAppContext } from '../contexts/AppContext';
-import useJoinGame from '../hooks/useJoinGame';
 import { alertError, logError } from '../utils/errorHandler';
 import { gameVariants } from '../utils/gameVariants';
 import generateNickname from '../utils/nicknameGeneration';
+import { PlayerDto } from '../utils/types';
 import { eqIgnoreCase as eq } from '../utils/utils';
 
 type JoinState =
@@ -14,13 +14,12 @@ type JoinState =
   | { validity: 'unknown' | 'invalid' };
 
 const Join = (): JSX.Element => {
-  const { context } = useAppContext();
+  const { context, dispatchContext } = useAppContext();
   const [code, setCode] = useState(context.gameCode ?? '');
   const [state, setState] = useState<JoinState>({ validity: 'unknown' });
   const nicknameRef = useRef<HTMLInputElement>(null);
   const suggestionRef = useRef(generateNickname());
   const navigate = useNavigate();
-  const joinGame = useJoinGame();
 
   const submit = async (e: React.FormEvent) => {
     try {
@@ -29,11 +28,24 @@ const Join = (): JSX.Element => {
         return;
       }
 
-      const player = await joinGame(
-        nicknameRef.current?.value || suggestionRef.current,
-        state.gameUuid
-      );
-      navigate('/' + player.game.type);
+      const response = await axios.post(`/api/games/${state.gameUuid}/players`, {
+        nickname: nicknameRef.current?.value || suggestionRef.current
+      });
+      const player: PlayerDto = response.data;
+
+      dispatchContext({
+        type: 'save',
+        state: {
+          playerUuid: player.uuid,
+          nickname: player.nickname,
+          gameUuid: player.game?.uuid,
+          gameCode: player.game?.code,
+          gameType: player.game?.type,
+          token: response.headers.authorization
+        }
+      });
+
+      navigate('/' + player.game!.type);
     } catch (err: unknown) {
       alertError('Error joining game', err);
     }
