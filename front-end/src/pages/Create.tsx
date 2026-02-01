@@ -43,7 +43,7 @@ const Create = (): JSX.Element => {
             code: player.game!.code,
             type: player.game!.type
           },
-          token: response.headers.authorization
+          token: response.headers['x-auth-token']
         }
       });
       navigate('/' + player.game!.type);

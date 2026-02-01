@@ -31,7 +31,7 @@ const StartGame = ({
         },
         {
           headers: {
-            Authorization: context.token
+            Authorization: `Bearer ${context.token}`
           }
         }
       );

@@ -21,6 +21,6 @@ body:json {
 }
 
 script:post-response {
-  bru.setEnvVar('token', res.getHeader('authorization'))
+  bru.setEnvVar('token', res.getHeader('x-auth-token'))
   bru.setEnvVar('playerUuid', res.body.uuid)
 }

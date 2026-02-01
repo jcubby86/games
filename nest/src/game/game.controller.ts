@@ -12,8 +12,7 @@ import {
 } from '@nestjs/common';
 import { GameService } from './game.service';
 import { StoryService } from '../story/story.service';
-import { GameAuthGuard } from '../auth/game-auth.guard';
-import { PlayerAuthGuard } from '../auth/player-auth.guard';
+import { GameAuthGuard } from '../auth/auth.guard';
 import { HmacService } from '../auth/hmac.service';
 import {
   GameDto,
@@ -65,13 +64,13 @@ export class GameController {
   ): Promise<PlayerDto> {
     const player = await this.gameService.addPlayer(uuid, data.nickname);
 
-    const token = this.hmacService.generateCombinedTokens(uuid, player.uuid);
-    res.setHeader('Authorization', `Bearer ${token}`);
+    const token = this.hmacService.generateToken(player.game!, player);
+    res.setHeader('x-auth-token', token);
 
     return player;
   }
 
-  @UseGuards(PlayerAuthGuard)
+  @UseGuards(GameAuthGuard)
   @Patch('players/:uuid')
   async updatePlayer(
     @Param('uuid') uuid: string,
@@ -80,13 +79,13 @@ export class GameController {
     return this.gameService.updatePlayer(uuid, data.nickname);
   }
 
-  @UseGuards(PlayerAuthGuard)
+  @UseGuards(GameAuthGuard)
   @Get('players/:uuid')
   async getPlayer(@Param('uuid') uuid: string): Promise<PlayerDto> {
     return this.gameService.getPlayer(uuid);
   }
 
-  @UseGuards(PlayerAuthGuard)
+  @UseGuards(GameAuthGuard)
   @Post('players/:uuid/name-entries')
   async addNameEntry(
     @Param('uuid') uuid: string,
@@ -95,7 +94,7 @@ export class GameController {
     return this.nameService.addNameEntry(uuid, data.name);
   }
 
-  @UseGuards(PlayerAuthGuard)
+  @UseGuards(GameAuthGuard)
   @Post('players/:uuid/story-entries')
   async addStoryEntry(
     @Param('uuid') uuid: string,
@@ -104,7 +103,7 @@ export class GameController {
     return await this.storyService.addStoryEntry(uuid, data.value);
   }
 
-  @UseGuards(PlayerAuthGuard)
+  @UseGuards(GameAuthGuard)
   @Delete('players/:uuid')
   async leaveGame(@Param('uuid') uuid: string): Promise<PlayerDto> {
     return this.gameService.leaveGame(uuid);

@@ -7,15 +7,15 @@ meta {
 patch {
   url: {{baseUrl}}/api/games/:uuid
   body: json
-  auth: none
+  auth: bearer
 }
 
 params:path {
   uuid: {{gameUuid}}
 }
 
-headers {
-  Authorization: {{token}}
+auth:bearer {
+  token: {{token}}
 }
 
 body:json {

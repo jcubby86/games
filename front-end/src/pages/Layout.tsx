@@ -15,7 +15,7 @@ const Layout = (): JSX.Element => {
 
       await axios.delete('/api/players/' + context.player!.uuid, {
         headers: {
-          Authorization: context.token
+          Authorization: `Bearer ${context.token}`
         }
       });
       dispatchContext({ type: 'clear' });

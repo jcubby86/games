@@ -7,15 +7,15 @@ meta {
 post {
   url: {{baseUrl}}/api/players/:uuid/name-entries
   body: json
-  auth: none
+  auth: bearer
 }
 
 params:path {
   uuid: {{playerUuid}}
 }
 
-headers {
-  Authorization: {{token}}
+auth:bearer {
+  token: {{token}}
 }
 
 body:json {

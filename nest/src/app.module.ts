@@ -10,9 +10,6 @@ import { StoryService } from './story/story.service';
 import { SuggestionService } from './suggestion/suggestion.service';
 import { SuggestionController } from './suggestion/suggestion.controller';
 import { NameService } from './name/name.service';
-import { GameAuthGuard } from './auth/game-auth.guard';
-import { PlayerAuthGuard } from './auth/player-auth.guard';
-import { WebsocketAuthGuard } from './auth/websocket-auth.guard';
 import { EventGateway } from './event/event.gateway';
 
 @Module({
@@ -28,9 +25,6 @@ import { EventGateway } from './event/event.gateway';
     StoryService,
     NameService,
     SuggestionService,
-    GameAuthGuard,
-    PlayerAuthGuard,
-    WebsocketAuthGuard,
     EventGateway,
   ],
 })

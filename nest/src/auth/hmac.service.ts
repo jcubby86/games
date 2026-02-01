@@ -2,6 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
 
+interface AuthPayload {
+  game: { uuid: string };
+  player: { uuid: string };
+}
+
 @Injectable()
 export class HmacService {
   private readonly secret: string;
@@ -16,28 +21,46 @@ export class HmacService {
     this.secret = hmacSecret;
   }
 
-  generateToken(playerUuid: string): string {
+  private sign(payload: string): string {
     return crypto
       .createHmac(this.algorithm, this.secret)
-      .update(`player:${playerUuid}`)
-      .digest('base64url'); // Truncate to 16 chars for shorter tokens
+      .update(payload)
+      .digest('base64url');
   }
 
-  validateToken(gameUuid: string, providedToken: string): boolean {
-    const expectedToken = this.generateToken(gameUuid);
-    return crypto.timingSafeEqual(
-      Buffer.from(expectedToken, 'utf8'),
-      Buffer.from(providedToken, 'utf8'),
+  generateToken(game: { uuid: string }, player: { uuid: string }): string {
+    const authPayload: AuthPayload = {
+      game: { uuid: game.uuid },
+      player: { uuid: player.uuid },
+    };
+
+    const payload = JSON.stringify(authPayload);
+
+    const signature = this.sign(payload);
+
+    return `${Buffer.from(payload).toString('base64url')}.${signature}`;
+  }
+
+  validateToken(token: string): AuthPayload | null {
+    const [encodedPayload, providedSignature] = token.split('.');
+
+    if (!encodedPayload || !providedSignature) {
+      return null;
+    }
+
+    const payload = Buffer.from(encodedPayload, 'base64url').toString('utf8');
+
+    const expectedSignature = this.sign(payload);
+
+    const isValid = crypto.timingSafeEqual(
+      Buffer.from(expectedSignature, 'utf8'),
+      Buffer.from(providedSignature, 'utf8'),
     );
-  }
 
-  /**
-   * Generate combined auth tokens for both game and player
-   * Format: "gameToken:playerToken"
-   */
-  generateCombinedTokens(gameUuid: string, playerUuid: string): string {
-    const gameToken = this.generateToken(gameUuid);
-    const playerToken = this.generateToken(playerUuid);
-    return `${gameToken}:${playerToken}`;
+    if (!isValid) {
+      return null;
+    }
+
+    return JSON.parse(payload) as AuthPayload;
   }
 }

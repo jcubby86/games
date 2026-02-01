@@ -7,13 +7,13 @@ meta {
 delete {
   url: {{baseUrl}}/api/players/:uuid
   body: none
-  auth: none
+  auth: bearer
 }
 
 params:path {
   uuid: {{playerUuid}}
 }
 
-headers {
-  Authorization: {{token}}
+auth:bearer {
+  token: {{token}}
 }

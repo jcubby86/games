@@ -19,7 +19,7 @@ const Names = (): JSX.Element => {
   const refreshData = useCallback(async () => {
     try {
       const response = await axios.get('/api/players/' + context.player!.uuid, {
-        headers: { Authorization: context.token }
+        headers: { Authorization: `Bearer ${context.token}` }
       });
       setState({ ...response.data });
     } catch (err: unknown) {
@@ -46,7 +46,7 @@ const Names = (): JSX.Element => {
             name: entryRef.current.value
           },
           {
-            headers: { Authorization: context.token }
+            headers: { Authorization: `Bearer ${context.token}` }
           }
         );
         setState(null);
@@ -77,7 +77,7 @@ const Names = (): JSX.Element => {
           {
             phase: END
           },
-          { headers: { Authorization: context.token } }
+          { headers: { Authorization: `Bearer ${context.token}` } }
         );
         setState(null);
       } catch (err: unknown) {

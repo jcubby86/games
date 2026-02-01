@@ -1,13 +1,12 @@
-import { Logger, UseGuards } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import {
-  OnGatewayConnection,
   OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { WebsocketAuthGuard } from 'src/auth/websocket-auth.guard';
+import { HmacService } from 'src/auth/hmac.service';
 import type { GameUpdatedEvent } from 'src/game/game.service';
 
 @WebSocketGateway({
@@ -19,27 +18,38 @@ import type { GameUpdatedEvent } from 'src/game/game.service';
     skipMiddlewares: false,
   },
 })
-@UseGuards(WebsocketAuthGuard)
-export class EventGateway implements OnGatewayInit, OnGatewayConnection {
+export class EventGateway implements OnGatewayInit {
   private readonly logger = new Logger(EventGateway.name);
   private server: Server;
+
+  constructor(private readonly hmacService: HmacService) {}
 
   afterInit(server: Server) {
     this.server = server;
     this.logger.log('WebSocket server initialized');
-  }
 
-  async handleConnection(client: Socket) {
-    const headers = client.handshake.headers;
-    const gameUuid = headers['x-game-uuid'] as string;
-    const playerUuid = headers['x-player-uuid'] as string;
+    server.use((socket, next) => {
+      const token = socket.handshake.auth.bearer as string;
+      if (!token) {
+        return next(new Error('Authentication token is missing'));
+      }
 
-    await client.join(gameUuid);
-    await client.join(playerUuid);
+      const authToken = this.hmacService.validateToken(token);
+      if (!authToken) {
+        return next(new Error('Invalid authentication token'));
+      }
 
-    this.logger.log(
-      `Websocket client connected: ${client.id}, Player: ${playerUuid}, Game: ${gameUuid}`,
-    );
+      void socket.join([
+        `game:${authToken.game.uuid}`,
+        `player:${authToken.player.uuid}`,
+      ]);
+
+      this.logger.log(
+        `Websocket client connected: ${socket.id}, Player: ${authToken.player.uuid}, Game: ${authToken.game.uuid}`,
+      );
+
+      next();
+    });
   }
 
   @SubscribeMessage('poke')
@@ -53,16 +63,16 @@ export class EventGateway implements OnGatewayInit, OnGatewayConnection {
   ) {
     if (data.to === data.from) return;
 
-    this.logger.debug(
-      `Received poke event from player: ${data.from} to: ${data.to}`,
-    );
-
-    this.server.to(data.to).emit('poke', {
+    this.server.to(`player:${data.to}`).emit('poke', {
       from: data.from,
       message: `You have been poked by ${data.nickname || data.from}!`,
       nickname: data.nickname,
       time: new Date().toISOString(),
     });
+
+    this.logger.debug(
+      `Sent poke event from player: ${data.from} to: ${data.to}`,
+    );
   }
 
   @OnEvent('game.updated')
@@ -75,8 +85,8 @@ export class EventGateway implements OnGatewayInit, OnGatewayConnection {
     });
 
     this.logger.debug(
-      `Emitting game update for game ${event.game.uuid}: ${JSON.stringify(payload)}`,
+      `Emitting game update for game ${event.game.uuid}: ${payload}`,
     );
-    this.server.to(event.game.uuid).emit('game.updated', payload);
+    this.server.to(`game:${event.game.uuid}`).emit('game.updated', payload);
   }
 }

@@ -22,15 +22,13 @@ export const SocketProvider = ({
   const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
-    if (!context.token || !context.player || !context.game) {
+    if (!context.token) {
       return;
     }
 
     socketRef.current = io(URL, {
-      extraHeaders: {
-        Authorization: context.token || '',
-        'x-player-uuid': context.player.uuid || '',
-        'x-game-uuid': context.game.uuid || ''
+      auth: {
+        bearer: context.token
       }
     });
 
@@ -45,7 +43,7 @@ export const SocketProvider = ({
     return () => {
       socketRef.current?.disconnect();
     };
-  }, [context]);
+  }, [context.token]);
 
   const emit: SocketContextType['emit'] = (event, data) => {
     socketRef.current?.emit(event, data);

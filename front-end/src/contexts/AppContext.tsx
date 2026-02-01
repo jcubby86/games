@@ -21,9 +21,9 @@ export interface AppState {
 
 // Storage keys
 const STORAGE_KEYS = {
-  PLAYER_ID: 'games-v2-player-id',
-  GAME_ID: 'games-v2-game-id',
-  TOKEN: 'games-v2-token'
+  PLAYER_ID: 'games-v3-player-id',
+  GAME_ID: 'games-v3-game-id',
+  TOKEN: 'games-v3-token'
 } as const;
 
 // Helper functions for localStorage

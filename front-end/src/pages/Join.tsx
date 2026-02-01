@@ -28,9 +28,12 @@ const Join = (): JSX.Element => {
         return;
       }
 
-      const response = await axios.post(`/api/games/${state.gameUuid}/players`, {
-        nickname: nicknameRef.current?.value || suggestionRef.current
-      });
+      const response = await axios.post(
+        `/api/games/${state.gameUuid}/players`,
+        {
+          nickname: nicknameRef.current?.value || suggestionRef.current
+        }
+      );
       const player: PlayerDto = response.data;
 
       dispatchContext({
@@ -38,14 +41,14 @@ const Join = (): JSX.Element => {
         state: {
           player: {
             uuid: player.uuid,
-            nickname: player.nickname,
+            nickname: player.nickname
           },
           game: {
             uuid: player.game!.uuid,
             code: player.game!.code,
             type: player.game!.type
           },
-          token: response.headers.authorization
+          token: response.headers['x-auth-token']
         }
       });
 
