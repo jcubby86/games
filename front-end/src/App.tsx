@@ -9,7 +9,7 @@ import Layout from './pages/Layout';
 import Names from './pages/Names';
 import Privacy from './pages/Privacy';
 import Story from './pages/Story';
-import { NAMES, STORY } from './utils/constants';
+import { NAME, STORY } from './utils/constants';
 import './App.scss';
 import 'react-tooltip/dist/react-tooltip.css';
 
@@ -24,7 +24,7 @@ function App(): JSX.Element {
               <Route path="join" element={<Join />} />
               <Route path="create" element={<Create />} />
               <Route path={STORY} element={<Story />} />
-              <Route path={NAMES} element={<Names />} />
+              <Route path={NAME} element={<Names />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="*" element={<Home />} />
             </Route>

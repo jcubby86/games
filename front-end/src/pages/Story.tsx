@@ -81,9 +81,9 @@ const Story = (): JSX.Element => {
 
     return (
       <form className="w-100" onSubmit={submit}>
-        <h3 className="text-center w-100">{state?.entry?.hints?.prompt}</h3>
+        <h3 className="text-center w-100">{state?.entry?.hint?.prompt}</h3>
         <p className="form-label">
-          {state?.entry?.hints?.filler} {state?.entry?.hints?.prefix}
+          {state?.entry?.hint?.filler} {state?.entry?.hint?.prefix}
         </p>
         <textarea
           placeholder=""
@@ -91,7 +91,7 @@ const Story = (): JSX.Element => {
           className="form-control"
           rows={3}
         />
-        <p className="form-label">{state?.entry?.hints?.suffix}</p>
+        <p className="form-label">{state?.entry?.hint?.suffix}</p>
         <div className="container-fluid mt-4">
           <div className="row gap-4">
             <input

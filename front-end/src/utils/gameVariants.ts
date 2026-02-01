@@ -1,4 +1,4 @@
-import { NAMES, STORY } from './constants';
+import { NAME, STORY } from './constants';
 
 export interface GameVariant {
   type: string;
@@ -13,7 +13,7 @@ export const StoryVariant: GameVariant = {
 };
 
 export const NameVariant: GameVariant = {
-  type: NAMES,
+  type: NAME,
   title: 'The Name Game',
   description:
     "Everyone secretly enters the name of a person (real or fictional) that others would know. Players then take turns guessing each other's names until only one remains!"

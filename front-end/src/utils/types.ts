@@ -6,11 +6,12 @@ export interface NameEntryDto {
 export interface StoryEntryDto {
   values: string[];
   story?: string;
-  hints?: {
+  hint?: {
     filler: string;
     prefix: string;
     suffix: string;
     prompt: string;
+    category: string;
   };
 }
 

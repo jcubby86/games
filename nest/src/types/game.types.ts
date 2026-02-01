@@ -3,15 +3,18 @@ export interface NameEntryDto {
   order?: number;
 }
 
+export interface Hint {
+  filler: string;
+  prefix: string;
+  suffix: string;
+  prompt: string;
+  category: string;
+}
+
 export interface StoryEntryDto {
   values: string[];
   story?: string;
-  hints?: {
-    filler: string;
-    prefix: string;
-    suffix: string;
-    prompt: string;
-  };
+  hint?: Hint;
 }
 
 export interface PlayerDto {

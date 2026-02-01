@@ -17,6 +17,7 @@ import { GameService } from 'src/game/game.service';
 import type { GameUpdatedEvent } from 'src/game/game.service';
 import { PrismaService } from 'src/prisma.service';
 import { PlayerDto, StoryEntryDto } from 'src/types/game.types';
+import { hints } from './story.constants';
 
 interface StoryMapEntry {
   player: Player;
@@ -24,18 +25,6 @@ interface StoryMapEntry {
   length: number;
   canSubmit: () => boolean;
 }
-
-const fillers = ['', '(Man) ', '(Man) and (Woman) ', '', '', ''];
-const prefixes = ['', 'and ', 'were ', 'He said, "', 'She said, "', 'So they '];
-const suffixes = [' ', ' ', ' ', '" ', '" ', ''];
-const prompts = [
-  "Man's name:",
-  "Woman's name:",
-  'Activity:',
-  'Statement:',
-  'Statement:',
-  'Activity:',
-];
 
 @Injectable()
 export class StoryService {
@@ -46,20 +35,11 @@ export class StoryService {
     private eventEmitter: EventEmitter2,
   ) {}
 
-  static getHints(round: number) {
-    return {
-      filler: fillers[round],
-      prefix: prefixes[round],
-      suffix: suffixes[round],
-      prompt: prompts[round],
-    };
-  }
-
   static mapToStoryEntryDto(entry?: StoryEntry): StoryEntryDto {
     return {
       values: entry?.values || [],
       story: entry?.story || undefined,
-      hints: StoryService.getHints(entry?.values.length ?? 0),
+      hint: hints[entry?.values.length ?? 0],
     };
   }
 
@@ -129,7 +109,7 @@ export class StoryService {
     const allSubmitted = entries.every((entry) => entry.canSubmit());
     const minLength = Math.min(...entries.map((entry) => entry.length));
 
-    if (allSubmitted && minLength >= prompts.length) {
+    if (allSubmitted && minLength >= hints.length) {
       this.logger.log(
         `All story entries completed for game ${event.game.uuid}, generating stories. Transitioning to READ phase.`,
       );
@@ -171,9 +151,9 @@ export class StoryService {
     const offset = Math.floor(Math.random() * entries.length);
     for (let i = 0; i < entries.length; i++) {
       let s = '';
-      for (let j = 0; j < prefixes.length; j++) {
+      for (let j = 0; j < hints.length; j++) {
         const value = entries[(i + j + offset) % entries.length].values[j];
-        s += prefixes[j] + value + suffixes[j];
+        s += hints[j].prefix + value + hints[j].suffix;
       }
 
       entries[i].story = s;
@@ -234,7 +214,7 @@ export class StoryService {
       const playerEntry = playerMap.get(player.uuid)!;
       response.entry = {
         values: playerEntry.entry?.values ?? [],
-        hints: StoryService.getHints(playerEntry.length),
+        hint: hints[playerEntry.length],
       };
     } else if (game.phase === GamePhase.READ) {
       const playerEntry = playerMap.get(player.uuid)!;
