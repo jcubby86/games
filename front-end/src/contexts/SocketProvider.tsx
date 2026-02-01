@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { createContext, useContext, useEffect, useRef } from 'react';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { Socket, io } from 'socket.io-client';
 
 import { useAppContext } from './AppContext';
@@ -8,6 +8,7 @@ interface SocketContextType {
   emit: (event: string, data: any) => void;
   on: (event: string, callback: (data: any) => void) => void;
   off: (event: string, callback: (data: any) => void) => void;
+  connected: boolean;
 }
 
 const SocketContext = createContext<SocketContextType | null>(null);
@@ -20,6 +21,7 @@ export const SocketProvider = ({
 }) => {
   const { context } = useAppContext();
   const socketRef = useRef<Socket | null>(null);
+  const [connected, setConnected] = useState<boolean>(false);
 
   useEffect(() => {
     if (!context.token) {
@@ -32,13 +34,20 @@ export const SocketProvider = ({
       }
     });
 
-    socketRef.current.on('connect', () =>
-      console.log('Connected to websocket server')
-    );
+    socketRef.current.on('connect', () => {
+      setConnected(true);
+      return console.log('Connected to websocket server');
+    });
 
-    socketRef.current.on('disconnect', () =>
-      console.log('Disconnected from websocket server')
-    );
+    socketRef.current.on('connect_error', (err) => {
+      setConnected(false);
+      return console.log('Connection error: ', err.message);
+    });
+
+    socketRef.current.on('disconnect', () => {
+      setConnected(false);
+      return console.log('Disconnected from websocket server');
+    });
 
     return () => {
       socketRef.current?.disconnect();
@@ -50,7 +59,6 @@ export const SocketProvider = ({
   };
 
   const on: SocketContextType['on'] = (event, callback) => {
-    if (!socketRef.current) console.log('Socket not connected yet');
     socketRef.current?.on(event, callback);
   };
 
@@ -59,7 +67,14 @@ export const SocketProvider = ({
   };
 
   return (
-    <SocketContext.Provider value={{ emit, on, off }}>
+    <SocketContext.Provider
+      value={{
+        emit,
+        on,
+        off,
+        connected
+      }}
+    >
       {children}
     </SocketContext.Provider>
   );

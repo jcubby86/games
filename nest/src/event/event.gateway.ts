@@ -9,6 +9,11 @@ import { Server, Socket } from 'socket.io';
 import { HmacService } from 'src/auth/hmac.service';
 import type { GameUpdatedEvent } from 'src/game/game.service';
 
+interface AuthenticatedSocket extends Socket {
+  player: { uuid: string };
+  game: { uuid: string };
+}
+
 @WebSocketGateway({
   cors: {
     origin: '*',
@@ -28,18 +33,22 @@ export class EventGateway implements OnGatewayInit {
     this.server = server;
     this.logger.log('WebSocket server initialized');
 
-    server.use((socket, next) => {
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    server.use(async (socket: AuthenticatedSocket, next) => {
       const token = socket.handshake.auth.bearer as string;
       if (!token) {
-        return next(new Error('Authentication token is missing'));
+        return next(new Error('Bearer token is missing'));
       }
 
       const authToken = this.hmacService.validateToken(token);
       if (!authToken) {
-        return next(new Error('Invalid authentication token'));
+        return next(new Error('Invalid bearer token'));
       }
 
-      void socket.join([
+      socket.player = authToken.player;
+      socket.game = authToken.game;
+
+      await socket.join([
         `game:${authToken.game.uuid}`,
         `player:${authToken.player.uuid}`,
       ]);
@@ -47,6 +56,7 @@ export class EventGateway implements OnGatewayInit {
       this.logger.log(
         `Websocket client connected: ${socket.id}, Player: ${authToken.player.uuid}, Game: ${authToken.game.uuid}`,
       );
+      this.logger.debug(`Socket rooms: ${Array.from(socket.rooms).join(', ')}`);
 
       next();
     });
@@ -54,39 +64,45 @@ export class EventGateway implements OnGatewayInit {
 
   @SubscribeMessage('poke')
   handlePoke(
-    client: Socket,
+    client: AuthenticatedSocket,
     data: {
       to: string;
-      from: string;
-      nickname?: string;
     },
   ) {
-    if (data.to === data.from) return;
+    if (data.to === client.player.uuid) return;
 
     this.server.to(`player:${data.to}`).emit('poke', {
-      from: data.from,
-      message: `You have been poked by ${data.nickname || data.from}!`,
-      nickname: data.nickname,
+      from: client.player,
+      message: `You have been poked by ${client.player.uuid}!`,
       time: new Date().toISOString(),
     });
 
     this.logger.debug(
-      `Sent poke event from player: ${data.from} to: ${data.to}`,
+      `Sent poke event from player: ${client.player.uuid} to: ${data.to}`,
     );
   }
 
   @OnEvent('game.updated')
   emitGameUpdate(event: GameUpdatedEvent) {
     const payload = JSON.stringify({
-      gameUuid: event.game.uuid,
-      playerUuid: event.player?.uuid,
-      nickname: event.player?.nickname,
+      game: {
+        uuid: event.game.uuid,
+        phase: event.game.phase,
+        type: event.game.type,
+      },
+      player: event.player
+        ? {
+            uuid: event.player.uuid,
+            nickname: event.player.nickname,
+          }
+        : undefined,
       action: event.action,
     });
 
-    this.logger.debug(
-      `Emitting game update for game ${event.game.uuid}: ${payload}`,
-    );
     this.server.to(`game:${event.game.uuid}`).emit('game.updated', payload);
+
+    this.logger.debug(
+      `Sent game updated event to game:${event.game.uuid}: ${payload}`,
+    );
   }
 }

@@ -6,6 +6,7 @@ import PlayerList from '../components/PlayerList';
 import RecreateButton from '../components/RecreateButton';
 import StartGame from '../components/StartGame';
 import { useAppContext } from '../contexts/AppContext';
+import { useSocket } from '../contexts/SocketProvider';
 import { END, JOIN, PLAY, READ } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
 import { NameVariant } from '../utils/gameVariants';
@@ -13,10 +14,14 @@ import { PlayerDto } from '../utils/types';
 
 const Names = (): JSX.Element => {
   const { context } = useAppContext();
+  const socket = useSocket();
   const [state, setState] = useState<PlayerDto | null>(null);
   const entryRef = useRef<HTMLInputElement>(null);
 
   const refreshData = useCallback(async () => {
+    if (!context.player || !context.token) {
+      return;
+    }
     try {
       const response = await axios.get('/api/players/' + context.player!.uuid, {
         headers: { Authorization: `Bearer ${context.token}` }
@@ -28,8 +33,20 @@ const Names = (): JSX.Element => {
   }, [context.player, context.token]);
 
   useEffect(() => {
+    function gameUpdated(event: unknown) {
+      console.log('Game updated:', event);
+      refreshData();
+    }
+
+    socket.on('game.updated', gameUpdated);
+    return () => {
+      socket.off('game.updated', gameUpdated);
+    };
+  }, [socket, refreshData]);
+
+  useEffect(() => {
     refreshData();
-  }, [refreshData, context]);
+  }, [context, refreshData]);
 
   const Play = (): JSX.Element => {
     const sendEntry = async (e: React.FormEvent) => {
