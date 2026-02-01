@@ -24,6 +24,7 @@ export interface PlayerDto {
   entries?: NameEntryDto[];
   canPlayerSubmit?: boolean;
   game?: GameDto;
+  roles?: string[];
 }
 
 export interface GameDto {

@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { GameDto, PlayerDto } from 'src/types/game.types';
 
 interface AuthPayload {
   game: { uuid: string };
-  player: { uuid: string };
+  player: { uuid: string; nickname: string; roles?: string[] };
 }
 
 @Injectable()
@@ -24,13 +25,14 @@ export class AuthService {
     this.secret = jwtSecret;
   }
 
-  async generateTokenAsync(
-    game: { uuid: string },
-    player: { uuid: string },
-  ): Promise<string> {
+  async generateTokenAsync(game: GameDto, player: PlayerDto): Promise<string> {
     const payload: AuthPayload = {
       game: { uuid: game.uuid },
-      player: { uuid: player.uuid },
+      player: {
+        uuid: player.uuid,
+        nickname: player.nickname,
+        roles: player.roles,
+      },
     };
     return this.jwtService.signAsync(payload, {
       secret: this.secret,

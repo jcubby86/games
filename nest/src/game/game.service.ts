@@ -51,12 +51,14 @@ export class GameService {
     player: Player,
     canPlayerSubmit?: boolean,
     game?: GameDto,
+    roles?: string[],
   ): PlayerDto {
     return {
       uuid: player.uuid,
       nickname: player.nickname,
       canPlayerSubmit: canPlayerSubmit ?? false,
       game,
+      roles,
     };
   }
 
@@ -176,7 +178,11 @@ export class GameService {
     const player = await this.prisma.player.findUnique({
       where: { uuid },
       include: {
-        game: true,
+        game: {
+          include: {
+            players: { select: { uuid: true }, orderBy: { id: 'asc' } },
+          },
+        },
       },
     });
     if (!player) {
@@ -185,11 +191,16 @@ export class GameService {
       return GameService.mapToPlayerDto(player);
     }
 
+    const roles: string[] = [];
+    if (player.game.players[0].uuid === player.uuid) {
+      roles.push('host');
+    }
+
     switch (player.game.type) {
       case GameType.NAME:
-        return this.nameService.getPlayer(player, player.game);
+        return this.nameService.getPlayer(player, player.game, roles);
       case GameType.STORY:
-        return this.storyService.getPlayer(player, player.game);
+        return this.storyService.getPlayer(player, player.game, roles);
     }
   }
 

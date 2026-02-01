@@ -138,7 +138,11 @@ export class NameService {
     return playerMap;
   }
 
-  async getPlayer(player: Player, game: Game): Promise<PlayerDto> {
+  async getPlayer(
+    player: Player,
+    game: Game,
+    roles?: string[],
+  ): Promise<PlayerDto> {
     const playerMap = await this.getPlayerSubmissionMap(game);
     const entries = Array.from(playerMap.values());
 
@@ -149,6 +153,7 @@ export class NameService {
         game,
         entries.map((e) => GameService.mapToPlayerDto(e.player, e.canSubmit())),
       ),
+      roles,
     );
 
     if (game.phase === GamePhase.READ) {

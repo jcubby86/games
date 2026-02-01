@@ -78,8 +78,17 @@ export class GameController {
   async updatePlayer(
     @Param('uuid') uuid: string,
     @Body() data: { nickname: string },
+    @Res({ passthrough: true }) res: Response,
   ): Promise<PlayerDto> {
-    return this.gameService.updatePlayer(uuid, data.nickname);
+    const player = await this.gameService.updatePlayer(uuid, data.nickname);
+
+    const token = await this.authService.generateTokenAsync(
+      player.game!,
+      player,
+    );
+    res.setHeader('x-auth-token', token);
+
+    return player;
   }
 
   @UseGuards(GameAuthGuard)
