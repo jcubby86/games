@@ -1,24 +1,18 @@
-
-# Use the official Node.js image as the base image
-FROM node:lts
-
-# Set the working directory inside the container
+# Builder stage: install dev deps, generate Prisma client, build app
+FROM node:lts AS builder
 WORKDIR /usr/src/app
-
-# Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
-
-# Install the application dependencies
-RUN npm install
-
-# Copy the rest of the application files
+RUN npm ci
 COPY . .
-
-# Build the NestJS application
+RUN npx prisma generate
 RUN npm run build
 
-# Expose the application port
+# Runtime stage: smaller image with only production dependencies
+FROM node:lts AS runner
+WORKDIR /usr/src/app
+ENV NODE_ENV=production
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY --from=builder /usr/src/app/dist ./dist
 EXPOSE 3000
-
-# Command to run the application
-CMD ["node", "dist/main"]
+CMD ["node", "dist/src/main"]
