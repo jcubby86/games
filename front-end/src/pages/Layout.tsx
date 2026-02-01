@@ -13,7 +13,7 @@ const Layout = (): JSX.Element => {
     try {
       e.preventDefault();
 
-      await axios.delete('/api/players/' + context.playerUuid, {
+      await axios.delete('/api/players/' + context.player!.uuid, {
         headers: {
           Authorization: context.token
         }
@@ -35,7 +35,7 @@ const Layout = (): JSX.Element => {
               <i className="nf-fa-home px-3"></i>Games
             </Link>
 
-            {context.gameUuid && (
+            {context.player && (
               <div className="d-flex justify-content-start">
                 <button className="btn btn-outline-danger" onClick={leaveGame}>
                   <Icon icon="nf-mdi-account_off" className="pe-2" />

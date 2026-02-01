@@ -15,7 +15,7 @@ type JoinState =
 
 const Join = (): JSX.Element => {
   const { context, dispatchContext } = useAppContext();
-  const [code, setCode] = useState(context.gameCode ?? '');
+  const [code, setCode] = useState(context.game?.code ?? '');
   const [state, setState] = useState<JoinState>({ validity: 'unknown' });
   const nicknameRef = useRef<HTMLInputElement>(null);
   const suggestionRef = useRef(generateNickname());
@@ -36,11 +36,15 @@ const Join = (): JSX.Element => {
       dispatchContext({
         type: 'save',
         state: {
-          playerUuid: player.uuid,
-          nickname: player.nickname,
-          gameUuid: player.game?.uuid,
-          gameCode: player.game?.code,
-          gameType: player.game?.type,
+          player: {
+            uuid: player.uuid,
+            nickname: player.nickname,
+          },
+          game: {
+            uuid: player.game!.uuid,
+            code: player.game!.code,
+            type: player.game!.type
+          },
           token: response.headers.authorization
         }
       });
@@ -52,8 +56,8 @@ const Join = (): JSX.Element => {
   };
 
   useEffect(() => {
-    setCode((c) => context.gameCode ?? c);
-  }, [context.gameCode]);
+    setCode((c) => context.game?.code ?? c);
+  }, [context.game?.code]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -118,7 +122,7 @@ const Join = (): JSX.Element => {
             autoCorrect="off"
             placeholder={suggestionRef.current}
             maxLength={30}
-            defaultValue={context.nickname}
+            defaultValue={context.player?.nickname}
             ref={nicknameRef}
           />
         </div>
@@ -128,7 +132,7 @@ const Join = (): JSX.Element => {
           type="submit"
           className="form-control btn btn-success col-12 mt-3"
           value={
-            state.validity === 'valid' && context.gameCode === code
+            state.validity === 'valid' && context.game?.code === code
               ? 'Return to Game'
               : 'Join Game'
           }

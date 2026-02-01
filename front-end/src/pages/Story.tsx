@@ -7,7 +7,6 @@ import PlayerList from '../components/PlayerList';
 import RecreateButton from '../components/RecreateButton';
 import StartGame from '../components/StartGame';
 import { useAppContext } from '../contexts/AppContext';
-import { useGameEvents } from '../hooks/useGameEvents';
 import { JOIN, PLAY, READ } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
 import { StoryVariant } from '../utils/gameVariants';
@@ -17,28 +16,21 @@ const Story = (): JSX.Element => {
   const { context } = useAppContext();
   const [state, setState] = useState<PlayerDto | null>(null);
   const entryRef = useRef<HTMLTextAreaElement>(null);
-  const { event } = useGameEvents();
 
   const refreshData = useCallback(async () => {
     try {
-      const response = await axios.get('/api/players/' + context.playerUuid, {
+      const response = await axios.get('/api/players/' + context.player!.uuid, {
         headers: { Authorization: context.token }
       });
       setState({ ...response.data });
     } catch (err: unknown) {
       logError(err);
     }
-  }, [context.playerUuid, context.token]);
+  }, [context.player, context.token]);
 
   useEffect(() => {
     refreshData();
-  }, [refreshData]);
-
-  useEffect(() => {
-    if (event?.type === 'game.updated') {
-      refreshData();
-    }
-  }, [event, refreshData]);
+  }, [refreshData, context]);
 
   const Play = (): JSX.Element => {
     const submit = async (e: React.FormEvent) => {
@@ -50,7 +42,7 @@ const Story = (): JSX.Element => {
         }
 
         await axios.post(
-          `/api/players/${context.playerUuid}/story-entries`,
+          `/api/players/${context.player!.uuid}/story-entries`,
           {
             value: entryRef.current.value
           },

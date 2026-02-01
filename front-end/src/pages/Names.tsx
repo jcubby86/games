@@ -6,38 +6,30 @@ import PlayerList from '../components/PlayerList';
 import RecreateButton from '../components/RecreateButton';
 import StartGame from '../components/StartGame';
 import { useAppContext } from '../contexts/AppContext';
-import { useGameEvents } from '../hooks/useGameEvents';
 import { END, JOIN, PLAY, READ } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
 import { NameVariant } from '../utils/gameVariants';
-import { NameEntryDto, PlayerDto } from '../utils/types';
+import { PlayerDto } from '../utils/types';
 
 const Names = (): JSX.Element => {
   const { context } = useAppContext();
   const [state, setState] = useState<PlayerDto | null>(null);
   const entryRef = useRef<HTMLInputElement>(null);
-  const { event } = useGameEvents();
 
   const refreshData = useCallback(async () => {
     try {
-      const response = await axios.get('/api/players/' + context.playerUuid, {
+      const response = await axios.get('/api/players/' + context.player!.uuid, {
         headers: { Authorization: context.token }
       });
       setState({ ...response.data });
     } catch (err: unknown) {
       logError(err);
     }
-  }, [context.playerUuid, context.token]);
+  }, [context.player, context.token]);
 
   useEffect(() => {
     refreshData();
-  }, [refreshData]);
-
-  useEffect(() => {
-    if (event?.type === 'game.updated') {
-      refreshData();
-    }
-  }, [event, refreshData]);
+  }, [refreshData, context]);
 
   const Play = (): JSX.Element => {
     const sendEntry = async (e: React.FormEvent) => {
@@ -49,7 +41,7 @@ const Names = (): JSX.Element => {
         }
 
         await axios.post(
-          `/api/players/${context.playerUuid}/name-entries`,
+          `/api/players/${context.player!.uuid}/name-entries`,
           {
             name: entryRef.current.value
           },
@@ -81,7 +73,7 @@ const Names = (): JSX.Element => {
       try {
         e.preventDefault();
         await axios.patch(
-          `/api/games/${context.gameUuid}`,
+          `/api/games/${context.game!.uuid}`,
           {
             phase: END
           },

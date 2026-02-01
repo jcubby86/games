@@ -34,11 +34,15 @@ const Create = (): JSX.Element => {
       dispatchContext({
         type: 'save',
         state: {
-          playerUuid: player.uuid,
-          nickname: player.nickname,
-          gameUuid: player.game?.uuid,
-          gameCode: player.game?.code,
-          gameType: player.game?.type,
+          player: {
+            uuid: player.uuid,
+            nickname: player.nickname,
+          },
+          game: {
+            uuid: player.game!.uuid,
+            code: player.game!.code,
+            type: player.game!.type
+          },
           token: response.headers.authorization
         }
       });
@@ -79,7 +83,7 @@ const Create = (): JSX.Element => {
             autoCorrect="off"
             placeholder={suggestionRef.current}
             maxLength={30}
-            defaultValue={context.nickname}
+            defaultValue={context.player?.nickname}
             ref={nicknameRef}
           />
         </div>

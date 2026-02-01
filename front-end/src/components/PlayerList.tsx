@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import { useAppContext } from '../contexts/AppContext';
-import { useGameEvents } from '../hooks/useGameEvents';
+import { useSocket } from '../contexts/SocketProvider';
 import { PlayerDto } from '../utils/types';
 
 interface PlayerListProps {
@@ -10,24 +10,28 @@ interface PlayerListProps {
 }
 
 const PlayerList = ({ players, filter }: PlayerListProps): JSX.Element => {
-  const { event, socket, isConnected } = useGameEvents();
   const { context } = useAppContext();
+  const socket = useSocket();
 
   useEffect(() => {
-    if (event?.type === 'poke') {
-      alert(
-        `You have been poked by ${event.data.nickname || event.data.from}!`
-      );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    function poked(event: any) {
+      console.log('Poked by', event.nickname || event.from);
     }
-  }, [event]);
+    
+    socket.on('poke', poked);
+    return () => {
+      socket.off('poke', poked);
+    };
+  }, [socket]);
 
   function handleClick(e: React.MouseEvent, p: PlayerDto) {
     e.stopPropagation();
-    if (isConnected && p.uuid && p.uuid !== context.playerUuid) {
+    if (p.uuid !== context.player?.uuid) {
       socket.emit('poke', {
         to: p.uuid,
-        from: context.playerUuid,
-        nickname: context.nickname
+        from: context.player?.uuid,
+        nickname: context.player?.nickname
       });
     }
   }

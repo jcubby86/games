@@ -25,7 +25,7 @@ const StartGame = ({
     try {
       e.preventDefault();
       await axios.patch(
-        `/api/games/${context.gameUuid}`,
+        `/api/games/${context.game!.uuid}`,
         {
           phase: PLAY
         },
@@ -55,7 +55,7 @@ const StartGame = ({
             <input
               className="form-control"
               type="text"
-              value={context.gameCode ?? ''}
+              value={context.game!.code}
               aria-label="game code"
               readOnly
               id="gameCode"

@@ -1,4 +1,3 @@
-import axios from 'axios';
 import {
   Dispatch,
   createContext,
@@ -7,15 +6,16 @@ import {
   useReducer
 } from 'react';
 
-import { logError } from '../utils/errorHandler';
-import { PlayerDto } from '../utils/types';
-
 export interface AppState {
-  playerUuid?: string;
-  nickname?: string;
-  gameUuid?: string;
-  gameCode?: string;
-  gameType?: string;
+  player?: {
+    uuid: string;
+    nickname: string;
+  };
+  game?: {
+    uuid: string;
+    code: string;
+    type: string;
+  };
   token?: string;
 }
 
@@ -28,18 +28,22 @@ const STORAGE_KEYS = {
 
 // Helper functions for localStorage
 const saveToStorage = (state: AppState) => {
-  if (state.playerUuid)
-    localStorage.setItem(STORAGE_KEYS.PLAYER_ID, state.playerUuid);
-  if (state.gameUuid)
-    localStorage.setItem(STORAGE_KEYS.GAME_ID, state.gameUuid);
+  if (state.player)
+    localStorage.setItem(STORAGE_KEYS.PLAYER_ID, JSON.stringify(state.player));
+  if (state.game)
+    localStorage.setItem(STORAGE_KEYS.GAME_ID, JSON.stringify(state.game));
   if (state.token) localStorage.setItem(STORAGE_KEYS.TOKEN, state.token);
 };
 
 const loadFromStorage = (): AppState => {
   try {
     return {
-      playerUuid: localStorage.getItem(STORAGE_KEYS.PLAYER_ID) || undefined,
-      gameUuid: localStorage.getItem(STORAGE_KEYS.GAME_ID) || undefined,
+      player:
+        JSON.parse(localStorage.getItem(STORAGE_KEYS.PLAYER_ID) || 'null') ||
+        undefined,
+      game:
+        JSON.parse(localStorage.getItem(STORAGE_KEYS.GAME_ID) || 'null') ||
+        undefined,
       token: localStorage.getItem(STORAGE_KEYS.TOKEN) || undefined
     };
   } catch {
@@ -84,50 +88,12 @@ export const AppContextProvider = ({
   const [context, dispatch] = useReducer(reducer, {});
 
   useEffect(() => {
-    const controller = new AbortController();
     const storedState = loadFromStorage();
 
     // apply cached values immediately
-    if (storedState.playerUuid || storedState.gameUuid || storedState.token) {
-      dispatch({ type: 'save', state: storedState as AppState });
+    if (storedState.player || storedState.game || storedState.token) {
+      dispatch({ type: 'save', state: storedState });
     }
-
-    async function fetchPlayer() {
-      try {
-        if (
-          storedState.playerUuid &&
-          storedState.gameUuid &&
-          storedState.token
-        ) {
-          const response = await axios.get(
-            `/api/players/${storedState.playerUuid}`,
-            {
-              signal: controller.signal,
-              headers: { Authorization: storedState.token }
-            }
-          );
-
-          const player: PlayerDto = response.data;
-          dispatch({
-            type: 'save',
-            state: {
-              playerUuid: player.uuid,
-              nickname: player.nickname,
-              gameUuid: player.game?.uuid,
-              gameCode: player.game?.code,
-              gameType: player.game?.type,
-              token: storedState.token
-            }
-          });
-        }
-      } catch (err) {
-        logError(err);
-        console.warn('Failed to sync with server, using cached player data');
-      }
-    }
-
-    fetchPlayer();
-    return () => controller.abort();
   }, []);
 
   return (
