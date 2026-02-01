@@ -6,7 +6,7 @@ import {
   WebSocketGateway,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { HmacService } from 'src/auth/hmac.service';
+import { AuthService } from 'src/auth/auth.service';
 import type { GameUpdatedEvent } from 'src/game/game.service';
 
 interface AuthenticatedSocket extends Socket {
@@ -27,7 +27,7 @@ export class EventGateway implements OnGatewayInit {
   private readonly logger = new Logger(EventGateway.name);
   private server: Server;
 
-  constructor(private readonly hmacService: HmacService) {}
+  constructor(private readonly authService: AuthService) {}
 
   afterInit(server: Server) {
     this.server = server;
@@ -40,7 +40,7 @@ export class EventGateway implements OnGatewayInit {
         return next(new Error('Bearer token is missing'));
       }
 
-      const authToken = this.hmacService.validateToken(token);
+      const authToken = await this.authService.verifyAsync(token);
       if (!authToken) {
         return next(new Error('Invalid bearer token'));
       }

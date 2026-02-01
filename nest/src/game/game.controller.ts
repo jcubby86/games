@@ -13,7 +13,7 @@ import {
 import { GameService } from './game.service';
 import { StoryService } from '../story/story.service';
 import { GameAuthGuard } from '../auth/auth.guard';
-import { HmacService } from '../auth/hmac.service';
+import { AuthService } from '../auth/auth.service';
 import {
   GameDto,
   PlayerDto,
@@ -27,9 +27,9 @@ import { NameService } from 'src/name/name.service';
 export class GameController {
   constructor(
     private readonly gameService: GameService,
-    private readonly hmacService: HmacService,
     private readonly storyService: StoryService,
     private readonly nameService: NameService,
+    private readonly authService: AuthService,
   ) {}
 
   @Post('games')
@@ -64,7 +64,10 @@ export class GameController {
   ): Promise<PlayerDto> {
     const player = await this.gameService.addPlayer(uuid, data.nickname);
 
-    const token = this.hmacService.generateToken(player.game!, player);
+    const token = await this.authService.generateTokenAsync(
+      player.game!,
+      player,
+    );
     res.setHeader('x-auth-token', token);
 
     return player;

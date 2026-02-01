@@ -1,8 +1,10 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { JwtModule } from '@nestjs/jwt';
+
 import { LoggerMiddleware } from './middleware/logger.middleware';
-import { HmacService } from './auth/hmac.service';
+import { AuthService } from './auth/auth.service';
 import { PrismaService } from './prisma.service';
 import { GameService } from './game/game.service';
 import { GameController } from './game/game.controller';
@@ -16,11 +18,15 @@ import { EventGateway } from './event/event.gateway';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     EventEmitterModule.forRoot(),
+    JwtModule.register({
+      global: true,
+      signOptions: { expiresIn: '60m' },
+    }),
   ],
   controllers: [GameController, SuggestionController],
   providers: [
     PrismaService,
-    HmacService,
+    AuthService,
     GameService,
     StoryService,
     NameService,

@@ -6,29 +6,21 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { HmacService } from './hmac.service';
+import { AuthService } from './auth.service';
 
 @Injectable()
 export class GameAuthGuard implements CanActivate {
-  constructor(private hmacService: HmacService) {}
+  constructor(private authService: AuthService) {}
 
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: Request = context.switchToHttp().getRequest();
 
-    const authHeader = (request.headers.authorization as string) || '';
-    if (!authHeader) {
-      throw new UnauthorizedException('Authorization header is missing');
-    }
-
-    const [scheme, token] = authHeader.split(' ');
-    if (scheme !== 'Bearer' || !token) {
-      throw new UnauthorizedException('Auhorization header is malformed');
-    }
-
-    const authToken = this.hmacService.validateToken(token);
-    if (!authToken) {
+    const token = this.extractTokenFromHeader(request);
+    if (!token) {
       throw new UnauthorizedException('Invalid authorization token');
     }
+
+    const authToken = await this.authService.verifyAsync(token);
 
     const uuid = request.params.uuid;
     if (
@@ -39,5 +31,10 @@ export class GameAuthGuard implements CanActivate {
     }
 
     return true;
+  }
+
+  private extractTokenFromHeader(request: Request): string | undefined {
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    return type === 'Bearer' ? token : undefined;
   }
 }
