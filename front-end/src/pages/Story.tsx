@@ -8,6 +8,7 @@ import RecreateButton from '../components/RecreateButton';
 import StartGame from '../components/StartGame';
 import { useAppContext } from '../contexts/AppContext';
 import { useSocket } from '../contexts/SocketProvider';
+import { useSuggestion } from '../hooks/useSuggestion';
 import { JOIN, PLAY, READ } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
 import { StoryVariant } from '../utils/gameVariants';
@@ -18,6 +19,7 @@ const Story = (): JSX.Element => {
   const socket = useSocket();
   const [state, setState] = useState<PlayerDto | null>(null);
   const entryRef = useRef<HTMLTextAreaElement>(null);
+  const { suggestion, updateCategory, updateSuggestion } = useSuggestion();
 
   const refreshData = useCallback(async () => {
     if (!context.player || !context.token) {
@@ -27,12 +29,14 @@ const Story = (): JSX.Element => {
       const response = await axios.get('/api/players/' + context.player!.uuid, {
         headers: { Authorization: `Bearer ${context.token}` }
       });
-      setState({ ...response.data });
+      const player: PlayerDto = response.data;
+      setState({ ...player });
+      updateCategory(player.entry?.hint?.category);
     } catch (err: unknown) {
       logError(err);
     }
-  }, [context.player, context.token]);
-  
+  }, [context.player, context.token, updateCategory]);
+
   useEffect(() => {
     function gameUpdated(event: unknown) {
       console.log('Game updated:', event);
@@ -46,8 +50,9 @@ const Story = (): JSX.Element => {
   }, [socket, refreshData]);
 
   useEffect(() => {
+    updateCategory('MALE_NAME');
     refreshData();
-  }, [context, refreshData]);
+  }, [context, refreshData, updateCategory]);
 
   const Play = (): JSX.Element => {
     const submit = async (e: React.FormEvent) => {
@@ -68,6 +73,7 @@ const Story = (): JSX.Element => {
           }
         );
         setState(null);
+        updateSuggestion();
         entryRef.current.value = '';
       } catch (err: unknown) {
         alertError('An error has occurred', err);
@@ -76,7 +82,7 @@ const Story = (): JSX.Element => {
 
     const resetPlaceholder = async (e: React.MouseEvent) => {
       e.preventDefault();
-      //todo: fetch new prompt from backend
+      updateSuggestion();
     };
 
     return (
@@ -86,7 +92,7 @@ const Story = (): JSX.Element => {
           {state?.entry?.hint?.filler} {state?.entry?.hint?.prefix}
         </p>
         <textarea
-          placeholder=""
+          placeholder={suggestion}
           ref={entryRef}
           className="form-control"
           rows={3}

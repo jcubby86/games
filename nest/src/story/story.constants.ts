@@ -26,7 +26,7 @@ export const hints: Hint[] = [
   {
     filler: '',
     prefix: 'He said, "',
-    suffix: ': ',
+    suffix: '" ',
     prompt: 'Statement:',
     category: Category.STATEMENT,
   },

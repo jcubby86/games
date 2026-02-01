@@ -1,12 +1,15 @@
 import axios from 'axios';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import Tooltip from 'react-bootstrap/esm/Tooltip';
 
+import Icon from '../components/Icon';
 import List from '../components/List';
 import PlayerList from '../components/PlayerList';
 import RecreateButton from '../components/RecreateButton';
 import StartGame from '../components/StartGame';
 import { useAppContext } from '../contexts/AppContext';
 import { useSocket } from '../contexts/SocketProvider';
+import { useSuggestion } from '../hooks/useSuggestion';
 import { END, JOIN, PLAY, READ } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
 import { NameVariant } from '../utils/gameVariants';
@@ -17,6 +20,7 @@ const Names = (): JSX.Element => {
   const socket = useSocket();
   const [state, setState] = useState<PlayerDto | null>(null);
   const entryRef = useRef<HTMLInputElement>(null);
+  const { suggestion, updateSuggestion, updateCategory } = useSuggestion(10);
 
   const refreshData = useCallback(async () => {
     if (!context.player || !context.token) {
@@ -26,7 +30,8 @@ const Names = (): JSX.Element => {
       const response = await axios.get('/api/players/' + context.player!.uuid, {
         headers: { Authorization: `Bearer ${context.token}` }
       });
-      setState({ ...response.data });
+      const player: PlayerDto = response.data;
+      setState({ ...player });
     } catch (err: unknown) {
       logError(err);
     }
@@ -45,8 +50,9 @@ const Names = (): JSX.Element => {
   }, [socket, refreshData]);
 
   useEffect(() => {
+    updateCategory('MALE_NAME,FEMALE_NAME');
     refreshData();
-  }, [context, refreshData]);
+  }, [context, refreshData, updateCategory]);
 
   const Play = (): JSX.Element => {
     const sendEntry = async (e: React.FormEvent) => {
@@ -72,15 +78,38 @@ const Names = (): JSX.Element => {
       }
     };
 
+    const resetPlaceholder = async (e: React.MouseEvent) => {
+      e.preventDefault();
+      updateSuggestion();
+    };
+
     return (
       <form className="w-100" onSubmit={sendEntry}>
         <h3 className="text-center w-100">Enter a name:</h3>
-        <input placeholder="" ref={entryRef} className="form-control" />
         <input
-          type="submit"
-          value="Send"
-          className="form-control btn btn-success mt-3"
+          placeholder={suggestion}
+          ref={entryRef}
+          className="form-control"
         />
+        <div className="container-fluid mt-4">
+          <div className="row gap-4">
+            <input
+              type="submit"
+              value="Send"
+              className="btn btn-success col-9"
+            />
+            <button
+              className="btn btn-outline-secondary col"
+              onClick={resetPlaceholder}
+              data-tooltip-id="my-tooltip"
+              data-tooltip-content="New Suggestion"
+              data-tooltip-place="bottom"
+            >
+              <Icon icon="nf-fa-refresh" className="flex-grow-1" />
+            </button>
+          </div>
+        </div>
+        <Tooltip id="my-tooltip" />
       </form>
     );
   };

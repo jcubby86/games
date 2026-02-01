@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Category } from 'src/generated/prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import { SuggestionDto } from 'src/types/game.types';
@@ -12,15 +8,11 @@ export class SuggestionService {
   constructor(private prisma: PrismaService) {}
 
   async getSuggestion(
-    category: string,
+    category: string[],
     quantity: number = 5,
   ): Promise<SuggestionDto[]> {
-    if (!Object.values(Category).includes(category as Category)) {
-      throw new BadRequestException('Invalid category');
-    }
-
     const suggestions = await this.prisma.suggestion.findMany({
-      where: { category: category as Category },
+      where: { category: { in: category as Category[] } },
     });
 
     if (suggestions.length === 0) {
