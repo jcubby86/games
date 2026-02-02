@@ -11,8 +11,9 @@ const RecreateButton = ({ className }: { className?: string }): JSX.Element => {
   async function recreateGameHandler() {
     try {
       const game = await createGame(context.game!.type);
-      await joinGame(game.uuid, context.player!.nickname);
-      socket.emit('game.recreated', { game: { uuid: 'game.uuid' } });
+      await joinGame(game.uuid, context.player!.nickname, false, () =>
+        socket.emit('game.recreated', { game: { uuid: game.uuid } })
+      );
     } catch (err: unknown) {
       alertError(
         'Unable to create game. Please try again in a little bit.',

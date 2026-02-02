@@ -9,7 +9,7 @@ import { Server, Socket } from 'socket.io';
 import { AuthPayload, AuthService } from 'src/auth/auth.service';
 import type { GameUpdatedEvent } from 'src/game/game.service';
 
-interface AuthenticatedSocket extends Socket, AuthPayload {}
+interface AuthenticatedSocket extends Socket, AuthPayload { }
 
 @WebSocketGateway({
   cors: {
@@ -24,7 +24,7 @@ export class EventGateway implements OnGatewayInit {
   private readonly logger = new Logger(EventGateway.name);
   private server: Server;
 
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   afterInit(server: Server) {
     this.server = server;
@@ -82,12 +82,16 @@ export class EventGateway implements OnGatewayInit {
   }
 
   @SubscribeMessage('game.recreated')
-  handleGameRecreated(
-    socket: AuthenticatedSocket,
-    data: { game: { uuid: string } },
-  ) {
-    this.logger.debug('Game recreated event received: ' + JSON.stringify(data));
-    this.logger.debug("Sender's roles: " + JSON.stringify(socket.player.roles));
+  handleGameRecreated(socket: AuthenticatedSocket, data) {
+    const playerRoles = socket.player.roles || [];
+    if (!AuthService.matchRoles(playerRoles, ['host'])) {
+      this.logger.warn(`Unauthorized game.recreated event from player: ${socket.player.uuid}`);
+      return;
+    }
+
+    socket.broadcast.to(`game:${socket.game.uuid}`).emit('game.recreated', data);
+
+    this.logger.debug('Sent game.recreated event: ' + JSON.stringify(data));
   }
 
   @OnEvent('game.updated')
@@ -100,9 +104,9 @@ export class EventGateway implements OnGatewayInit {
       },
       player: event.player
         ? {
-            uuid: event.player.uuid,
-            nickname: event.player.nickname,
-          }
+          uuid: event.player.uuid,
+          nickname: event.player.nickname,
+        }
         : undefined,
       action: event.action,
     });
@@ -110,7 +114,7 @@ export class EventGateway implements OnGatewayInit {
     this.server.to(`game:${event.game.uuid}`).emit('game.updated', payload);
 
     this.logger.debug(
-      `Sent game updated event to game:${event.game.uuid}: ${payload}`,
+      `Sent game.updated event to game:${event.game.uuid}: ${payload}`,
     );
   }
 }

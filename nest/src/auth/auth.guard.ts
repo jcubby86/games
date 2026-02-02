@@ -52,13 +52,13 @@ export class GameAuthGuard implements CanActivate {
     request: AuthorizedRequest,
     context: ExecutionContext,
   ): boolean {
-    const roles = this.reflector.get(Roles, context.getHandler());
-    if (!roles || roles.length === 0) {
+    const requiredRoles = this.reflector.get(Roles, context.getHandler());
+    if (!requiredRoles || requiredRoles.length === 0) {
       return true;
     }
 
     const playerRoles: string[] = request.player.roles || [];
-    if (!roles.some((role) => playerRoles.includes(role))) {
+    if (!AuthService.matchRoles(playerRoles, requiredRoles)) {
       throw new ForbiddenException('You do not have access to this resource');
     }
     return true;

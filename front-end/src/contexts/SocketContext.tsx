@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Socket, io } from 'socket.io-client';
 
 import { useAppContext } from './AppContext';
+import { useApiClient } from '../hooks/useApiClient';
 
 interface SocketContextType {
   emit: (event: string, data: any) => void;
@@ -20,6 +21,7 @@ export const SocketContextProvider = ({
 }: {
   children: React.ReactElement;
 }) => {
+  const { joinGame } = useApiClient();
   const { context, dispatchContext } = useAppContext();
   const socketRef = useRef<Socket | null>(null);
   const [connected, setConnected] = useState<boolean>(false);
@@ -55,6 +57,15 @@ export const SocketContextProvider = ({
     socketRef.current.on('disconnect', () => {
       setConnected(false);
       return console.log('Disconnected from websocket server');
+    });
+
+    socketRef.current.on('game.recreated', async (data) => {
+      console.log('Game recreated:', JSON.stringify(data));
+      const player = await joinGame(
+        data.game.uuid,
+        context.player!.nickname
+      );
+      navigate(`/` + player.game!.type.toLowerCase());
     });
 
     return () => {

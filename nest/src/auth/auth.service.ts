@@ -63,4 +63,8 @@ export class AuthService {
       );
     }
   }
+
+  static matchRoles(playerRoles: string[], requiredRoles: string[]): boolean {
+    return requiredRoles.some((role) => playerRoles.includes(role));
+  }
 }

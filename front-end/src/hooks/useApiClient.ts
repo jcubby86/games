@@ -38,7 +38,12 @@ export const useApiClient = () => {
   }, [context]);
 
   const joinGame = useCallback(
-    async (uuid: string, nickname: string) => {
+    async (
+      uuid: string,
+      nickname: string,
+      leave = true,
+      callback?: () => void
+    ) => {
       let player: PlayerDto;
       let token: string;
 
@@ -68,7 +73,7 @@ export const useApiClient = () => {
         player = playerResponse.data;
         token = context.token!;
       } else {
-        await leaveGame();
+        if (leave) await leaveGame();
         const playerResponse = await axios.post<PlayerDto>(
           `/api/games/${uuid}/players`,
           {
@@ -78,6 +83,8 @@ export const useApiClient = () => {
         player = playerResponse.data;
         token = playerResponse.headers['x-auth-token'];
       }
+
+      callback?.();
 
       dispatchContext({
         type: 'save',

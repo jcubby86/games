@@ -21,7 +21,7 @@ const Names = (): JSX.Element => {
   const socket = useSocket();
   const [state, setState] = useState<PlayerDto | null>(null);
   const entryRef = useRef<HTMLInputElement>(null);
-  const { suggestion, nextSuggestion } = useSuggestions(
+  const { suggestion, nextSuggestion, updateCategory } = useSuggestions(
     'MALE_NAME,FEMALE_NAME',
     10
   );
@@ -30,6 +30,7 @@ const Names = (): JSX.Element => {
     try {
       const player = await getPlayer();
       setState(player);
+      updateCategory('MALE_NAME,FEMALE_NAME');
     } catch (err: unknown) {
       logError(err);
     }
@@ -60,6 +61,7 @@ const Names = (): JSX.Element => {
         }
         await submitNameEntry(entryRef.current.value);
         setState(null);
+        updateCategory('');
       } catch (err: unknown) {
         alertError('Error saving entry', err);
       }
