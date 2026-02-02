@@ -1,7 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import { AppContextProvider } from './contexts/AppContext';
-import { SocketContextProvider } from './contexts/SocketProvider';
+import { SocketContextProvider } from './contexts/SocketContext';
 import Create from './pages/Create';
 import Home from './pages/Home';
 import Join from './pages/Join';

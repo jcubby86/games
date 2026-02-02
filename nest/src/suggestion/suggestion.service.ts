@@ -13,6 +13,7 @@ export class SuggestionService {
   ): Promise<SuggestionDto[]> {
     const suggestions = await this.prisma.suggestion.findMany({
       where: { category: { in: category as Category[] } },
+      orderBy: { id: 'asc' },
     });
 
     if (suggestions.length === 0) {

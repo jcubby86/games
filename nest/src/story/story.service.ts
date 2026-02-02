@@ -99,8 +99,12 @@ export class StoryService {
         game: { id: event.game.id },
       },
       include: {
-        storyEntries: true,
+        storyEntries: {
+          where: { gameId: event.game.id },
+          orderBy: { id: 'asc' },
+        },
       },
+      orderBy: { id: 'asc' },
     });
 
     const playerMap = await this.getPlayerSubmissionMap(event.game);
@@ -171,8 +175,9 @@ export class StoryService {
         gameId: game.id,
       },
       include: {
-        storyEntries: true,
+        storyEntries: { where: { gameId: game.id }, orderBy: { id: 'asc' } },
       },
+      orderBy: { id: 'asc' },
     });
 
     const playerMap = new Map<string, StoryMapEntry>();

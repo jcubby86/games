@@ -91,7 +91,7 @@ export class GameService {
     const game = await this.prisma.game.findUnique({
       where: { uuid },
       include: {
-        players: true,
+        players: { orderBy: { id: 'asc' } },
       },
     });
     if (!game) {
@@ -180,7 +180,10 @@ export class GameService {
       include: {
         game: {
           include: {
-            players: { select: { uuid: true }, orderBy: { id: 'asc' } },
+            players: {
+              select: { id: true, uuid: true },
+              orderBy: { id: 'asc' },
+            },
           },
         },
       },
@@ -192,7 +195,7 @@ export class GameService {
     }
 
     const roles: string[] = [];
-    if (player.game.players[0].uuid === player.uuid) {
+    if (player.game.players[0].id === player.id) {
       roles.push('host');
     }
 

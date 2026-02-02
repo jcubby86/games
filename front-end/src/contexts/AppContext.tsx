@@ -87,6 +87,12 @@ const reducer = (prev: AppState, action: Action): AppState => {
       saveToStorage(newState);
       return newState;
     }
+    case 'load':
+      newState = {
+        ...prev,
+        ...action.state
+      };
+      return newState;
     default:
       return prev;
   }

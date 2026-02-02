@@ -99,16 +99,12 @@ export const useApiClient = () => {
     []
   );
 
-  const createGame = useCallback(
-    async (type: string) => {
-      await leaveGame();
-      const gameResponse = await axios.post<GameDto>('/api/games', {
-        type
-      });
-      return gameResponse.data;
-    },
-    [leaveGame]
-  );
+  const createGame = useCallback(async (type: string) => {
+    const gameResponse = await axios.post<GameDto>('/api/games', {
+      type
+    });
+    return gameResponse.data;
+  }, []);
 
   const updateGame = useCallback(
     async (phase: string) => {

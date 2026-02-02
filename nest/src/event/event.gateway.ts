@@ -6,13 +6,10 @@ import {
   WebSocketGateway,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { AuthService } from 'src/auth/auth.service';
+import { AuthPayload, AuthService } from 'src/auth/auth.service';
 import type { GameUpdatedEvent } from 'src/game/game.service';
 
-interface AuthenticatedSocket extends Socket {
-  player: { uuid: string };
-  game: { uuid: string };
-}
+interface AuthenticatedSocket extends Socket, AuthPayload {}
 
 @WebSocketGateway({
   cors: {
@@ -66,22 +63,31 @@ export class EventGateway implements OnGatewayInit {
 
   @SubscribeMessage('poke')
   handlePoke(
-    client: AuthenticatedSocket,
+    socket: AuthenticatedSocket,
     data: {
       to: string;
     },
   ) {
-    if (data.to === client.player.uuid) return;
+    if (data.to === socket.player.uuid) return;
 
     this.server.to(`player:${data.to}`).emit('poke', {
-      from: client.player,
-      message: `You have been poked by ${client.player.uuid}!`,
+      from: socket.player,
+      message: `You have been poked by ${socket.player.uuid}!`,
       time: new Date().toISOString(),
     });
 
     this.logger.debug(
-      `Sent poke event from player: ${client.player.uuid} to: ${data.to}`,
+      `Sent poke event from player: ${socket.player.uuid} to: ${data.to}`,
     );
+  }
+
+  @SubscribeMessage('game.recreated')
+  handleGameRecreated(
+    socket: AuthenticatedSocket,
+    data: { game: { uuid: string } },
+  ) {
+    this.logger.debug('Game recreated event received: ' + JSON.stringify(data));
+    this.logger.debug("Sender's roles: " + JSON.stringify(socket.player.roles));
   }
 
   @OnEvent('game.updated')

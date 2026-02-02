@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import { useAppContext } from '../contexts/AppContext';
-import { useSocket } from '../contexts/SocketProvider';
+import { useSocket } from '../contexts/SocketContext';
 import { PlayerDto } from '../utils/types';
 
 interface PlayerListProps {

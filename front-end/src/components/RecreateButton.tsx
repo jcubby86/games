@@ -1,21 +1,18 @@
 import { useAppContext } from '../contexts/AppContext';
+import { useSocket } from '../contexts/SocketContext';
+import { useApiClient } from '../hooks/useApiClient';
 import { alertError } from '../utils/errorHandler';
 
 const RecreateButton = ({ className }: { className?: string }): JSX.Element => {
-  // const { socket, isConnected } = useGameEvents();
   const { context } = useAppContext();
+  const socket = useSocket();
+  const { createGame, joinGame } = useApiClient();
 
-  async function recreateGame() {
+  async function recreateGameHandler() {
     try {
-      // const response = await axios.post('/api/games', {
-      //   type: context.gameType!.toUpperCase()
-      // });
-      // const game: GameDto = response.data;
-      // if (isConnected) {
-      //   socket.emit('game.recreate', {
-      //     gameUuid: game.uuid
-      //   });
-      // }
+      const game = await createGame(context.game!.type);
+      await joinGame(game.uuid, context.player!.nickname);
+      socket.emit('game.recreated', { game: { uuid: 'game.uuid' } });
     } catch (err: unknown) {
       alertError(
         'Unable to create game. Please try again in a little bit.',
@@ -30,7 +27,7 @@ const RecreateButton = ({ className }: { className?: string }): JSX.Element => {
         className={className}
         onClick={(e) => {
           e.preventDefault();
-          recreateGame();
+          recreateGameHandler();
         }}
       >
         Play Again

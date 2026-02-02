@@ -7,7 +7,7 @@ import PlayerList from '../components/PlayerList';
 import RecreateButton from '../components/RecreateButton';
 import StartGame from '../components/StartGame';
 import { useAppContext } from '../contexts/AppContext';
-import { useSocket } from '../contexts/SocketProvider';
+import { useSocket } from '../contexts/SocketContext';
 import { useApiClient } from '../hooks/useApiClient';
 import { useSuggestions } from '../hooks/useSuggestions';
 import { END, JOIN, PLAY, READ } from '../utils/constants';

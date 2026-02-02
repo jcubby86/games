@@ -90,9 +90,15 @@ export class NameService {
   async handleNameUpdatedEvent(event: GameUpdatedEvent) {
     const players = await this.prisma.player.findMany({
       where: {
-        game: { uuid: event.game.uuid },
+        gameId: event.game.id,
       },
-      include: { nameEntries: true },
+      include: {
+        nameEntries: {
+          where: { gameId: event.game.id },
+          orderBy: { id: 'asc' },
+        },
+      },
+      orderBy: { id: 'asc' },
     });
 
     const completed =
@@ -120,8 +126,9 @@ export class NameService {
         gameId: game.id,
       },
       include: {
-        nameEntries: true,
+        nameEntries: { where: { gameId: game.id }, orderBy: { id: 'asc' } },
       },
+      orderBy: { id: 'asc' },
     });
 
     const playerMap = new Map<string, NameMapEntry>();

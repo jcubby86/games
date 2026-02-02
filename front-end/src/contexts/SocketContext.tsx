@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Socket, io } from 'socket.io-client';
 
 import { useAppContext } from './AppContext';
@@ -19,9 +20,10 @@ export const SocketContextProvider = ({
 }: {
   children: React.ReactElement;
 }) => {
-  const { context } = useAppContext();
+  const { context, dispatchContext } = useAppContext();
   const socketRef = useRef<Socket | null>(null);
   const [connected, setConnected] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!context.token) {
@@ -41,6 +43,12 @@ export const SocketContextProvider = ({
 
     socketRef.current.on('connect_error', (err) => {
       setConnected(false);
+
+      if (err.message === 'jwt expired') {
+        dispatchContext({ type: 'clear' });
+        navigate('/');
+      }
+
       return console.log('Connection error: ', err.message);
     });
 
@@ -52,7 +60,7 @@ export const SocketContextProvider = ({
     return () => {
       socketRef.current?.disconnect();
     };
-  }, [context]);
+  }, [context, dispatchContext, navigate]);
 
   const emit: SocketContextType['emit'] = (event, data) => {
     socketRef.current?.emit(event, data);

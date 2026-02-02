@@ -7,7 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { GameDto, PlayerDto } from 'src/types/game.types';
 
-interface AuthPayload {
+export interface AuthPayload {
   game: { uuid: string };
   player: { uuid: string; nickname: string; roles?: string[] };
 }
