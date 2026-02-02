@@ -12,6 +12,8 @@ import { JOIN, PLAY, READ } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
 import { StoryVariant } from '../utils/gameVariants';
 import { PlayerDto } from '../utils/types';
+import { Link } from 'react-router-dom';
+import ShareButton from '../components/ShareButton';
 
 const Story = (): JSX.Element => {
   const { getPlayer, submitStoryEntry } = useApiClient();
@@ -118,6 +120,18 @@ const Story = (): JSX.Element => {
         <div className="container-fluid">
           <div className="row gap-4">
             <RecreateButton className="col btn btn-success" />
+            <Link
+              to={`/story/${state!.game!.uuid}`}
+              className="col btn btn-outline-success"
+            >
+              See all
+            </Link>
+            <ShareButton
+              className="btn col-2"
+              path={`/story/${state!.game!.uuid}`}
+              title={'Games: ' + StoryVariant.title}
+              text="Read my hilarious story!"
+            />
           </div>
         </div>
       </div>

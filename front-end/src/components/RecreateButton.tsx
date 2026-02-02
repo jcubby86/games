@@ -1,12 +1,20 @@
+import { useNavigate } from 'react-router';
 import { useAppContext } from '../contexts/AppContext';
 import { useSocket } from '../contexts/SocketContext';
 import { useApiClient } from '../hooks/useApiClient';
 import { alertError } from '../utils/errorHandler';
 
-const RecreateButton = ({ className }: { className?: string }): JSX.Element => {
+const RecreateButton = ({
+  className,
+  to
+}: {
+  className?: string;
+  to?: string;
+}): JSX.Element => {
   const { context } = useAppContext();
   const socket = useSocket();
   const { createGame, joinGame } = useApiClient();
+  const navigate = useNavigate();
 
   async function recreateGameHandler() {
     try {
@@ -14,6 +22,9 @@ const RecreateButton = ({ className }: { className?: string }): JSX.Element => {
       await joinGame(game.uuid, context.player!.nickname, false, () =>
         socket.emit('game.recreated', { game: { uuid: game.uuid } })
       );
+      if (to) {
+        navigate(to);
+      }
     } catch (err: unknown) {
       alertError(
         'Unable to create game. Please try again in a little bit.',

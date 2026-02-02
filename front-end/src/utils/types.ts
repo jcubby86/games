@@ -39,3 +39,8 @@ export interface SuggestionDto {
   value: string;
   category: string;
 }
+
+export interface StoryArchiveDto {
+  player: PlayerDto;
+  story: string;
+}

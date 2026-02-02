@@ -2,7 +2,12 @@ import axios from 'axios';
 import { useCallback } from 'react';
 
 import { useAppContext } from '../contexts/AppContext';
-import { GameDto, PlayerDto, SuggestionDto } from '../utils/types';
+import {
+  GameDto,
+  PlayerDto,
+  StoryArchiveDto,
+  SuggestionDto
+} from '../utils/types';
 
 export const useApiClient = () => {
   const { context, dispatchContext } = useAppContext();
@@ -175,6 +180,24 @@ export const useApiClient = () => {
     []
   );
 
+  const getStoryArchive = useCallback(
+    async (uuid: string, controller?: AbortController) => {
+      try {
+        const archiveResponse = await axios.get<StoryArchiveDto[]>(
+          `/api/story-entries/${uuid}`,
+          {
+            signal: controller?.signal
+          }
+        );
+        return archiveResponse.data;
+      } catch (err: unknown) {
+        console.error('Error fetching story archive', err);
+        return [];
+      }
+    },
+    []
+  );
+
   return {
     joinGame,
     createGame,
@@ -184,6 +207,7 @@ export const useApiClient = () => {
     getPlayer,
     submitNameEntry,
     submitStoryEntry,
-    getSuggestion
+    getSuggestion,
+    getStoryArchive
   };
 };

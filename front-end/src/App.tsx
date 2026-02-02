@@ -12,6 +12,7 @@ import Story from './pages/Story';
 import { NAME, STORY } from './utils/constants';
 import './App.scss';
 import 'react-tooltip/dist/react-tooltip.css';
+import StoryArchive from './pages/StoryArchive';
 
 function App(): JSX.Element {
   return (
@@ -23,8 +24,9 @@ function App(): JSX.Element {
               <Route index element={<Home />} />
               <Route path="join" element={<Join />} />
               <Route path="create" element={<Create />} />
-              <Route path={STORY.toLowerCase()} element={<Story />} />
-              <Route path={NAME.toLowerCase()} element={<Names />} />
+              <Route path={`${STORY}/:gameUuid`} element={<StoryArchive />} />
+              <Route path={STORY} element={<Story />} />
+              <Route path={NAME} element={<Names />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="*" element={<Home />} />
             </Route>
