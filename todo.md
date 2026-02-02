@@ -4,7 +4,6 @@
 - nginx for websocket
 - websocket for recreate/rejoin
 - chat gpt integration
-- fix suggestions
 - fix story archive
 - check host role for updating game phase/emitting join message
 - ordering responses so it's always the same

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useApiClient } from './useApiClient';
 import { SuggestionDto } from '../utils/types';
 
-export const useSuggestion = (
+export const useSuggestions = (
   initialCategory?: string,
   initialQuantity = 5
 ) => {

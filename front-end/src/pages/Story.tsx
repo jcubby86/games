@@ -7,7 +7,7 @@ import RecreateButton from '../components/RecreateButton';
 import StartGame from '../components/StartGame';
 import { useSocket } from '../contexts/SocketProvider';
 import { useApiClient } from '../hooks/useApiClient';
-import { useSuggestion } from '../hooks/useSuggestion';
+import { useSuggestions } from '../hooks/useSuggestions';
 import { JOIN, PLAY, READ } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
 import { StoryVariant } from '../utils/gameVariants';
@@ -19,7 +19,7 @@ const Story = (): JSX.Element => {
   const [state, setState] = useState<PlayerDto | null>(null);
   const entryRef = useRef<HTMLTextAreaElement>(null);
   const { suggestion, updateCategory, nextSuggestion } =
-    useSuggestion('MALE_NAME');
+    useSuggestions('MALE_NAME');
 
   const refreshData = useCallback(async () => {
     try {

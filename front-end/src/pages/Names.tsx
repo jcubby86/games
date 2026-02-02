@@ -8,7 +8,7 @@ import RecreateButton from '../components/RecreateButton';
 import StartGame from '../components/StartGame';
 import { useSocket } from '../contexts/SocketProvider';
 import { useApiClient } from '../hooks/useApiClient';
-import { useSuggestion } from '../hooks/useSuggestion';
+import { useSuggestions } from '../hooks/useSuggestions';
 import { END, JOIN, PLAY, READ } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
 import { NameVariant } from '../utils/gameVariants';
@@ -19,7 +19,7 @@ const Names = (): JSX.Element => {
   const socket = useSocket();
   const [state, setState] = useState<PlayerDto | null>(null);
   const entryRef = useRef<HTMLInputElement>(null);
-  const { suggestion, nextSuggestion } = useSuggestion(
+  const { suggestion, nextSuggestion } = useSuggestions(
     'MALE_NAME,FEMALE_NAME',
     10
   );
