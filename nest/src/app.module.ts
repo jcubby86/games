@@ -9,20 +9,24 @@ import { PrismaService } from './prisma.service';
 import { GameService } from './game/game.service';
 import { GameController } from './game/game.controller';
 import { StoryService } from './story/story.service';
-import { SuggestionService } from './suggestion/suggestion.service';
 import { SuggestionController } from './suggestion/suggestion.controller';
+import { SuggestionService } from './suggestion/suggestion.service';
+import { SuggestionRepository } from './suggestion/suggestion.repository';
 import { NameService } from './name/name.service';
 import { EventGateway } from './event/event.gateway';
 import { suggestionProviderFactory } from './suggestion/suggestion.factory';
+import { HttpModule } from '@nestjs/axios';
+import { OpenAIService } from './openai/openai.service';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true, cache: true }),
     EventEmitterModule.forRoot(),
     JwtModule.register({
       global: true,
       signOptions: { expiresIn: '60m' },
     }),
+    HttpModule,
   ],
   controllers: [GameController, SuggestionController],
   providers: [
@@ -32,8 +36,10 @@ import { suggestionProviderFactory } from './suggestion/suggestion.factory';
     StoryService,
     NameService,
     SuggestionService,
+    SuggestionRepository,
     suggestionProviderFactory,
     EventGateway,
+    OpenAIService,
   ],
 })
 export class AppModule implements NestModule {

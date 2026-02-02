@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Inject,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { SuggestionDto } from 'src/types/game.types';
@@ -10,6 +11,8 @@ import { Category } from 'src/generated/prisma/client';
 
 @Injectable()
 export class SuggestionService {
+  private readonly logger = new Logger(SuggestionService.name);
+
   constructor(
     @Inject(SUGGESTION_PROVIDERS)
     private suggestionProviders: SuggestionProvider[],
@@ -21,10 +24,6 @@ export class SuggestionService {
   ): Promise<SuggestionDto[]> {
     const validCategories = this.validateCategories(categories);
     const suggestions = await this.getAll(validCategories, quantity);
-
-    if (suggestions.length === 0) {
-      throw new NotFoundException('No suggestions found for this category');
-    }
 
     this.shuffle(suggestions);
 

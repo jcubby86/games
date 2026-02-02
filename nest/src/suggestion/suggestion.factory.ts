@@ -1,9 +1,8 @@
-import { FactoryProvider, Injectable, Provider } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { PrismaService } from 'src/prisma.service';
+import { FactoryProvider } from '@nestjs/common';
 import { SuggestionDto } from 'src/types/game.types';
 import { SuggestionRepository } from './suggestion.repository';
 import { Category } from 'src/generated/prisma/client';
+import { OpenAIService } from 'src/openai/openai.service';
 
 export const SUGGESTION_PROVIDERS = 'SuggestionProviders';
 
@@ -12,17 +11,20 @@ export interface SuggestionProvider {
     categories: Category[],
     quantity?: number,
   ): Promise<SuggestionDto[]>;
+  enabled(): boolean;
 }
 
 export const suggestionProviderFactory: FactoryProvider<SuggestionProvider[]> =
   {
     provide: SUGGESTION_PROVIDERS,
     useFactory: (
-      configService: ConfigService,
-      prismaService: PrismaService,
+      suggestionRepository: SuggestionRepository,
+      openAIService: OpenAIService,
     ) => {
-      const suggestionRepository = new SuggestionRepository(prismaService);
-      return [suggestionRepository];
+      const providers = [suggestionRepository, openAIService];
+      return providers.filter((p) => {
+        return p.enabled() === true;
+      });
     },
-    inject: [ConfigService, PrismaService],
+    inject: [SuggestionRepository, OpenAIService],
   };

@@ -15,7 +15,6 @@ export interface AuthPayload {
 @Injectable()
 export class AuthService {
   private readonly secret: string;
-  private readonly algorithm = 'sha1'; // SHA-1 is shorter: 28 chars vs 44 chars
 
   constructor(
     private configService: ConfigService,
