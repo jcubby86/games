@@ -184,7 +184,7 @@ export const useApiClient = () => {
     async (uuid: string, controller?: AbortController) => {
       try {
         const archiveResponse = await axios.get<StoryArchiveDto[]>(
-          `/api/story-entries/${uuid}`,
+          `/api/games/${uuid}/story-entries`,
           {
             signal: controller?.signal
           }

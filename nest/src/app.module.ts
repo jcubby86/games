@@ -13,7 +13,6 @@ import { SuggestionService } from './suggestion/suggestion.service';
 import { SuggestionController } from './suggestion/suggestion.controller';
 import { NameService } from './name/name.service';
 import { EventGateway } from './event/event.gateway';
-import { StoryController } from './story/story.controller';
 
 @Module({
   imports: [
@@ -24,7 +23,7 @@ import { StoryController } from './story/story.controller';
       signOptions: { expiresIn: '60m' },
     }),
   ],
-  controllers: [GameController, SuggestionController, StoryController],
+  controllers: [GameController, SuggestionController],
   providers: [
     PrismaService,
     AuthService,

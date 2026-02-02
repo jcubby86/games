@@ -116,6 +116,11 @@ export class GameController {
     return await this.storyService.addStoryEntry(uuid, data.value);
   }
 
+  @Get('games/:uuid/story-entries')
+  async getStoryArchives(@Param('uuid') uuid: string) {
+    return this.storyService.getStoryArchives(uuid);
+  }
+
   @UseGuards(GameAuthGuard)
   @Delete('players/:uuid')
   async leaveGame(@Param('uuid') uuid: string): Promise<PlayerDto> {
