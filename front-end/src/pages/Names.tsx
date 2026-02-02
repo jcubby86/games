@@ -6,6 +6,7 @@ import List from '../components/List';
 import PlayerList from '../components/PlayerList';
 import RecreateButton from '../components/RecreateButton';
 import StartGame from '../components/StartGame';
+import { useAppContext } from '../contexts/AppContext';
 import { useSocket } from '../contexts/SocketProvider';
 import { useApiClient } from '../hooks/useApiClient';
 import { useSuggestions } from '../hooks/useSuggestions';
@@ -15,6 +16,7 @@ import { NameVariant } from '../utils/gameVariants';
 import { PlayerDto } from '../utils/types';
 
 const Names = (): JSX.Element => {
+  const { context } = useAppContext();
   const { getPlayer, submitNameEntry, updateGame } = useApiClient();
   const socket = useSocket();
   const [state, setState] = useState<PlayerDto | null>(null);
@@ -113,22 +115,31 @@ const Names = (): JSX.Element => {
       }
     };
 
+    const HideNamesButton = (): JSX.Element => {
+      if (context.player?.roles?.includes('host')) {
+        return (
+          <button
+            className={'btn btn-danger mt-4'}
+            onClick={(e) => {
+              e.preventDefault();
+              endGame();
+            }}
+          >
+            Hide Names
+          </button>
+        );
+      } else {
+        return <></>;
+      }
+    };
+
     return (
       <div className="w-100 d-flex flex-column">
         <div className="w-100">
           <h3 className="text-center w-100">Names:</h3>
           <List items={state?.entries?.map((e) => e.name ?? '')} />
         </div>
-
-        <button
-          className={'btn btn-danger mt-4'}
-          onClick={(e) => {
-            e.preventDefault();
-            endGame();
-          }}
-        >
-          Hide Names
-        </button>
+        <HideNamesButton />
       </div>
     );
   };

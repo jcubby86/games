@@ -24,7 +24,7 @@ const RecreateButton = ({ className }: { className?: string }): JSX.Element => {
     }
   }
 
-  if (context.game) {
+  if (context.game && context.player?.roles?.includes('host')) {
     return (
       <button
         className={className}

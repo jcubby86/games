@@ -7,34 +7,87 @@ import { GameDto, PlayerDto, SuggestionDto } from '../utils/types';
 export const useApiClient = () => {
   const { context, dispatchContext } = useAppContext();
 
+  const leaveGame = useCallback(async () => {
+    try {
+      if (context.player && context.token) {
+        await axios.delete('/api/players/' + context.player.uuid, {
+          headers: {
+            Authorization: `Bearer ${context.token}`
+          }
+        });
+      }
+      dispatchContext({
+        type: 'clear'
+      });
+    } catch (err: unknown) {
+      console.error('Error leaving game', err);
+    }
+  }, [dispatchContext, context]);
+
+  const getPlayer = useCallback(async () => {
+    if (!context.player || !context.token) {
+      return null;
+    }
+    const playerResponse = await axios.get<PlayerDto>(
+      '/api/players/' + context.player!.uuid,
+      {
+        headers: { Authorization: `Bearer ${context.token}` }
+      }
+    );
+    return playerResponse.data;
+  }, [context]);
+
   const joinGame = useCallback(
     async (uuid: string, nickname: string) => {
-      const playerResponse = await axios.post<PlayerDto>(
-        `/api/games/${uuid}/players`,
-        {
-          nickname
-        }
-      );
-      const player = playerResponse.data;
+      let player: PlayerDto;
+      let token: string;
+
+      if (
+        context.game?.uuid === uuid &&
+        context.player?.nickname === nickname &&
+        context.token
+      ) {
+        const player = await getPlayer();
+        return player!;
+      } else if (
+        context.game?.uuid === uuid &&
+        context.player &&
+        context.token
+      ) {
+        const playerResponse = await axios.patch<PlayerDto>(
+          `/api/players/${context.player?.uuid}`,
+          {
+            nickname
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${context.token}`
+            }
+          }
+        );
+        player = playerResponse.data;
+        token = context.token!;
+      } else {
+        await leaveGame();
+        const playerResponse = await axios.post<PlayerDto>(
+          `/api/games/${uuid}/players`,
+          {
+            nickname
+          }
+        );
+        player = playerResponse.data;
+        token = playerResponse.headers['x-auth-token'];
+      }
 
       dispatchContext({
         type: 'save',
-        state: {
-          player: {
-            uuid: player.uuid,
-            nickname: player.nickname
-          },
-          game: {
-            uuid: player.game!.uuid,
-            code: player.game!.code,
-            type: player.game!.type
-          },
-          token: playerResponse.headers['x-auth-token']
-        }
+        player,
+        game: player.game!,
+        token
       });
       return player;
     },
-    [dispatchContext]
+    [context, dispatchContext, leaveGame, getPlayer]
   );
 
   const getGameByCode = useCallback(
@@ -46,12 +99,16 @@ export const useApiClient = () => {
     []
   );
 
-  const createGame = useCallback(async (type: string) => {
-    const gameResponse = await axios.post<GameDto>('/api/games', {
-      type
-    });
-    return gameResponse.data;
-  }, []);
+  const createGame = useCallback(
+    async (type: string) => {
+      await leaveGame();
+      const gameResponse = await axios.post<GameDto>('/api/games', {
+        type
+      });
+      return gameResponse.data;
+    },
+    [leaveGame]
+  );
 
   const updateGame = useCallback(
     async (phase: string) => {
@@ -69,37 +126,6 @@ export const useApiClient = () => {
     },
     [context]
   );
-
-  const leaveGame = useCallback(async () => {
-    try {
-      if (context.player) {
-        await axios.delete('/api/players/' + context.player.uuid, {
-          headers: {
-            Authorization: `Bearer ${context.token}`
-          }
-        });
-      }
-      dispatchContext({
-        type: 'clear'
-      });
-    } catch (err: unknown) {
-      console.error('Error leaving game', err);
-    }
-  }, [dispatchContext, context]);
-
-  const getPlayer = useCallback(async () => {
-    if (!context.player || !context.token) {
-      console.log('getPlayer: No player or token in context');
-      return null;
-    }
-    const playerResponse = await axios.get<PlayerDto>(
-      '/api/players/' + context.player!.uuid,
-      {
-        headers: { Authorization: `Bearer ${context.token}` }
-      }
-    );
-    return playerResponse.data;
-  }, [context]);
 
   const submitNameEntry = useCallback(
     async (name: string) => {

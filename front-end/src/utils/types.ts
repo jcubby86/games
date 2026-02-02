@@ -3,16 +3,18 @@ export interface NameEntryDto {
   order?: number;
 }
 
+export interface Hint {
+  filler: string;
+  prefix: string;
+  suffix: string;
+  prompt: string;
+  category: string;
+}
+
 export interface StoryEntryDto {
   values: string[];
   story?: string;
-  hint?: {
-    filler: string;
-    prefix: string;
-    suffix: string;
-    prompt: string;
-    category: string;
-  };
+  hint?: Hint;
 }
 
 export interface PlayerDto {
@@ -22,6 +24,7 @@ export interface PlayerDto {
   entries?: NameEntryDto[];
   canPlayerSubmit?: boolean;
   game?: GameDto;
+  roles?: string[];
 }
 
 export interface GameDto {

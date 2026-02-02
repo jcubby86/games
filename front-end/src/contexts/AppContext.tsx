@@ -6,10 +6,13 @@ import {
   useReducer
 } from 'react';
 
+import { GameDto, PlayerDto } from '../utils/types';
+
 export interface AppState {
   player?: {
     uuid: string;
     nickname: string;
+    roles?: string[];
   };
   game?: {
     uuid: string;
@@ -55,7 +58,10 @@ const clearStorage = () => {
   Object.values(STORAGE_KEYS).forEach((key) => localStorage.removeItem(key));
 };
 
-type Action = { type: 'clear' } | { type: 'save'; state: AppState };
+type Action =
+  | { type: 'clear' }
+  | { type: 'save'; player: PlayerDto; game: GameDto; token: string }
+  | { type: 'load'; state: AppState };
 
 const reducer = (prev: AppState, action: Action): AppState => {
   let newState: AppState;
@@ -66,8 +72,17 @@ const reducer = (prev: AppState, action: Action): AppState => {
       return {};
     case 'save': {
       newState = {
-        ...prev,
-        ...action.state
+        player: {
+          uuid: action.player.uuid,
+          nickname: action.player.nickname,
+          roles: action.player.roles
+        },
+        game: {
+          uuid: action.game.uuid,
+          code: action.game.code,
+          type: action.game.type
+        },
+        token: action.token
       };
       saveToStorage(newState);
       return newState;
@@ -92,7 +107,7 @@ export const AppContextProvider = ({
 
     // apply cached values immediately
     if (storedState.player || storedState.game || storedState.token) {
-      dispatch({ type: 'save', state: storedState });
+      dispatch({ type: 'load', state: storedState });
     }
   }, []);
 
