@@ -13,6 +13,7 @@ import { SuggestionService } from './suggestion/suggestion.service';
 import { SuggestionController } from './suggestion/suggestion.controller';
 import { NameService } from './name/name.service';
 import { EventGateway } from './event/event.gateway';
+import { suggestionProviderFactory } from './suggestion/suggestion.factory';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { EventGateway } from './event/event.gateway';
     StoryService,
     NameService,
     SuggestionService,
+    suggestionProviderFactory,
     EventGateway,
   ],
 })

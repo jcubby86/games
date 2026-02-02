@@ -11,6 +11,7 @@ export class SuggestionController {
     @Query('category') category: string,
     @Query('quantity') quantity?: number,
   ): Promise<SuggestionDto[]> {
-    return this.suggestionService.getSuggestion(category.split(','), quantity);
+    const categories = category.split(',');
+    return this.suggestionService.getSuggestions(categories, quantity);
   }
 }
