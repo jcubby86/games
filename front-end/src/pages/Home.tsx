@@ -12,7 +12,7 @@ const Home = (): JSX.Element => {
         {context.game && (
           <Link
             role="button"
-            to={context.game.type}
+            to={context.game.type.toLowerCase()}
             className="btn btn-lg btn-success d-flex flex-column fw-bold px-5 col-12"
           >
             <Icon icon="nf-mdi-account_convert" className="py-1" />

@@ -52,7 +52,7 @@ const Join = (): JSX.Element => {
         }
       });
 
-      navigate('/' + player.game!.type);
+      navigate('/' + player.game!.type.toLowerCase());
     } catch (err: unknown) {
       alertError('Error joining game', err);
     }

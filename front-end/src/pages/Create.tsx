@@ -46,7 +46,7 @@ const Create = (): JSX.Element => {
           token: response.headers['x-auth-token']
         }
       });
-      navigate('/' + player.game!.type);
+      navigate('/' + player.game!.type.toLowerCase());
     } catch (err: unknown) {
       alertError(
         'Unable to create game. Please try again in a little bit.',

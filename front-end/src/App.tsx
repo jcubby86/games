@@ -23,8 +23,8 @@ function App(): JSX.Element {
               <Route index element={<Home />} />
               <Route path="join" element={<Join />} />
               <Route path="create" element={<Create />} />
-              <Route path={STORY} element={<Story />} />
-              <Route path={NAME} element={<Names />} />
+              <Route path={STORY.toLowerCase()} element={<Story />} />
+              <Route path={NAME.toLowerCase()} element={<Names />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="*" element={<Home />} />
             </Route>
