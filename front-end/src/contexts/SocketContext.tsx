@@ -61,10 +61,7 @@ export const SocketContextProvider = ({
 
     socketRef.current.on('game.recreated', async (data) => {
       console.log('Game recreated:', JSON.stringify(data));
-      const player = await joinGame(
-        data.game.uuid,
-        context.player!.nickname
-      );
+      const player = await joinGame(data.game.uuid, context.player!.nickname);
       navigate(`/` + player.game!.type.toLowerCase());
     });
 

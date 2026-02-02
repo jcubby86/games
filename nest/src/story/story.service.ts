@@ -236,4 +236,26 @@ export class StoryService {
 
     return response;
   }
+
+  async getStoryArchives(uuid: string) {
+    const entries = await this.prisma.storyEntry.findMany({
+      where: {
+        game: {
+          uuid,
+        },
+      },
+      include: {
+        player: { select: { uuid: true, nickname: true } },
+      },
+      orderBy: { id: 'asc' },
+    });
+
+    return entries.map((entry) => ({
+      player: {
+        uuid: entry.player.uuid,
+        nickname: entry.player.nickname,
+      },
+      story: entry.story ?? '',
+    }));
+  }
 }

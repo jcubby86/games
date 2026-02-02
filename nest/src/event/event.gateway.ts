@@ -9,7 +9,7 @@ import { Server, Socket } from 'socket.io';
 import { AuthPayload, AuthService } from 'src/auth/auth.service';
 import type { GameUpdatedEvent } from 'src/game/game.service';
 
-interface AuthenticatedSocket extends Socket, AuthPayload { }
+interface AuthenticatedSocket extends Socket, AuthPayload {}
 
 @WebSocketGateway({
   cors: {
@@ -24,7 +24,7 @@ export class EventGateway implements OnGatewayInit {
   private readonly logger = new Logger(EventGateway.name);
   private server: Server;
 
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
   afterInit(server: Server) {
     this.server = server;
@@ -85,11 +85,15 @@ export class EventGateway implements OnGatewayInit {
   handleGameRecreated(socket: AuthenticatedSocket, data) {
     const playerRoles = socket.player.roles || [];
     if (!AuthService.matchRoles(playerRoles, ['host'])) {
-      this.logger.warn(`Unauthorized game.recreated event from player: ${socket.player.uuid}`);
+      this.logger.warn(
+        `Unauthorized game.recreated event from player: ${socket.player.uuid}`,
+      );
       return;
     }
 
-    socket.broadcast.to(`game:${socket.game.uuid}`).emit('game.recreated', data);
+    socket.broadcast
+      .to(`game:${socket.game.uuid}`)
+      .emit('game.recreated', data);
 
     this.logger.debug('Sent game.recreated event: ' + JSON.stringify(data));
   }
@@ -104,9 +108,9 @@ export class EventGateway implements OnGatewayInit {
       },
       player: event.player
         ? {
-          uuid: event.player.uuid,
-          nickname: event.player.nickname,
-        }
+            uuid: event.player.uuid,
+            nickname: event.player.nickname,
+          }
         : undefined,
       action: event.action,
     });
