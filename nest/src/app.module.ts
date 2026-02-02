@@ -15,7 +15,6 @@ import { SuggestionRepository } from './suggestion/suggestion.repository';
 import { NameService } from './name/name.service';
 import { EventGateway } from './event/event.gateway';
 import { suggestionProviderFactory } from './suggestion/suggestion.factory';
-import { HttpModule } from '@nestjs/axios';
 import { OpenAIService } from './openai/openai.service';
 
 @Module({
@@ -26,7 +25,6 @@ import { OpenAIService } from './openai/openai.service';
       global: true,
       signOptions: { expiresIn: '60m' },
     }),
-    HttpModule,
   ],
   controllers: [GameController, SuggestionController],
   providers: [
