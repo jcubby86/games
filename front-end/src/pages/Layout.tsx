@@ -1,30 +1,13 @@
-import axios from 'axios';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 
 import Icon from '../components/Icon';
 import { useAppContext } from '../contexts/AppContext';
-import { alertError } from '../utils/errorHandler';
+import { useApiClient } from '../hooks/useApiClient';
 
 const Layout = (): JSX.Element => {
   const navigate = useNavigate();
-  const { context, dispatchContext } = useAppContext();
-
-  const leaveGame = async (e: React.FormEvent) => {
-    try {
-      e.preventDefault();
-
-      await axios.delete('/api/players/' + context.player!.uuid, {
-        headers: {
-          Authorization: `Bearer ${context.token}`
-        }
-      });
-      dispatchContext({ type: 'clear' });
-
-      navigate('/');
-    } catch (err: unknown) {
-      alertError('Error leaving game, please try again', err);
-    }
-  };
+  const { context } = useAppContext();
+  const { leaveGame } = useApiClient();
 
   return (
     <>
@@ -37,7 +20,14 @@ const Layout = (): JSX.Element => {
 
             {context.player && (
               <div className="d-flex justify-content-start">
-                <button className="btn btn-outline-danger" onClick={leaveGame}>
+                <button
+                  className="btn btn-outline-danger"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    leaveGame();
+                    navigate('/');
+                  }}
+                >
                   <Icon icon="nf-mdi-account_off" className="pe-2" />
                   Leave Game
                 </button>

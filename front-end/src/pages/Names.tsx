@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Tooltip from 'react-bootstrap/esm/Tooltip';
 
@@ -7,8 +6,8 @@ import List from '../components/List';
 import PlayerList from '../components/PlayerList';
 import RecreateButton from '../components/RecreateButton';
 import StartGame from '../components/StartGame';
-import { useAppContext } from '../contexts/AppContext';
 import { useSocket } from '../contexts/SocketProvider';
+import { useApiClient } from '../hooks/useApiClient';
 import { useSuggestion } from '../hooks/useSuggestion';
 import { END, JOIN, PLAY, READ } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
@@ -16,29 +15,30 @@ import { NameVariant } from '../utils/gameVariants';
 import { PlayerDto } from '../utils/types';
 
 const Names = (): JSX.Element => {
-  const { context } = useAppContext();
+  const { getPlayer, submitNameEntry, updateGame } = useApiClient();
   const socket = useSocket();
   const [state, setState] = useState<PlayerDto | null>(null);
   const entryRef = useRef<HTMLInputElement>(null);
-  const { suggestion, updateSuggestion, updateCategory } = useSuggestion(10);
+  const { suggestion, nextSuggestion } = useSuggestion(
+    'MALE_NAME,FEMALE_NAME',
+    10
+  );
 
   const refreshData = useCallback(async () => {
-    if (!context.player || !context.token) {
-      return;
-    }
     try {
-      const response = await axios.get('/api/players/' + context.player!.uuid, {
-        headers: { Authorization: `Bearer ${context.token}` }
-      });
-      const player: PlayerDto = response.data;
-      setState({ ...player });
+      const player = await getPlayer();
+      setState(player);
     } catch (err: unknown) {
       logError(err);
     }
-  }, [context.player, context.token]);
+  }, [getPlayer]);
 
   useEffect(() => {
-    function gameUpdated(event: unknown) {
+    refreshData();
+  }, [refreshData]);
+
+  useEffect(() => {
+    async function gameUpdated(event: unknown) {
       console.log('Game updated:', event);
       refreshData();
     }
@@ -49,42 +49,28 @@ const Names = (): JSX.Element => {
     };
   }, [socket, refreshData]);
 
-  useEffect(() => {
-    updateCategory('MALE_NAME,FEMALE_NAME');
-    refreshData();
-  }, [context, refreshData, updateCategory]);
-
   const Play = (): JSX.Element => {
-    const sendEntry = async (e: React.FormEvent) => {
+    const sendEntry = async () => {
       try {
-        e.preventDefault();
         if (!entryRef.current?.value) {
           alert('Please enter a name');
           return;
         }
-
-        await axios.post(
-          `/api/players/${context.player!.uuid}/name-entries`,
-          {
-            name: entryRef.current.value
-          },
-          {
-            headers: { Authorization: `Bearer ${context.token}` }
-          }
-        );
+        await submitNameEntry(entryRef.current.value);
         setState(null);
       } catch (err: unknown) {
         alertError('Error saving entry', err);
       }
     };
 
-    const resetPlaceholder = async (e: React.MouseEvent) => {
-      e.preventDefault();
-      updateSuggestion();
-    };
-
     return (
-      <form className="w-100" onSubmit={sendEntry}>
+      <form
+        className="w-100"
+        onSubmit={(e) => {
+          e.preventDefault();
+          sendEntry();
+        }}
+      >
         <h3 className="text-center w-100">Enter a name:</h3>
         <input
           placeholder={suggestion}
@@ -100,7 +86,10 @@ const Names = (): JSX.Element => {
             />
             <button
               className="btn btn-outline-secondary col"
-              onClick={resetPlaceholder}
+              onClick={(e) => {
+                e.preventDefault();
+                nextSuggestion();
+              }}
               data-tooltip-id="my-tooltip"
               data-tooltip-content="New Suggestion"
               data-tooltip-place="bottom"
@@ -115,16 +104,9 @@ const Names = (): JSX.Element => {
   };
 
   const Read = (): JSX.Element => {
-    const endGame = async (e: React.MouseEvent) => {
+    const endGame = async () => {
       try {
-        e.preventDefault();
-        await axios.patch(
-          `/api/games/${context.game!.uuid}`,
-          {
-            phase: END
-          },
-          { headers: { Authorization: `Bearer ${context.token}` } }
-        );
+        await updateGame(END);
         setState(null);
       } catch (err: unknown) {
         alertError('Error updating game', err);
@@ -138,7 +120,13 @@ const Names = (): JSX.Element => {
           <List items={state?.entries?.map((e) => e.name ?? '')} />
         </div>
 
-        <button className={'btn btn-danger mt-4'} onClick={endGame}>
+        <button
+          className={'btn btn-danger mt-4'}
+          onClick={(e) => {
+            e.preventDefault();
+            endGame();
+          }}
+        >
           Hide Names
         </button>
       </div>

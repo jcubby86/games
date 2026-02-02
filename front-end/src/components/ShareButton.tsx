@@ -14,9 +14,8 @@ const ShareButton = ({
   title,
   text
 }: ShareProps): JSX.Element => {
-  const share = async (e: React.MouseEvent) => {
+  const share = async () => {
     try {
-      e.preventDefault();
       if (navigator.share) {
         await navigator.share({
           title: title,
@@ -37,7 +36,13 @@ const ShareButton = ({
 
   if (navigator['share']) {
     return (
-      <button onClick={share} className={className}>
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          share();
+        }}
+        className={className}
+      >
         <Icon icon="nf-fa-share_square_o" />
       </button>
     );

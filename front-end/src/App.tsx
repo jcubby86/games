@@ -1,7 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import { AppContextProvider } from './contexts/AppContext';
-import { SocketProvider } from './contexts/SocketProvider';
+import { SocketContextProvider } from './contexts/SocketProvider';
 import Create from './pages/Create';
 import Home from './pages/Home';
 import Join from './pages/Join';
@@ -17,7 +17,7 @@ function App(): JSX.Element {
   return (
     <BrowserRouter>
       <AppContextProvider>
-        <SocketProvider>
+        <SocketContextProvider>
           <Routes>
             <Route path="/" element={<Layout />}>
               <Route index element={<Home />} />
@@ -29,7 +29,7 @@ function App(): JSX.Element {
               <Route path="*" element={<Home />} />
             </Route>
           </Routes>
-        </SocketProvider>
+        </SocketContextProvider>
       </AppContextProvider>
     </BrowserRouter>
   );

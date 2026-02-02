@@ -1,51 +1,31 @@
-import axios from 'axios';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useAppContext } from '../contexts/AppContext';
+import { useApiClient } from '../hooks/useApiClient';
 import { alertError } from '../utils/errorHandler';
 import { gameVariants } from '../utils/gameVariants';
 import generateNickname from '../utils/nicknameGeneration';
-import { PlayerDto } from '../utils/types';
 
 const Create = (): JSX.Element => {
-  const { context, dispatchContext } = useAppContext();
+  const { context } = useAppContext();
+  const { createGame, joinGame } = useApiClient();
   const [gameType, setGameType] = useState('');
   const nicknameRef = useRef<HTMLInputElement>(null);
   const suggestionRef = useRef(generateNickname());
   const navigate = useNavigate();
 
-  const createGame = async (e: React.FormEvent) => {
+  const submit = async () => {
     try {
-      e.preventDefault();
       if (!gameVariants.map((t) => t.type).includes(gameType)) {
         alert('Please select a game type');
         return;
       }
-
-      const gameResponse = await axios.post('/api/games', {
-        type: gameType.toUpperCase()
-      });
-      const response = await axios.post(`/api/games/${gameResponse.data.uuid}/players`, {
-        nickname: nicknameRef.current?.value || suggestionRef.current
-      });
-      const player: PlayerDto = response.data;
-
-      dispatchContext({
-        type: 'save',
-        state: {
-          player: {
-            uuid: player.uuid,
-            nickname: player.nickname,
-          },
-          game: {
-            uuid: player.game!.uuid,
-            code: player.game!.code,
-            type: player.game!.type
-          },
-          token: response.headers['x-auth-token']
-        }
-      });
+      const game = await createGame(gameType.toUpperCase());
+      const player = await joinGame(
+        game.uuid,
+        nicknameRef.current?.value || suggestionRef.current
+      );
       navigate('/' + player.game!.type.toLowerCase());
     } catch (err: unknown) {
       alertError(
@@ -69,7 +49,12 @@ const Create = (): JSX.Element => {
 
   return (
     <div className="w-100">
-      <form onSubmit={createGame}>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          submit();
+        }}
+      >
         <div className="mb-3">
           <label htmlFor="nicknameInput" className="form-label">
             Nickname:

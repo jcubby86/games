@@ -18,15 +18,14 @@ const PlayerList = ({ players, filter }: PlayerListProps): JSX.Element => {
     function poked(event: any) {
       console.log('Poked by', event.nickname || event.from);
     }
-    
+
     socket.on('poke', poked);
     return () => {
       socket.off('poke', poked);
     };
   }, [socket]);
 
-  function handleClick(e: React.MouseEvent, p: PlayerDto) {
-    e.stopPropagation();
+  function poke(p: PlayerDto) {
     if (p.uuid !== context.player?.uuid) {
       socket.emit('poke', {
         to: p.uuid,
@@ -46,7 +45,10 @@ const PlayerList = ({ players, filter }: PlayerListProps): JSX.Element => {
         <li
           key={p.uuid}
           className="list-group-item text-break"
-          onClick={(e) => handleClick(e, p)}
+          onClick={(e) => {
+            e.preventDefault();
+            poke(p);
+          }}
         >
           {p.nickname}
         </li>

@@ -14,7 +14,7 @@ interface SocketContextType {
 const SocketContext = createContext<SocketContextType | null>(null);
 const URL = import.meta.env.VITE_NGINX_BACKEND_ADDRESS as string | undefined;
 
-export const SocketProvider = ({
+export const SocketContextProvider = ({
   children
 }: {
   children: React.ReactElement;
@@ -52,7 +52,7 @@ export const SocketProvider = ({
     return () => {
       socketRef.current?.disconnect();
     };
-  }, [context.token]);
+  }, [context]);
 
   const emit: SocketContextType['emit'] = (event, data) => {
     socketRef.current?.emit(event, data);

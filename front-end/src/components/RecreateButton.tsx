@@ -1,22 +1,16 @@
-import axios from 'axios';
-
 import { useAppContext } from '../contexts/AppContext';
-import { useGameEvents } from '../hooks/useGameEvents';
 import { alertError } from '../utils/errorHandler';
-import { GameDto } from '../utils/types';
 
 const RecreateButton = ({ className }: { className?: string }): JSX.Element => {
   // const { socket, isConnected } = useGameEvents();
   const { context } = useAppContext();
 
-  async function recreateGame(e: React.MouseEvent) {
-    e.stopPropagation();
+  async function recreateGame() {
     try {
       // const response = await axios.post('/api/games', {
       //   type: context.gameType!.toUpperCase()
       // });
       // const game: GameDto = response.data;
-
       // if (isConnected) {
       //   socket.emit('game.recreate', {
       //     gameUuid: game.uuid
@@ -30,9 +24,15 @@ const RecreateButton = ({ className }: { className?: string }): JSX.Element => {
     }
   }
 
-  if (context.gameType && context.gameUuid) {
+  if (context.game) {
     return (
-      <button className={className} onClick={recreateGame}>
+      <button
+        className={className}
+        onClick={(e) => {
+          e.preventDefault();
+          recreateGame();
+        }}
+      >
         Play Again
       </button>
     );

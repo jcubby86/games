@@ -1,12 +1,11 @@
-import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useAppContext } from '../contexts/AppContext';
+import { useApiClient } from '../hooks/useApiClient';
 import { alertError, logError } from '../utils/errorHandler';
 import { gameVariants } from '../utils/gameVariants';
 import generateNickname from '../utils/nicknameGeneration';
-import { PlayerDto } from '../utils/types';
 import { eqIgnoreCase as eq } from '../utils/utils';
 
 type JoinState =
@@ -14,44 +13,23 @@ type JoinState =
   | { validity: 'unknown' | 'invalid' };
 
 const Join = (): JSX.Element => {
-  const { context, dispatchContext } = useAppContext();
-  const [code, setCode] = useState(context.game?.code ?? '');
+  const { context } = useAppContext();
+  const { joinGame, getGameByCode } = useApiClient();
+  const [code, setCode] = useState('');
   const [state, setState] = useState<JoinState>({ validity: 'unknown' });
   const nicknameRef = useRef<HTMLInputElement>(null);
   const suggestionRef = useRef(generateNickname());
   const navigate = useNavigate();
 
-  const submit = async (e: React.FormEvent) => {
+  const submit = async () => {
     try {
-      e.preventDefault();
       if (state.validity !== 'valid') {
         return;
       }
-
-      const response = await axios.post(
-        `/api/games/${state.gameUuid}/players`,
-        {
-          nickname: nicknameRef.current?.value || suggestionRef.current
-        }
+      const player = await joinGame(
+        state.gameUuid,
+        nicknameRef.current?.value || suggestionRef.current
       );
-      const player: PlayerDto = response.data;
-
-      dispatchContext({
-        type: 'save',
-        state: {
-          player: {
-            uuid: player.uuid,
-            nickname: player.nickname
-          },
-          game: {
-            uuid: player.game!.uuid,
-            code: player.game!.code,
-            type: player.game!.type
-          },
-          token: response.headers['x-auth-token']
-        }
-      });
-
       navigate('/' + player.game!.type.toLowerCase());
     } catch (err: unknown) {
       alertError('Error joining game', err);
@@ -60,16 +38,15 @@ const Join = (): JSX.Element => {
 
   useEffect(() => {
     setCode((c) => context.game?.code ?? c);
-  }, [context.game?.code]);
+  }, [context]);
 
   useEffect(() => {
     const controller = new AbortController();
+
     async function checkGameType(code: string) {
       try {
         if (code.length === 4) {
-          const result = await axios.get(`/api/games?code=${code}`, {
-            signal: controller.signal
-          });
+          const result = await getGameByCode(code, controller);
           setState({
             gameType: result.data.type,
             gameUuid: result.data.uuid,
@@ -86,11 +63,17 @@ const Join = (): JSX.Element => {
 
     checkGameType(code);
     return () => controller.abort();
-  }, [code]);
+  }, [code, getGameByCode]);
 
   return (
     <div>
-      <form className="row gap-3" onSubmit={submit}>
+      <form
+        className="row gap-3"
+        onSubmit={(e) => {
+          e.preventDefault();
+          submit();
+        }}
+      >
         <div className="col p-0">
           <label htmlFor="codeInput" className="form-label">
             Code:

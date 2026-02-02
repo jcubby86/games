@@ -1,8 +1,8 @@
-import axios from 'axios';
 import { useRef } from 'react';
 
 import PlayerList from './PlayerList';
 import { useAppContext } from '../contexts/AppContext';
+import { useApiClient } from '../hooks/useApiClient';
 import { PLAY } from '../utils/constants';
 import { alertError } from '../utils/errorHandler';
 import { PlayerDto } from '../utils/types';
@@ -20,21 +20,11 @@ const StartGame = ({
 }: StartGameProps): JSX.Element => {
   const { context } = useAppContext();
   const codeRef = useRef<HTMLInputElement>(null);
+  const { updateGame } = useApiClient();
 
-  const startGame = async (e: React.FormEvent) => {
+  const startGame = async () => {
     try {
-      e.preventDefault();
-      await axios.patch(
-        `/api/games/${context.game!.uuid}`,
-        {
-          phase: PLAY
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${context.token}`
-          }
-        }
-      );
+      await updateGame(PLAY);
       callback();
     } catch (err: unknown) {
       alertError('Unable to start game. Please try again', err);
@@ -47,7 +37,13 @@ const StartGame = ({
         <div className="text-center mb-4">
           <h1 className="text-nowrap">{title}</h1>
         </div>
-        <form className="row gap-3" onSubmit={startGame}>
+        <form
+          className="row gap-3"
+          onSubmit={(e) => {
+            e.preventDefault();
+            startGame();
+          }}
+        >
           <div className="mb-3 col p-0">
             <label htmlFor="gameCode" className="form-label">
               Game Code:
@@ -55,7 +51,7 @@ const StartGame = ({
             <input
               className="form-control"
               type="text"
-              value={context.game!.code}
+              value={context.game?.code}
               aria-label="game code"
               readOnly
               id="gameCode"
