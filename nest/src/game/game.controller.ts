@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { GameService } from './game.service';
 import { StoryService } from '../story/story.service';
-import { GameAuthGuard } from '../auth/auth.guard';
+import { GameAuthGuard, Roles } from '../auth/auth.guard';
 import { AuthService } from '../auth/auth.service';
 import {
   GameDto,
@@ -49,6 +49,7 @@ export class GameController {
 
   @UseGuards(GameAuthGuard)
   @Patch('games/:uuid')
+  @Roles(['host'])
   async updateGame(
     @Param('uuid') uuid: string,
     @Body() data: { phase: string },

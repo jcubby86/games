@@ -133,11 +133,15 @@ const Names = (): JSX.Element => {
       }
     };
 
+    const sortedEntries = [...state!.entries!].sort((a, b) => {
+      return b.order! - a.order!;
+    });
+
     return (
       <div className="w-100 d-flex flex-column">
         <div className="w-100">
           <h3 className="text-center w-100">Names:</h3>
-          <List items={state?.entries?.map((e) => e.name ?? '')} />
+          <List items={sortedEntries.map((e) => e.name ?? '')} />
         </div>
         <HideNamesButton />
       </div>
