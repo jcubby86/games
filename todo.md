@@ -1,9 +1,7 @@
 # todo
 
 - cors for websocket
-- nginx for websocket
-- websocket for recreate/rejoin
 - chat gpt integration
 - fix story archive
-- check host role for updating game phase/emitting join message
-- ordering name game
+- websocket for recreate/rejoin
+- check host role for emitting recreate message
