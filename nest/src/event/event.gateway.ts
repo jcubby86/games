@@ -35,30 +35,32 @@ export class EventGateway implements OnGatewayInit {
 
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     server.use(async (socket: AuthenticatedSocket, next) => {
-      const token = socket.handshake.auth.bearer as string;
-      if (!token) {
-        return next(new Error('Bearer token is missing'));
+      try {
+        const token = socket.handshake.auth.bearer as string;
+        if (!token) {
+          return next(new Error('Bearer token is missing'));
+        }
+
+        const authToken = await this.authService.verifyAsync(token);
+        socket.player = authToken.player;
+        socket.game = authToken.game;
+
+        await socket.join([
+          `game:${authToken.game.uuid}`,
+          `player:${authToken.player.uuid}`,
+        ]);
+
+        this.logger.log(
+          `Websocket client connected: ${socket.id}, Player: ${authToken.player.uuid}, Game: ${authToken.game.uuid}`,
+        );
+        this.logger.debug(
+          `Socket rooms: ${Array.from(socket.rooms).join(', ')}`,
+        );
+
+        return next();
+      } catch (error: unknown) {
+        return next(error as Error);
       }
-
-      const authToken = await this.authService.verifyAsync(token);
-      if (!authToken) {
-        return next(new Error('Invalid bearer token'));
-      }
-
-      socket.player = authToken.player;
-      socket.game = authToken.game;
-
-      await socket.join([
-        `game:${authToken.game.uuid}`,
-        `player:${authToken.player.uuid}`,
-      ]);
-
-      this.logger.log(
-        `Websocket client connected: ${socket.id}, Player: ${authToken.player.uuid}, Game: ${authToken.game.uuid}`,
-      );
-      this.logger.debug(`Socket rooms: ${Array.from(socket.rooms).join(', ')}`);
-
-      next();
     });
   }
 

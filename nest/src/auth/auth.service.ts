@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { GameDto, PlayerDto } from 'src/types/game.types';
@@ -34,15 +38,29 @@ export class AuthService {
         roles: player.roles,
       },
     };
-    return this.jwtService.signAsync(payload, {
-      secret: this.secret,
-    });
+    try {
+      return this.jwtService.signAsync(payload, {
+        secret: this.secret,
+      });
+    } catch (error: unknown) {
+      throw new InternalServerErrorException(
+        error as Error,
+        'Failed to generate authentication token',
+      );
+    }
   }
 
   async verifyAsync(token: string): Promise<AuthPayload> {
-    const payload = await this.jwtService.verifyAsync(token, {
-      secret: this.secret,
-    });
-    return payload as AuthPayload;
+    try {
+      const payload = await this.jwtService.verifyAsync<AuthPayload>(token, {
+        secret: this.secret,
+      });
+      return payload;
+    } catch (error: unknown) {
+      throw new UnauthorizedException(
+        error as Error,
+        'Failed to verify authentication token',
+      );
+    }
   }
 }
