@@ -1,4 +1,5 @@
 import { Controller, Get, Query } from '@nestjs/common';
+
 import { SuggestionService } from './suggestion.service';
 import { SuggestionDto } from 'src/types/game.types';
 

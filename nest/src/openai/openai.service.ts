@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OpenAI } from 'openai';
+
 import { Category } from 'src/generated/prisma/enums';
 import { SuggestionProvider } from 'src/suggestion/suggestion.factory';
 
@@ -37,7 +38,7 @@ export class OpenAIService implements SuggestionProvider {
       `,
       input,
     });
-    this.logger.log(`OpenAI response: ${JSON.stringify(responsesResult)}`);
+    // this.logger.log(`OpenAI response: ${JSON.stringify(responsesResult)}`);
     return responsesResult.output_text;
   }
 

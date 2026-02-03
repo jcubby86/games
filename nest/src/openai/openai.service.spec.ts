@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { OpenAIService } from './openai.service';
 
 describe('OpenaiService', () => {

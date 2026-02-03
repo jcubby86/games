@@ -1,8 +1,9 @@
 import { FactoryProvider } from '@nestjs/common';
-import { SuggestionDto } from 'src/types/game.types';
+
 import { SuggestionRepository } from './suggestion.repository';
 import { Category } from 'src/generated/prisma/client';
 import { OpenAIService } from 'src/openai/openai.service';
+import { SuggestionDto } from 'src/types/game.types';
 
 export const SUGGESTION_PROVIDERS = 'SuggestionProviders';
 

@@ -6,6 +6,8 @@ import {
 } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 
+import { GameService } from 'src/game/game.service';
+import type { GameUpdatedEvent } from 'src/game/game.service';
 import {
   Game,
   GamePhase,
@@ -13,8 +15,6 @@ import {
   NameEntry,
   Player,
 } from 'src/generated/prisma/client';
-import { GameService } from 'src/game/game.service';
-import type { GameUpdatedEvent } from 'src/game/game.service';
 import { PrismaService } from 'src/prisma.service';
 import { NameEntryDto, PlayerDto } from 'src/types/game.types';
 

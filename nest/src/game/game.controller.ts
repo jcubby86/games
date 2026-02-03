@@ -10,17 +10,18 @@ import {
   Res,
   Delete,
 } from '@nestjs/common';
+import type { Response } from 'express';
+
 import { GameService } from './game.service';
-import { StoryService } from '../story/story.service';
 import { GameAuthGuard, Roles } from '../auth/auth.guard';
 import { AuthService } from '../auth/auth.service';
+import { StoryService } from '../story/story.service';
 import {
   GameDto,
   PlayerDto,
   NameEntryDto,
   StoryEntryDto,
 } from '../types/game.types';
-import type { Response } from 'express';
 import { NameService } from 'src/name/name.service';
 
 @Controller('api')

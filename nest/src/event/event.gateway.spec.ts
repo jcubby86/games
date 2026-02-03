@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { EventGateway } from './event.gateway';
 
 describe('EventGateway', () => {

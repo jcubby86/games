@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+
+import { SuggestionProvider } from './suggestion.factory';
 import { Category } from 'src/generated/prisma/client';
 import { PrismaService } from 'src/prisma.service';
-import { SuggestionProvider } from './suggestion.factory';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class SuggestionRepository implements SuggestionProvider {

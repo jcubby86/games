@@ -6,6 +6,7 @@ import {
   WebSocketGateway,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+
 import { AuthPayload, AuthService } from 'src/auth/auth.service';
 import type { GameUpdatedEvent } from 'src/game/game.service';
 

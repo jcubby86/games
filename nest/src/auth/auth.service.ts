@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+
 import { GameDto, PlayerDto } from 'src/types/game.types';
 
 export interface AuthPayload {

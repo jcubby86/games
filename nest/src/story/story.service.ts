@@ -6,18 +6,18 @@ import {
 } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 
+import { hints } from './story.constants';
+import { GameService } from 'src/game/game.service';
+import type { GameUpdatedEvent } from 'src/game/game.service';
 import {
   Game,
   GamePhase,
   GameType,
   Player,
   StoryEntry,
-} from '../generated/prisma/client';
-import { GameService } from 'src/game/game.service';
-import type { GameUpdatedEvent } from 'src/game/game.service';
+} from 'src/generated/prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import { PlayerDto, StoryEntryDto } from 'src/types/game.types';
-import { hints } from './story.constants';
 
 interface StoryMapEntry {
   player: Player;

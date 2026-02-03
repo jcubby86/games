@@ -4,9 +4,10 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common';
-import { SuggestionDto } from 'src/types/game.types';
+
 import { SUGGESTION_PROVIDERS, SuggestionProvider } from './suggestion.factory';
 import { Category } from 'src/generated/prisma/client';
+import { SuggestionDto } from 'src/types/game.types';
 
 @Injectable()
 export class SuggestionService {
