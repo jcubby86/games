@@ -15,7 +15,13 @@ export class SuggestionService {
   constructor(
     @Inject(SUGGESTION_PROVIDERS)
     private suggestionProviders: SuggestionProvider[],
-  ) {}
+  ) {
+    if (this.suggestionProviders.length === 0) {
+      this.logger.warn(
+        `Enabled ${this.suggestionProviders.length} suggestion providers`,
+      );
+    }
+  }
 
   async getSuggestions(
     categories: string[],

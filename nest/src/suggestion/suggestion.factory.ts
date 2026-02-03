@@ -22,9 +22,7 @@ export const suggestionProviderFactory: FactoryProvider<SuggestionProvider[]> =
       openAIService: OpenAIService,
     ) => {
       const providers = [suggestionRepository, openAIService];
-      return providers.filter((p) => {
-        return p.enabled() === true;
-      });
+      return providers.filter((p) => p.enabled());
     },
     inject: [SuggestionRepository, OpenAIService],
   };

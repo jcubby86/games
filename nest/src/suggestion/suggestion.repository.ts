@@ -12,10 +12,11 @@ export class SuggestionRepository implements SuggestionProvider {
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
   ) {
-    this.enabledFlag = this.configService.get<boolean>(
+    const flag = this.configService.get<boolean>(
       'SUGGESTION_REPOSITORY_ENABLED',
       true,
     );
+    this.enabledFlag = flag === true;
   }
 
   async getSuggestions(categories: Category[]) {
