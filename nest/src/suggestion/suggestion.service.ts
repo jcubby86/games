@@ -3,7 +3,6 @@ import {
   Inject,
   Injectable,
   Logger,
-  NotFoundException,
 } from '@nestjs/common';
 import { SuggestionDto } from 'src/types/game.types';
 import { SUGGESTION_PROVIDERS, SuggestionProvider } from './suggestion.factory';
@@ -39,14 +38,14 @@ export class SuggestionService {
   }
 
   private validateCategories(categories: string[]) {
-    var validCategories = Object.values(Category);
+    const validCategories = Object.values(Category);
     if (!categories.every((c) => validCategories.includes(c as Category))) {
       throw new BadRequestException('One or more categories are invalid');
     }
     return categories as Category[];
   }
 
-  private shuffle(rows: any[]) {
+  private shuffle<T>(rows: T[]) {
     for (let i = rows.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [rows[i], rows[j]] = [rows[j], rows[i]];

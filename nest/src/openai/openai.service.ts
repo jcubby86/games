@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OpenAI } from 'openai';
-import { parse } from 'path';
 import { Category } from 'src/generated/prisma/enums';
 import { SuggestionProvider } from 'src/suggestion/suggestion.factory';
 
@@ -13,9 +12,7 @@ export class OpenAIService implements SuggestionProvider {
   private readonly model: string;
   private readonly client?: OpenAI;
 
-  constructor(
-    private readonly configService: ConfigService,
-  ) {
+  constructor(private readonly configService: ConfigService) {
     this.baseUrl = this.configService.get('OPENAI_BASE_URL');
     this.apiKey = this.configService.get('OPENAI_API_KEY');
     this.model = this.configService.get('OPENAI_MODEL') || 'GPT-4o';
@@ -39,17 +36,15 @@ export class OpenAIService implements SuggestionProvider {
         Do not include any additional commentary or text outside of the json array.
       `,
       input,
-
     });
     this.logger.log(`OpenAI response: ${JSON.stringify(responsesResult)}`);
-    return responsesResult.output_text
+    return responsesResult.output_text;
   }
 
-  async getSuggestions(
-    categories: Category[],
-    quantity?: number,
-  ) {
-    const response = await this.prompt(`Create ${quantity} suggestions for the category ${categories[0]}`);
+  async getSuggestions(categories: Category[], quantity?: number) {
+    const response = await this.prompt(
+      `Create ${quantity} suggestions for the category ${categories[0]}`,
+    );
     const parsed = JSON.parse(response) as string[];
     return parsed.map((value) => ({
       value: value.trim(),

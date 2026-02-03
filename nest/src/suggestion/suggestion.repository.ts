@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Category } from 'src/generated/prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import { SuggestionProvider } from './suggestion.factory';
