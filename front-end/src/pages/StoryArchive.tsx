@@ -3,9 +3,9 @@ import { useParams } from 'react-router-dom';
 
 import RecreateButton from '../components/RecreateButton';
 import ShareButton from '../components/ShareButton';
+import { useApiClient } from '../hooks/useApiClient';
 import { StoryVariant } from '../utils/gameVariants';
 import { StoryArchiveDto } from '../utils/types';
-import { useApiClient } from '../hooks/useApiClient';
 
 export default function StoryArchive(): JSX.Element {
   const { getStoryArchive } = useApiClient();
@@ -28,7 +28,7 @@ export default function StoryArchive(): JSX.Element {
     return (
       <>
         {stories?.map((item) => {
-          return <ListItem item={item} />;
+          return <ListItem key={item.player.uuid} item={item} />;
         })}
       </>
     );
@@ -36,11 +36,7 @@ export default function StoryArchive(): JSX.Element {
 
   const ListItem = ({ item }: { item: StoryArchiveDto }): JSX.Element => {
     return (
-      <li
-        key={item.player.uuid}
-        id={item.player.uuid}
-        className="list-group-item bg-light text-break"
-      >
+      <li id={item.player.uuid} className="list-group-item bg-light text-break">
         <div className="ms-2 me-auto">
           <p className="fw-bold mb-1">{item.player.nickname}</p>
           <p>{item.story}</p>

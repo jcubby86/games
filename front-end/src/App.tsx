@@ -9,10 +9,10 @@ import Layout from './pages/Layout';
 import Names from './pages/Names';
 import Privacy from './pages/Privacy';
 import Story from './pages/Story';
+import StoryArchive from './pages/StoryArchive';
 import { NAME, STORY } from './utils/constants';
 import './App.scss';
 import 'react-tooltip/dist/react-tooltip.css';
-import StoryArchive from './pages/StoryArchive';
 
 function App(): JSX.Element {
   return (

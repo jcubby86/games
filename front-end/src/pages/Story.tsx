@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
 
 import Icon from '../components/Icon';
 import PlayerList from '../components/PlayerList';
 import RecreateButton from '../components/RecreateButton';
+import ShareButton from '../components/ShareButton';
 import StartGame from '../components/StartGame';
 import { useSocket } from '../contexts/SocketContext';
 import { useApiClient } from '../hooks/useApiClient';
@@ -12,8 +14,6 @@ import { JOIN, PLAY, READ } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
 import { StoryVariant } from '../utils/gameVariants';
 import { PlayerDto } from '../utils/types';
-import { Link } from 'react-router-dom';
-import ShareButton from '../components/ShareButton';
 
 const Story = (): JSX.Element => {
   const { getPlayer, submitStoryEntry } = useApiClient();

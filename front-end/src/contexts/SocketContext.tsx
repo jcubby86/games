@@ -68,7 +68,7 @@ export const SocketContextProvider = ({
     return () => {
       socketRef.current?.disconnect();
     };
-  }, [context, dispatchContext, navigate]);
+  }, [context, dispatchContext, navigate, joinGame]);
 
   const emit: SocketContextType['emit'] = (event, data) => {
     socketRef.current?.emit(event, data);

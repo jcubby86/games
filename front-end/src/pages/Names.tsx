@@ -34,7 +34,7 @@ const Names = (): JSX.Element => {
     } catch (err: unknown) {
       logError(err);
     }
-  }, [getPlayer]);
+  }, [getPlayer, updateCategory]);
 
   useEffect(() => {
     refreshData();

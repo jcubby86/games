@@ -27,23 +27,16 @@
     "import/no-unresolved": "error",
     // 'import/no-named-as-default-member': 'off',
     "import/order": [
-      "error",
+      "warn",
       {
         "groups": [
           "builtin", // Built-in imports (come from NodeJS native) go first
-          "external", // <- External imports
-          "internal", // <- Absolute imports
-          ["sibling", "parent"], // <- Relative imports, the sibling and parent types they can be mingled together
-          "index", // <- index imports
-          "unknown" // <- unknown
+          "external", // External imports (come from node_modules) go second
+          ["internal", "parent", "sibling", "index"],
+          "unknown"
         ],
         "newlines-between": "always",
-        "alphabetize": {
-          /* sort in ascending order. Options: ["ignore", "asc", "desc"] */
-          "order": "asc",
-          /* ignore case. Options: [true, false] */
-          "caseInsensitive": true
-        }
+        "alphabetize": { "order": "asc", "caseInsensitive": true }
       }
     ]
   },

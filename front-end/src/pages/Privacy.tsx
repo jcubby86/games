@@ -7,9 +7,9 @@ const Privacy = (): JSX.Element => {
         <h5>Data Storage</h5>
         <p>
           We store game session data (game ID, player ID, nickname) in your
-          browser's local storage to maintain your connection when you refresh
-          the page. This data is essential for the game to function and is not
-          shared with third parties.
+          browser&apos;s local storage to maintain your connection when you
+          refresh the page. This data is essential for the game to function and
+          is not shared with third parties.
         </p>
       </div>
 
