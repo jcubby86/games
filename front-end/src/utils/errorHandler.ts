@@ -1,10 +1,10 @@
 import { AxiosError, CanceledError } from 'axios';
 
-export const logError = (err: unknown): void => {
+export const logError = (message: string, err: unknown): void => {
   if (err instanceof CanceledError) {
     return;
   }
-  console.error(err);
+  console.error(message, err);
 };
 
 export const alertError = (message: string, err: unknown): void => {

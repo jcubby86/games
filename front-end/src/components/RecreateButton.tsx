@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router';
 
 import { useAppContext } from '../contexts/AppContext';
 import { useSocket } from '../contexts/SocketContext';
-import { useApiClient } from '../hooks/useApiClient';
+import { postGame, postPlayer } from '../utils/apiClient';
 import { alertError } from '../utils/errorHandler';
 
 const RecreateButton = ({
@@ -12,17 +12,27 @@ const RecreateButton = ({
   className?: string;
   to?: string;
 }): JSX.Element => {
-  const { context } = useAppContext();
+  const { context, dispatchContext } = useAppContext();
   const socket = useSocket();
-  const { createGame, joinGame } = useApiClient();
   const navigate = useNavigate();
 
   async function recreateGameHandler() {
     try {
-      const game = await createGame(context.game!.type);
-      await joinGame(game.uuid, context.player!.nickname, false, () =>
-        socket.emit('game.recreated', { game: { uuid: game.uuid } })
+      const gameResponse = await postGame(context.game!.type);
+      const playerResponse = await postPlayer(
+        gameResponse.data.uuid,
+        context.player!.nickname
       );
+
+      socket.emit('game.recreated', { game: { uuid: gameResponse.data.uuid } });
+
+      dispatchContext({
+        type: 'save',
+        game: gameResponse.data,
+        player: playerResponse.data,
+        token: playerResponse.headers['x-auth-token']
+      });
+
       if (to) {
         navigate(to);
       }

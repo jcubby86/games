@@ -2,12 +2,25 @@ import { Link, Outlet, useNavigate } from 'react-router-dom';
 
 import Icon from '../components/Icon';
 import { useAppContext } from '../contexts/AppContext';
-import { useApiClient } from '../hooks/useApiClient';
+import { deletePlayer } from '../utils/apiClient';
+import { logError } from '../utils/errorHandler';
 
 const Layout = (): JSX.Element => {
   const navigate = useNavigate();
-  const { context } = useAppContext();
-  const { leaveGame } = useApiClient();
+  const { context, dispatchContext } = useAppContext();
+
+  const leavePreviousGame = async () => {
+    if (!context.player || !context.token) {
+      return;
+    }
+    try {
+      await deletePlayer(context.token, context.player.nickname);
+      dispatchContext({ type: 'clear' });
+      navigate('/');
+    } catch (err: unknown) {
+      logError('Error leaving previous game', err);
+    }
+  };
 
   return (
     <>
@@ -18,14 +31,13 @@ const Layout = (): JSX.Element => {
               <i className="nf-fa-home px-3"></i>Games
             </Link>
 
-            {context.player && (
+            {context.player && context.token && (
               <div className="d-flex justify-content-start">
                 <button
                   className="btn btn-outline-danger"
                   onClick={(e) => {
                     e.preventDefault();
-                    leaveGame();
-                    navigate('/');
+                    leavePreviousGame();
                   }}
                 >
                   <Icon icon="nf-mdi-account_off" className="pe-2" />

@@ -8,8 +8,8 @@ import RecreateButton from '../components/RecreateButton';
 import StartGame from '../components/StartGame';
 import { useAppContext } from '../contexts/AppContext';
 import { useSocket } from '../contexts/SocketContext';
-import { useApiClient } from '../hooks/useApiClient';
 import { useSuggestions } from '../hooks/useSuggestions';
+import { getPlayer, patchGame, postNameEntry } from '../utils/apiClient';
 import { END, JOIN, PLAY, READ } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
 import { NameVariant } from '../utils/gameVariants';
@@ -17,7 +17,6 @@ import { PlayerDto } from '../utils/types';
 
 const Names = (): JSX.Element => {
   const { context } = useAppContext();
-  const { getPlayer, submitNameEntry, updateGame } = useApiClient();
   const socket = useSocket();
   const [state, setState] = useState<PlayerDto | null>(null);
   const entryRef = useRef<HTMLInputElement>(null);
@@ -27,14 +26,20 @@ const Names = (): JSX.Element => {
   );
 
   const refreshData = useCallback(async () => {
+    if (!context.player || !context.token) {
+      return;
+    }
     try {
-      const player = await getPlayer();
-      setState(player);
+      const playerResponse = await getPlayer(
+        context.token,
+        context.player.nickname
+      );
+      setState(playerResponse.data);
       updateCategory('MALE_NAME,FEMALE_NAME');
     } catch (err: unknown) {
-      logError(err);
+      logError('Error fetching player', err);
     }
-  }, [getPlayer, updateCategory]);
+  }, [context, updateCategory]);
 
   useEffect(() => {
     refreshData();
@@ -59,7 +64,11 @@ const Names = (): JSX.Element => {
           alert('Please enter a name');
           return;
         }
-        await submitNameEntry(entryRef.current.value);
+        await postNameEntry(
+          context.token!,
+          context.player!.uuid,
+          entryRef.current.value
+        );
         setState(null);
         updateCategory('');
       } catch (err: unknown) {
@@ -110,7 +119,7 @@ const Names = (): JSX.Element => {
   const Read = (): JSX.Element => {
     const endGame = async () => {
       try {
-        await updateGame(END);
+        await patchGame(context.token!, context.game!.uuid, END);
         setState(null);
       } catch (err: unknown) {
         alertError('Error updating game', err);

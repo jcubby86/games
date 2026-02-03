@@ -1,69 +1,114 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useAppContext } from '../contexts/AppContext';
-import { useApiClient } from '../hooks/useApiClient';
+import {
+  deletePlayer,
+  getGameByCode,
+  patchPlayer,
+  postPlayer
+} from '../utils/apiClient';
 import { alertError, logError } from '../utils/errorHandler';
 import { gameVariants } from '../utils/gameVariants';
 import generateNickname from '../utils/nicknameGeneration';
+import { GameDto } from '../utils/types';
 import { eqIgnoreCase as eq } from '../utils/utils';
 
 type JoinState =
-  | { validity: 'valid'; gameUuid: string; gameType: string }
+  | { validity: 'valid'; game: GameDto }
   | { validity: 'unknown' | 'invalid' };
 
 const Join = (): JSX.Element => {
-  const { context } = useAppContext();
-  const { joinGame, getGameByCode } = useApiClient();
-  const [code, setCode] = useState('');
-  const [state, setState] = useState<JoinState>({ validity: 'unknown' });
+  const { context, dispatchContext } = useAppContext();
+  const [code, setCode] = useState<string>(context.game?.code || '');
+  const [state, setState] = useState<JoinState>({
+    validity: 'unknown'
+  });
   const nicknameRef = useRef<HTMLInputElement>(null);
   const suggestionRef = useRef(generateNickname());
   const navigate = useNavigate();
+
+  const leavePreviousGame = async () => {
+    if (!context.player || !context.token) {
+      return;
+    }
+    try {
+      await deletePlayer(context.token, context.player.nickname);
+      dispatchContext({ type: 'clear' });
+    } catch (err: unknown) {
+      logError('Error leaving previous game', err);
+    }
+  };
 
   const submit = async () => {
     try {
       if (state.validity !== 'valid') {
         return;
       }
-      const player = await joinGame(
-        state.gameUuid,
-        nicknameRef.current?.value || suggestionRef.current
-      );
-      navigate('/' + player.game!.type.toLowerCase());
+      const nickname = nicknameRef.current?.value ?? suggestionRef.current;
+
+      if (
+        state.game.uuid === context.game?.uuid &&
+        nickname === context.player?.nickname
+      ) {
+        // noop
+      } else if (
+        state.game.uuid === context.game?.uuid &&
+        context.player &&
+        context.token
+      ) {
+        const playerResponse = await patchPlayer(
+          context.token,
+          state.game.uuid,
+          nickname
+        );
+        dispatchContext({
+          type: 'save',
+          game: state.game,
+          player: playerResponse.data,
+          token: playerResponse.headers['x-auth-token']
+        });
+      } else {
+        await leavePreviousGame();
+        const playerResponse = await postPlayer(state.game.uuid, nickname);
+        dispatchContext({
+          type: 'save',
+          game: state.game,
+          player: playerResponse.data,
+          token: playerResponse.headers['x-auth-token']
+        });
+      }
+      navigate('/' + state.game.type.toLowerCase());
     } catch (err: unknown) {
       alertError('Error joining game', err);
     }
   };
+
+  const checkGameType = useCallback(async (code: string) => {
+    try {
+      if (code.length !== 4) {
+        setState({ validity: 'unknown' });
+        return;
+      }
+      const gameResponse = await getGameByCode(code);
+      setState({
+        validity: 'valid',
+        game: gameResponse.data
+      });
+      return;
+    } catch (err: unknown) {
+      logError('Error checking game type', err);
+    }
+    setState({ validity: 'invalid' });
+  }, []);
 
   useEffect(() => {
     setCode((c) => context.game?.code ?? c);
   }, [context]);
 
   useEffect(() => {
-    const controller = new AbortController();
-
-    async function checkGameType(code: string) {
-      try {
-        if (code.length === 4) {
-          const result = await getGameByCode(code, controller);
-          setState({
-            gameType: result.data.type,
-            gameUuid: result.data.uuid,
-            validity: 'valid'
-          });
-        } else {
-          setState({ validity: 'unknown' });
-        }
-      } catch (err: unknown) {
-        logError(err);
-        setState({ validity: 'invalid' });
-      }
-    }
-
     checkGameType(code);
-    return () => controller.abort();
-  }, [code, getGameByCode]);
+  }, [code, checkGameType]);
 
   return (
     <div>
@@ -118,14 +163,14 @@ const Join = (): JSX.Element => {
           type="submit"
           className="form-control btn btn-success col-12 mt-3"
           value={
-            state.validity === 'valid' && context.game?.code === code
+            state.validity === 'valid' && context.game?.code === state.game.code
               ? 'Return to Game'
               : 'Join Game'
           }
         />
         {state.validity === 'valid' && (
           <div className="text-muted">
-            {gameVariants.find((v) => eq(v.type, state.gameType))?.title}
+            {gameVariants.find((v) => eq(v.type, state.game.type))?.title}
           </div>
         )}
         {state.validity === 'invalid' && (

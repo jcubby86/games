@@ -2,7 +2,7 @@ import { useRef } from 'react';
 
 import PlayerList from './PlayerList';
 import { useAppContext } from '../contexts/AppContext';
-import { useApiClient } from '../hooks/useApiClient';
+import { patchGame } from '../utils/apiClient';
 import { PLAY } from '../utils/constants';
 import { alertError } from '../utils/errorHandler';
 import { PlayerDto } from '../utils/types';
@@ -20,11 +20,13 @@ const StartGame = ({
 }: StartGameProps): JSX.Element => {
   const { context } = useAppContext();
   const codeRef = useRef<HTMLInputElement>(null);
-  const { updateGame } = useApiClient();
 
   const startGame = async () => {
+    if (!context.token || !context.game) {
+      return;
+    }
     try {
-      await updateGame(PLAY);
+      await patchGame(context.token, context.game.uuid, PLAY);
       callback();
     } catch (err: unknown) {
       alertError('Unable to start game. Please try again', err);

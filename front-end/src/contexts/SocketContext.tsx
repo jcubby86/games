@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Socket, io } from 'socket.io-client';
 
 import { useAppContext } from './AppContext';
-import { useApiClient } from '../hooks/useApiClient';
+import { postPlayer } from '../utils/apiClient';
 
 interface SocketContextType {
   emit: (event: string, data: any) => void;
@@ -21,7 +21,6 @@ export const SocketContextProvider = ({
 }: {
   children: React.ReactElement;
 }) => {
-  const { joinGame } = useApiClient();
   const { context, dispatchContext } = useAppContext();
   const socketRef = useRef<Socket | null>(null);
   const [connected, setConnected] = useState<boolean>(false);
@@ -61,14 +60,25 @@ export const SocketContextProvider = ({
 
     socketRef.current.on('game.recreated', async (data) => {
       console.log('Game recreated:', JSON.stringify(data));
-      const player = await joinGame(data.game.uuid, context.player!.nickname);
-      navigate(`/` + player.game!.type.toLowerCase());
+
+      const playerResponse = await postPlayer(
+        data.game.uuid,
+        context.player!.nickname
+      );
+      dispatchContext({
+        type: 'save',
+        game: playerResponse.data.game!,
+        player: playerResponse.data,
+        token: playerResponse.headers['x-auth-token']
+      });
+
+      navigate(`/` + playerResponse.data.game!.type.toLowerCase());
     });
 
     return () => {
       socketRef.current?.disconnect();
     };
-  }, [context, dispatchContext, navigate, joinGame]);
+  }, [context, dispatchContext, navigate]);
 
   const emit: SocketContextType['emit'] = (event, data) => {
     socketRef.current?.emit(event, data);

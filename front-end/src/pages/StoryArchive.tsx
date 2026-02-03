@@ -3,26 +3,22 @@ import { useParams } from 'react-router-dom';
 
 import RecreateButton from '../components/RecreateButton';
 import ShareButton from '../components/ShareButton';
-import { useApiClient } from '../hooks/useApiClient';
+import { getStoryEntries } from '../utils/apiClient';
 import { StoryVariant } from '../utils/gameVariants';
 import { StoryArchiveDto } from '../utils/types';
 
 export default function StoryArchive(): JSX.Element {
-  const { getStoryArchive } = useApiClient();
   const { gameUuid } = useParams();
   const [stories, setStories] = useState<StoryArchiveDto[]>([]);
 
   useEffect(() => {
-    const controller = new AbortController();
-
     async function fetchStories() {
-      const stories = await getStoryArchive(gameUuid!, controller);
-      setStories(stories);
+      const response = await getStoryEntries(gameUuid!);
+      setStories(response.data);
     }
 
     fetchStories();
-    return () => controller.abort();
-  }, [gameUuid, getStoryArchive]);
+  }, [gameUuid]);
 
   const Items = (): JSX.Element => {
     return (

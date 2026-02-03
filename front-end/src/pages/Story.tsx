@@ -7,16 +7,17 @@ import PlayerList from '../components/PlayerList';
 import RecreateButton from '../components/RecreateButton';
 import ShareButton from '../components/ShareButton';
 import StartGame from '../components/StartGame';
+import { useAppContext } from '../contexts/AppContext';
 import { useSocket } from '../contexts/SocketContext';
-import { useApiClient } from '../hooks/useApiClient';
 import { useSuggestions } from '../hooks/useSuggestions';
+import { getPlayer, postStoryEntry } from '../utils/apiClient';
 import { JOIN, PLAY, READ } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
 import { StoryVariant } from '../utils/gameVariants';
 import { PlayerDto } from '../utils/types';
 
 const Story = (): JSX.Element => {
-  const { getPlayer, submitStoryEntry } = useApiClient();
+  const { context } = useAppContext();
   const socket = useSocket();
   const [state, setState] = useState<PlayerDto | null>(null);
   const entryRef = useRef<HTMLTextAreaElement>(null);
@@ -24,14 +25,20 @@ const Story = (): JSX.Element => {
     useSuggestions('MALE_NAME');
 
   const refreshData = useCallback(async () => {
-    try {
-      const player = await getPlayer();
-      setState(player);
-      updateCategory(player?.entry?.hint?.category);
-    } catch (err: unknown) {
-      logError(err);
+    if (!context.player || !context.token) {
+      return;
     }
-  }, [getPlayer, updateCategory]);
+    try {
+      const playerResponse = await getPlayer(
+        context.token,
+        context.player.nickname
+      );
+      setState(playerResponse.data);
+      updateCategory(playerResponse.data.entry?.hint?.category);
+    } catch (err: unknown) {
+      logError('Error fetching player', err);
+    }
+  }, [context, updateCategory]);
 
   useEffect(() => {
     refreshData();
@@ -57,7 +64,11 @@ const Story = (): JSX.Element => {
           return;
         }
 
-        await submitStoryEntry(entryRef.current.value);
+        await postStoryEntry(
+          context.token!,
+          context.player!.uuid,
+          entryRef.current.value
+        );
         setState(null);
         updateCategory('');
         entryRef.current.value = '';

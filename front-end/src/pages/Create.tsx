@@ -2,18 +2,29 @@ import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useAppContext } from '../contexts/AppContext';
-import { useApiClient } from '../hooks/useApiClient';
-import { alertError } from '../utils/errorHandler';
+import { deletePlayer, postGame, postPlayer } from '../utils/apiClient';
+import { alertError, logError } from '../utils/errorHandler';
 import { gameVariants } from '../utils/gameVariants';
 import generateNickname from '../utils/nicknameGeneration';
 
 const Create = (): JSX.Element => {
-  const { context } = useAppContext();
-  const { createGame, joinGame } = useApiClient();
+  const { context, dispatchContext } = useAppContext();
   const [gameType, setGameType] = useState('');
   const nicknameRef = useRef<HTMLInputElement>(null);
   const suggestionRef = useRef(generateNickname());
   const navigate = useNavigate();
+
+  const leavePreviousGame = async () => {
+    if (!context.player || !context.token) {
+      return;
+    }
+    try {
+      await deletePlayer(context.token, context.player.nickname);
+      dispatchContext({ type: 'clear' });
+    } catch (err: unknown) {
+      logError('Error leaving previous game', err);
+    }
+  };
 
   const submit = async () => {
     try {
@@ -21,12 +32,22 @@ const Create = (): JSX.Element => {
         alert('Please select a game type');
         return;
       }
-      const game = await createGame(gameType.toUpperCase());
-      const player = await joinGame(
-        game.uuid,
-        nicknameRef.current?.value || suggestionRef.current
-      );
-      navigate('/' + player.game!.type.toLowerCase());
+      const nickname = nicknameRef.current?.value ?? suggestionRef.current;
+
+      const gameResponse = await postGame(gameType.toUpperCase());
+
+      leavePreviousGame();
+
+      const playerResponse = await postPlayer(gameResponse.data.uuid, nickname);
+
+      dispatchContext({
+        type: 'save',
+        game: gameResponse.data,
+        player: playerResponse.data,
+        token: playerResponse.headers['x-auth-token']
+      });
+
+      navigate('/' + gameType);
     } catch (err: unknown) {
       alertError(
         'Unable to create game. Please try again in a little bit.',
