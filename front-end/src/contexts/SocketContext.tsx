@@ -5,13 +5,14 @@ import { Socket, io } from 'socket.io-client';
 
 import { useAppContext } from './AppContext';
 import { postPlayer } from '../utils/apiClient';
-import { GameDto, Message } from '../utils/types';
+import { GameDto, Message, PlayerDto, PokeMessageData } from '../utils/types';
 
 interface SocketContextType {
   emit: (event: string, message: Message<any>) => void;
   on: (event: string, callback: (message: Message<any>) => void) => void;
   off: (event: string, callback: (message: Message<any>) => void) => void;
   connected: boolean;
+  pokes: PlayerDto[];
 }
 
 const SocketContext = createContext<SocketContextType | null>(null);
@@ -25,6 +26,7 @@ export const SocketContextProvider = ({
   const { context, dispatchContext } = useAppContext();
   const socketRef = useRef<Socket | null>(null);
   const [connected, setConnected] = useState<boolean>(false);
+  const [pokes, setPokes] = useState<PlayerDto[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -79,6 +81,11 @@ export const SocketContextProvider = ({
       }
     );
 
+    socketRef.current.on('poke', (message: Message<PokeMessageData>) => {
+      console.log('Poked by', message.data.from!.nickname);
+      setPokes((prevPokes) => [...prevPokes, message.data.from!]);
+    });
+
     return () => {
       socketRef.current?.disconnect();
     };
@@ -102,7 +109,8 @@ export const SocketContextProvider = ({
         emit,
         on,
         off,
-        connected
+        connected,
+        pokes
       }}
     >
       {children}
@@ -111,7 +119,7 @@ export const SocketContextProvider = ({
 };
 
 export const useSocket = () => {
-  const ctx = useContext(SocketContext);
-  if (!ctx) throw new Error('useSocket must be used inside SocketProvider');
-  return ctx;
+  const socket = useContext(SocketContext);
+  if (!socket) throw new Error('useSocket must be used inside SocketProvider');
+  return socket;
 };

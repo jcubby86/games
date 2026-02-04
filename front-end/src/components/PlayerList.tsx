@@ -1,8 +1,6 @@
-import { useEffect, useState } from 'react';
-
 import { useAppContext } from '../contexts/AppContext';
 import { useSocket } from '../contexts/SocketContext';
-import { Message, PlayerDto, PokeMessageData } from '../utils/types';
+import { PlayerDto, PokeMessageData } from '../utils/types';
 
 interface PlayerListProps {
   players?: PlayerDto[];
@@ -12,18 +10,6 @@ interface PlayerListProps {
 const PlayerList = ({ players, filter }: PlayerListProps): JSX.Element => {
   const { context } = useAppContext();
   const socket = useSocket();
-  const [pokes, setPokes] = useState<PlayerDto[]>([]);
-
-  useEffect(() => {
-    function pokeReceived(message: Message<PokeMessageData>) {
-      console.log('Poked by', message.data.from!.nickname);
-    }
-
-    socket.on('poke', pokeReceived);
-    return () => {
-      socket.off('poke', pokeReceived);
-    };
-  }, [socket]);
 
   function sendPoke(p: PlayerDto) {
     if (p.uuid !== context.player?.uuid) {

@@ -73,8 +73,8 @@ const Names = (): JSX.Element => {
           context.player!.uuid,
           entryRef.current!.value || suggestion
         );
-        setState(null);
         updateCategory('');
+        refreshData();
         entryRef.current!.value = '';
       } catch (err: unknown) {
         alertError('Error saving entry', err);

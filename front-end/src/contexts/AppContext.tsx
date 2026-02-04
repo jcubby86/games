@@ -22,6 +22,11 @@ export interface AppState {
   token?: string;
 }
 
+interface AppContextType {
+  context: AppState;
+  dispatchContext: Dispatch<Action>;
+}
+
 // Storage keys
 const STORAGE_KEYS = {
   PLAYER_ID: 'games-v3-player-id',
@@ -98,37 +103,34 @@ const reducer = (prev: AppState, action: Action): AppState => {
   }
 };
 
-const AppContext = createContext<AppState>({});
-const AppDispatchContext = createContext<Dispatch<Action>>(() => {});
+const AppContext = createContext<AppContextType | null>(null);
 
 export const AppContextProvider = ({
   children
 }: {
   children: React.ReactElement;
 }) => {
-  const [context, dispatch] = useReducer(reducer, {});
+  const [context, dispatchContext] = useReducer(reducer, {});
 
   useEffect(() => {
     const storedState = loadFromStorage();
 
     // apply cached values immediately
     if (storedState.player || storedState.game || storedState.token) {
-      dispatch({ type: 'load', state: storedState });
+      dispatchContext({ type: 'load', state: storedState });
     }
   }, []);
 
   return (
-    <AppContext.Provider value={context}>
-      <AppDispatchContext.Provider value={dispatch}>
-        {children}
-      </AppDispatchContext.Provider>
+    <AppContext.Provider value={{ context, dispatchContext }}>
+      {children}
     </AppContext.Provider>
   );
 };
 
 export const useAppContext = () => {
-  return {
-    context: useContext(AppContext),
-    dispatchContext: useContext(AppDispatchContext)
-  };
+  const appContext = useContext(AppContext);
+  if (!appContext)
+    throw new Error('useAppContext must be used inside AppContextProvider');
+  return appContext;
 };
