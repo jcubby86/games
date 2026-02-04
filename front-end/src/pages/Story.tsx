@@ -45,8 +45,8 @@ const Story = (): JSX.Element => {
   }, [refreshData]);
 
   useEffect(() => {
-    function gameUpdated(event: unknown) {
-      console.log('Game updated:', event);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    function gameUpdated(_event: unknown) {
       refreshData();
     }
 

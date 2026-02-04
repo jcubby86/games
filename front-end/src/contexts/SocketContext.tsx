@@ -63,8 +63,6 @@ export const SocketContextProvider = ({
     socketRef.current.on(
       'game.recreated',
       async (message: Message<GameDto>) => {
-        console.log('Game recreated:', JSON.stringify(message));
-
         const playerResponse = await postPlayer(
           message.data.uuid,
           context.player!.nickname
