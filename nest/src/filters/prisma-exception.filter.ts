@@ -3,6 +3,7 @@ import {
   Catch,
   ArgumentsHost,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import { Response, Request } from 'express';
 
@@ -16,6 +17,8 @@ import { Prisma } from '../generated/prisma/client';
   Prisma.PrismaClientUnknownRequestError,
 )
 export class PrismaExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(PrismaExceptionFilter.name);
+
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const res = ctx.getResponse<Response>();
@@ -23,41 +26,59 @@ export class PrismaExceptionFilter implements ExceptionFilter {
 
     // Handle Prisma known request errors
     if (exception instanceof Prisma.PrismaClientKnownRequestError) {
-      const code = exception.code;
-      let status = HttpStatus.BAD_REQUEST;
+      const prismaCode = exception.code;
+      let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+      let error = 'Internal Server Error';
       let message = exception.message;
 
-      if (code === 'P2002') {
-        status = HttpStatus.CONFLICT; // Unique constraint failed
+      if (prismaCode === 'P2002') {
+        statusCode = HttpStatus.CONFLICT;
+        error = 'Conflict';
         message = 'Unique constraint failed';
-      } else if (code === 'P2025') {
-        status = HttpStatus.NOT_FOUND; // Record to update/delete not found
+      } else if (prismaCode === 'P2025') {
+        statusCode = HttpStatus.NOT_FOUND;
+        error = 'Not Found';
         message = 'Record not found';
       }
 
-      return res
-        .status(status)
-        .json({ statusCode: status, error: message, path: req.url });
-    }
+      this.logger.error(`Prisma Error [${prismaCode}]: ${exception.message}`);
 
-    // Validation errors
-    if (exception instanceof Prisma.PrismaClientValidationError) {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        statusCode: HttpStatus.BAD_REQUEST,
-        error: exception.message,
+      return res.status(statusCode).json({
+        statusCode,
+        message,
+        error,
         path: req.url,
+        prismaCode,
       });
     }
 
-    // Initialization / unknown errors
+    if (exception instanceof Prisma.PrismaClientInitializationError) {
+      const prismaCode = exception.errorCode;
+
+      this.logger.error(`Prisma Error [${prismaCode}]: ${exception.message}`);
+
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        error: 'Internal Server Error',
+        message: exception.message,
+        path: req.url,
+        prismaCode,
+      });
+    }
+
     if (
-      exception instanceof Prisma.PrismaClientInitializationError ||
+      exception instanceof Prisma.PrismaClientValidationError ||
       exception instanceof Prisma.PrismaClientRustPanicError ||
       exception instanceof Prisma.PrismaClientUnknownRequestError
     ) {
+      this.logger.error(
+        `Prisma Error [${exception.name}]: ${exception.message}`,
+      );
+
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        error: 'Database error',
+        error: 'Internal Server Error',
+        message: exception.message,
         path: req.url,
       });
     }
