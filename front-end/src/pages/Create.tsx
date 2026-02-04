@@ -19,7 +19,7 @@ const Create = (): JSX.Element => {
       return;
     }
     try {
-      await deletePlayer(context.token, context.player.nickname);
+      await deletePlayer(context.token, context.player.uuid);
       dispatchContext({ type: 'clear' });
     } catch (err: unknown) {
       logError('Error leaving previous game', err);
@@ -32,7 +32,7 @@ const Create = (): JSX.Element => {
         alert('Please select a game type');
         return;
       }
-      const nickname = nicknameRef.current?.value ?? suggestionRef.current;
+      const nickname = nicknameRef.current?.value || suggestionRef.current;
 
       const gameResponse = await postGame(gameType.toUpperCase());
 

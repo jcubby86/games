@@ -31,7 +31,7 @@ const Story = (): JSX.Element => {
     try {
       const playerResponse = await getPlayer(
         context.token,
-        context.player.nickname
+        context.player.uuid
       );
       setState(playerResponse.data);
       updateCategory(playerResponse.data.entry?.hint?.category);

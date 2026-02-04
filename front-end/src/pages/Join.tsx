@@ -33,7 +33,7 @@ const Join = (): JSX.Element => {
       return;
     }
     try {
-      await deletePlayer(context.token, context.player.nickname);
+      await deletePlayer(context.token, context.player.uuid);
       dispatchContext({ type: 'clear' });
     } catch (err: unknown) {
       logError('Error leaving previous game', err);
@@ -45,7 +45,7 @@ const Join = (): JSX.Element => {
       if (state.validity !== 'valid') {
         return;
       }
-      const nickname = nicknameRef.current?.value ?? suggestionRef.current;
+      const nickname = nicknameRef.current?.value || suggestionRef.current;
 
       if (
         state.game.uuid === context.game?.uuid &&
@@ -59,7 +59,7 @@ const Join = (): JSX.Element => {
       ) {
         const playerResponse = await patchPlayer(
           context.token,
-          state.game.uuid,
+          context.player.uuid,
           nickname
         );
         dispatchContext({

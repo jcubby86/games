@@ -32,7 +32,7 @@ const Names = (): JSX.Element => {
     try {
       const playerResponse = await getPlayer(
         context.token,
-        context.player.nickname
+        context.player.uuid
       );
       setState(playerResponse.data);
       updateCategory('MALE_NAME,FEMALE_NAME');

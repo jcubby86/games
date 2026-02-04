@@ -14,7 +14,7 @@ const Layout = (): JSX.Element => {
       return;
     }
     try {
-      await deletePlayer(context.token, context.player.nickname);
+      await deletePlayer(context.token, context.player.uuid);
       dispatchContext({ type: 'clear' });
       navigate('/');
     } catch (err: unknown) {

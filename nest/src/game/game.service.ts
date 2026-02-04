@@ -126,6 +126,10 @@ export class GameService {
   }
 
   async addPlayer(gameUuid: string, nickname: string): Promise<PlayerDto> {
+    if (!nickname || nickname.trim().length === 0) {
+      throw new BadRequestException('Nickname cannot be empty');
+    }
+
     const game = await this.prisma.game.findUnique({
       where: { uuid: gameUuid },
     });
@@ -156,6 +160,10 @@ export class GameService {
   }
 
   async updatePlayer(uuid: string, nickname: string): Promise<PlayerDto> {
+    if (!nickname || nickname.trim().length === 0) {
+      throw new BadRequestException('Nickname cannot be empty');
+    }
+
     const player = await this.prisma.player.update({
       where: { uuid },
       include: { game: true },
@@ -181,7 +189,7 @@ export class GameService {
         game: {
           include: {
             players: {
-              select: { id: true, uuid: true },
+              select: { id: true, uuid: true, nickname: true },
               orderBy: { id: 'asc' },
             },
           },
