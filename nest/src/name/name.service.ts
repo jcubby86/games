@@ -109,7 +109,7 @@ export class NameService {
       players.filter((player) => player.nameEntries.length === 0).length === 0;
 
     if (completed) {
-      this.logger.log(
+      this.logger.debug(
         `All players have submitted names for game ${event.game.uuid}. Transitioning to READ phase.`,
       );
       await this.prisma.game.update({

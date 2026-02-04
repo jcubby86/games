@@ -118,7 +118,7 @@ export class StoryService {
     const minLength = Math.min(...entries.map((entry) => entry.length));
 
     if (allSubmitted && minLength >= hints.length) {
-      this.logger.log(
+      this.logger.debug(
         `All story entries completed for game ${event.game.uuid}, generating stories. Transitioning to READ phase.`,
       );
 
@@ -144,7 +144,7 @@ export class StoryService {
         action: 'game.phase.completed',
       } as GameUpdatedEvent);
     } else if (allSubmitted) {
-      this.logger.log(
+      this.logger.debug(
         `All players have submitted their current story entry for game ${event.game.uuid}.`,
       );
 

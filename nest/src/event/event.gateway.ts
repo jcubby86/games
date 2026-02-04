@@ -54,7 +54,7 @@ export class EventGateway implements OnGatewayInit {
           `player:${authToken.player.uuid}`,
         ]);
 
-        this.logger.log(
+        this.logger.debug(
           `Websocket client connected: ${socket.id}, Player: ${authToken.player.uuid}, Game: ${authToken.game.uuid}`,
         );
         this.logger.debug(
