@@ -5,11 +5,12 @@ import { Socket, io } from 'socket.io-client';
 
 import { useAppContext } from './AppContext';
 import { postPlayer } from '../utils/apiClient';
+import { GameDto, Message } from '../utils/types';
 
 interface SocketContextType {
-  emit: (event: string, data: any) => void;
-  on: (event: string, callback: (data: any) => void) => void;
-  off: (event: string, callback: (data: any) => void) => void;
+  emit: (event: string, message: Message<any>) => void;
+  on: (event: string, callback: (message: Message<any>) => void) => void;
+  off: (event: string, callback: (message: Message<any>) => void) => void;
   connected: boolean;
 }
 
@@ -58,30 +59,33 @@ export const SocketContextProvider = ({
       return console.log('Disconnected from websocket server');
     });
 
-    socketRef.current.on('game.recreated', async (data) => {
-      console.log('Game recreated:', JSON.stringify(data));
+    socketRef.current.on(
+      'game.recreated',
+      async (message: Message<GameDto>) => {
+        console.log('Game recreated:', JSON.stringify(message));
 
-      const playerResponse = await postPlayer(
-        data.game.uuid,
-        context.player!.nickname
-      );
-      dispatchContext({
-        type: 'save',
-        game: playerResponse.data.game!,
-        player: playerResponse.data,
-        token: playerResponse.headers['x-auth-token']
-      });
+        const playerResponse = await postPlayer(
+          message.data.uuid,
+          context.player!.nickname
+        );
+        dispatchContext({
+          type: 'save',
+          game: playerResponse.data.game!,
+          player: playerResponse.data,
+          token: playerResponse.headers['x-auth-token']
+        });
 
-      navigate(`/` + playerResponse.data.game!.type.toLowerCase());
-    });
+        navigate(`/` + playerResponse.data.game!.type.toLowerCase());
+      }
+    );
 
     return () => {
       socketRef.current?.disconnect();
     };
   }, [context, dispatchContext, navigate]);
 
-  const emit: SocketContextType['emit'] = (event, data) => {
-    socketRef.current?.emit(event, data);
+  const emit: SocketContextType['emit'] = (event, message) => {
+    socketRef.current?.emit(event, message);
   };
 
   const on: SocketContextType['on'] = (event, callback) => {

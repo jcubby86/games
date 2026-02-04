@@ -9,6 +9,12 @@ import { Server, Socket } from 'socket.io';
 
 import { AuthPayload, AuthService } from 'src/auth/auth.service';
 import type { GameUpdatedEvent } from 'src/game/game.service';
+import type {
+  GameDto,
+  GameUpdatedMessageData,
+  Message,
+  PokeMessageData,
+} from 'src/types/game.types';
 
 interface AuthenticatedSocket extends Socket, AuthPayload {}
 
@@ -63,27 +69,23 @@ export class EventGateway implements OnGatewayInit {
   }
 
   @SubscribeMessage('poke')
-  handlePoke(
-    socket: AuthenticatedSocket,
-    data: {
-      to: string;
-    },
-  ) {
-    if (data.to === socket.player.uuid) return;
+  handlePoke(socket: AuthenticatedSocket, message: Message<PokeMessageData>) {
+    if (message.data.to!.uuid === socket.player.uuid) return;
 
-    this.server.to(`player:${data.to}`).emit('poke', {
-      from: socket.player,
-      message: `You have been poked by ${socket.player.uuid}!`,
-      time: new Date().toISOString(),
+    this.server.to(`player:${message.data.to!.uuid}`).emit('poke', {
+      data: {
+        ...message.data,
+        from: socket.player,
+      } as PokeMessageData,
     });
 
     this.logger.debug(
-      `Sent poke event from player: ${socket.player.uuid} to: ${data.to}`,
+      `Sent poke event from player: ${socket.player.nickname} to: ${message.data.to!.nickname}`,
     );
   }
 
   @SubscribeMessage('game.recreated')
-  handleGameRecreated(socket: AuthenticatedSocket, data) {
+  handleGameRecreated(socket: AuthenticatedSocket, message: Message<GameDto>) {
     const playerRoles = socket.player.roles || [];
     if (!AuthService.matchRoles(playerRoles, ['host'])) {
       this.logger.warn(
@@ -94,17 +96,18 @@ export class EventGateway implements OnGatewayInit {
 
     socket.broadcast
       .to(`game:${socket.game.uuid}`)
-      .emit('game.recreated', data);
+      .emit('game.recreated', message);
 
-    this.logger.debug('Sent game.recreated event: ' + JSON.stringify(data));
+    this.logger.debug('Sent game.recreated event: ' + JSON.stringify(message));
   }
 
   @OnEvent('game.updated')
   emitGameUpdate(event: GameUpdatedEvent) {
-    const payload = JSON.stringify({
+    const data: GameUpdatedMessageData = {
       game: {
         uuid: event.game.uuid,
         phase: event.game.phase,
+        code: event.game.code,
         type: event.game.type,
       },
       player: event.player
@@ -114,12 +117,13 @@ export class EventGateway implements OnGatewayInit {
           }
         : undefined,
       action: event.action,
-    });
+    };
+    const message: Message<GameUpdatedMessageData> = { data };
 
-    this.server.to(`game:${event.game.uuid}`).emit('game.updated', payload);
+    this.server.to(`game:${event.game.uuid}`).emit('game.updated', message);
 
     this.logger.debug(
-      `Sent game.updated event to game:${event.game.uuid}: ${payload}`,
+      `Sent game.updated event to game:${event.game.uuid}: ${JSON.stringify(message)}`,
     );
   }
 }

@@ -24,7 +24,7 @@ const RecreateButton = ({
         context.player!.nickname
       );
 
-      socket.emit('game.recreated', { game: { uuid: gameResponse.data.uuid } });
+      socket.emit('game.recreated', { data: gameResponse.data });
 
       dispatchContext({
         type: 'save',

@@ -44,3 +44,19 @@ export interface StoryArchiveDto {
   player: PlayerDto;
   story: string;
 }
+
+export interface GameUpdatedMessageData {
+  game: GameDto;
+  player?: PlayerDto;
+  action: string;
+}
+
+export interface PokeMessageData {
+  to?: PlayerDto;
+  from?: PlayerDto;
+}
+
+export interface Message<T> {
+  data: T;
+  timestamp?: number;
+}

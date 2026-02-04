@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useAppContext } from '../contexts/AppContext';
 import { useSocket } from '../contexts/SocketContext';
-import { PlayerDto } from '../utils/types';
+import { Message, PlayerDto, PokeMessageData } from '../utils/types';
 
 interface PlayerListProps {
   players?: PlayerDto[];
@@ -12,25 +12,23 @@ interface PlayerListProps {
 const PlayerList = ({ players, filter }: PlayerListProps): JSX.Element => {
   const { context } = useAppContext();
   const socket = useSocket();
+  const [pokes, setPokes] = useState<PlayerDto[]>([]);
 
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    function poked(event: any) {
-      console.log('Poked by', event.nickname || event.from);
+    function pokeReceived(message: Message<PokeMessageData>) {
+      console.log('Poked by', message.data.from!.nickname);
     }
 
-    socket.on('poke', poked);
+    socket.on('poke', pokeReceived);
     return () => {
-      socket.off('poke', poked);
+      socket.off('poke', pokeReceived);
     };
   }, [socket]);
 
-  function poke(p: PlayerDto) {
+  function sendPoke(p: PlayerDto) {
     if (p.uuid !== context.player?.uuid) {
       socket.emit('poke', {
-        to: p.uuid,
-        from: context.player?.uuid,
-        nickname: context.player?.nickname
+        data: { to: p } as PokeMessageData
       });
     }
   }
@@ -47,7 +45,7 @@ const PlayerList = ({ players, filter }: PlayerListProps): JSX.Element => {
           className="list-group-item text-break"
           onClick={(e) => {
             e.preventDefault();
-            poke(p);
+            sendPoke(p);
           }}
         >
           {p.nickname}
