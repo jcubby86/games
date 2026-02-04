@@ -1,0 +1,20 @@
+name: games-test
+services:
+  app:
+    image: ghcr.io/jcubby86/games-app:test
+    ports:
+      - 3021:80
+    environment:
+      - NGINX_BACKEND_ADDRESS=http://backend:3000
+    depends_on: 
+      - backend
+
+  backend:
+    image: ghcr.io/jcubby86/games-backend:test
+    ports :
+      - 3000:3000
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@192.168.1.34:5432/postgres
+      - NODE_ENV=production
+      - JWT_SECRET=123123
+    restart: unless-stopped

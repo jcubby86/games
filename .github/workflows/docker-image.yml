@@ -11,7 +11,7 @@ on:
       - 'master'
 
 jobs:
-  back-end:
+  nest:
     runs-on: ubuntu-latest
     steps:
       -
@@ -40,11 +40,11 @@ jobs:
         name: Build and push backend
         uses: docker/build-push-action@v6
         with:
-          context: ./back-end
+          context: ./nest
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-  front-end:
+  app:
     runs-on: ubuntu-latest
     steps:
       -
@@ -73,7 +73,7 @@ jobs:
         name: Build and push frontend
         uses: docker/build-push-action@v6
         with:
-          context: ./front-end
+          context: ./app
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

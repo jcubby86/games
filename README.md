@@ -34,7 +34,7 @@ services:
 
   backend:
     build:
-      context: ./back-end
+      context: ./nest
     image: ghcr.io/jcubby86/games-backend:${DOCKER_TAG:-latest}
     environment:
       - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/prisma?schema=public

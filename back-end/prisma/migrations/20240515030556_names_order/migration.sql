@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE "NameEntry" ADD COLUMN     "order" INTEGER NOT NULL DEFAULT 0;

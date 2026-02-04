@@ -1,8 +1,8 @@
 .DS_Store
 node_modules
 /dist
-front-end/dist
-back-end/dist
+app/dist
+nest/dist
 
 
 # local env files
@@ -33,5 +33,5 @@ coverage
 
 .DS_Store
 
-front-end/build
+app/build
 .generated

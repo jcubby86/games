@@ -8,8 +8,8 @@ services:
       - db
     command: npx vite --host
     volumes:
-      - ./front-end:/front-end
-    working_dir: /front-end
+      - ./app:/app
+    working_dir: /app
     ports:
       - 5173:5173
 
@@ -23,8 +23,8 @@ services:
       - NODE_ENV=dev
     command: npx nodemon src/server.ts
     volumes:
-      - ./back-end:/back-end
-    working_dir: /back-end
+      - ./nest:/nest
+    working_dir: /nest
     depends_on:
       db:
         condition: service_healthy
