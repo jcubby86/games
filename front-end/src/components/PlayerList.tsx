@@ -28,7 +28,7 @@ const PlayerList = ({ players, filter }: PlayerListProps): JSX.Element => {
       {players.filter(filter ?? (() => true)).map((p: PlayerDto) => (
         <li
           key={p.uuid}
-          className="list-group-item text-break"
+          className="list-group-item text-break no-select"
           onClick={(e) => {
             e.preventDefault();
             sendPoke(p);

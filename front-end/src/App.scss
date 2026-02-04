@@ -110,3 +110,17 @@ footer i {
   pointer-events: none;
   width: max-content;
 }
+
+/* Utility: prevent text selection */
+.no-select,
+.no-select * {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Optional: make it clear text isn't selectable */
+.no-select {
+  cursor: default;
+}
