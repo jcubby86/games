@@ -4,15 +4,15 @@ import { useNavigate } from 'react-router-dom';
 import { Socket, io } from 'socket.io-client';
 
 import { useAppContext } from './AppContext';
+import { showFloatingMessage } from '../components/FloatingMessagePortal';
 import { postPlayer } from '../utils/apiClient';
-import { GameDto, Message, PlayerDto, PokeMessageData } from '../utils/types';
+import { GameDto, Message, PokeMessageData } from '../utils/types';
 
 interface SocketContextType {
   emit: (event: string, message: Message<any>) => void;
   on: (event: string, callback: (message: Message<any>) => void) => void;
   off: (event: string, callback: (message: Message<any>) => void) => void;
   connected: boolean;
-  pokes: PlayerDto[];
 }
 
 const SocketContext = createContext<SocketContextType | null>(null);
@@ -26,7 +26,6 @@ export const SocketContextProvider = ({
   const { context, dispatchContext } = useAppContext();
   const socketRef = useRef<Socket | null>(null);
   const [connected, setConnected] = useState<boolean>(false);
-  const [pokes, setPokes] = useState<PlayerDto[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -83,7 +82,9 @@ export const SocketContextProvider = ({
 
     socketRef.current.on('poke', (message: Message<PokeMessageData>) => {
       console.log('Poked by', message.data.from!.nickname);
-      setPokes((prevPokes) => [...prevPokes, message.data.from!]);
+      showFloatingMessage({
+        children: `${message.data.from!.nickname} has poked you!`
+      });
     });
 
     return () => {
@@ -109,8 +110,7 @@ export const SocketContextProvider = ({
         emit,
         on,
         off,
-        connected,
-        pokes
+        connected
       }}
     >
       {children}

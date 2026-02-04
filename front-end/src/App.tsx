@@ -1,5 +1,6 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
+import { FloatingMessagePortal } from './components/FloatingMessagePortal';
 import { AppContextProvider } from './contexts/AppContext';
 import { SocketContextProvider } from './contexts/SocketContext';
 import Create from './pages/Create';
@@ -16,24 +17,27 @@ import 'react-tooltip/dist/react-tooltip.css';
 
 function App(): JSX.Element {
   return (
-    <BrowserRouter>
-      <AppContextProvider>
-        <SocketContextProvider>
-          <Routes>
-            <Route path="/" element={<Layout />}>
-              <Route index element={<Home />} />
-              <Route path="join" element={<Join />} />
-              <Route path="create" element={<Create />} />
-              <Route path={`${STORY}/:gameUuid`} element={<StoryArchive />} />
-              <Route path={STORY} element={<Story />} />
-              <Route path={NAME} element={<Names />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="*" element={<Home />} />
-            </Route>
-          </Routes>
-        </SocketContextProvider>
-      </AppContextProvider>
-    </BrowserRouter>
+    <>
+      <BrowserRouter>
+        <AppContextProvider>
+          <SocketContextProvider>
+            <Routes>
+              <Route path="/" element={<Layout />}>
+                <Route index element={<Home />} />
+                <Route path="join" element={<Join />} />
+                <Route path="create" element={<Create />} />
+                <Route path={`${STORY}/:gameUuid`} element={<StoryArchive />} />
+                <Route path={STORY} element={<Story />} />
+                <Route path={NAME} element={<Names />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="*" element={<Home />} />
+              </Route>
+            </Routes>
+          </SocketContextProvider>
+        </AppContextProvider>
+      </BrowserRouter>
+      <FloatingMessagePortal />
+    </>
   );
 }
 
