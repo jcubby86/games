@@ -59,19 +59,23 @@ const Story = (): JSX.Element => {
   const Play = (): JSX.Element => {
     const submit = async () => {
       try {
-        if (!entryRef.current?.value) {
-          alert('Please enter a response');
+        if (
+          !entryRef.current?.value &&
+          !window.confirm(
+            "You haven't typed anything in! Do you want to use the placeholder text?"
+          )
+        ) {
           return;
         }
 
         await postStoryEntry(
           context.token!,
           context.player!.uuid,
-          entryRef.current.value
+          entryRef.current!.value || suggestion
         );
         setState(null);
         updateCategory('');
-        entryRef.current.value = '';
+        entryRef.current!.value = '';
       } catch (err: unknown) {
         alertError('An error has occurred', err);
       }

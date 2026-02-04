@@ -41,6 +41,10 @@ export class NameService {
   }
 
   async addNameEntry(playerUuid: string, name: string): Promise<NameEntryDto> {
+    if (!name || name.trim().length === 0) {
+      throw new BadRequestException('Name cannot be empty');
+    }
+
     const player = await this.prisma.player.findUnique({
       where: { uuid: playerUuid },
       include: { game: true },

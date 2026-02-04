@@ -60,17 +60,22 @@ const Names = (): JSX.Element => {
   const Play = (): JSX.Element => {
     const sendEntry = async () => {
       try {
-        if (!entryRef.current?.value) {
-          alert('Please enter a name');
+        if (
+          !entryRef.current!.value &&
+          !window.confirm(
+            "You haven't typed anything in! Do you want to use the placeholder text?"
+          )
+        ) {
           return;
         }
         await postNameEntry(
           context.token!,
           context.player!.uuid,
-          entryRef.current.value
+          entryRef.current!.value || suggestion
         );
         setState(null);
         updateCategory('');
+        entryRef.current!.value = '';
       } catch (err: unknown) {
         alertError('Error saving entry', err);
       }

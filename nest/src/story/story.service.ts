@@ -47,6 +47,10 @@ export class StoryService {
     playerUuid: string,
     value: string,
   ): Promise<StoryEntryDto> {
+    if (!value || value.trim().length === 0) {
+      throw new BadRequestException('Value cannot be empty');
+    }
+
     const player = await this.prisma.player.findUnique({
       where: { uuid: playerUuid },
       include: { game: true },
