@@ -1,7 +1,7 @@
 # build environment
-FROM node:lts-slim as build
+FROM node:lts-slim AS build
 WORKDIR /app
-ENV PATH /app/node_modules/.bin:$PATH
+ENV PATH=/app/node_modules/.bin:$PATH
 COPY package*.json ./
 RUN npm ci
 COPY . ./

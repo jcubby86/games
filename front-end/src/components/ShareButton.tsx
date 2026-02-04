@@ -24,7 +24,7 @@ const ShareButton = ({
         });
       }
     } catch (err: unknown) {
-      logError(err);
+      logError('There was an error sharing', err);
     }
   };
 
