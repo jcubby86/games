@@ -11,6 +11,10 @@ type Props = {
   onFinish?: () => void;
 };
 
+function calculateSway(maxSway: number) {
+  return Math.random() * (maxSway * 2) - maxSway;
+}
+
 /**
  * FloatingMessage
  * - Renders the wrapper `.float-up-fade` and an inner `.float-up-fade__inner` element.
@@ -24,14 +28,14 @@ export default function FloatingMessage({
   children,
   duration = 5,
   distance = 300,
-  sway = 100,
+  sway = 80,
   className = '',
   onFinish
 }: Props) {
   const ref = useRef<HTMLSpanElement | null>(null);
   const [visible, setVisible] = useState(true);
-  const vx = useRef<number>(Math.round(Math.random() * sway - sway / 2));
-  const vy = useRef<number>(Math.round(Math.random() * sway - sway / 2));
+  const vx = useRef(calculateSway(sway));
+  const vy = useRef(calculateSway(sway) - distance);
 
   useEffect(() => {
     const el = ref.current;
@@ -39,7 +43,7 @@ export default function FloatingMessage({
 
     el.style.setProperty('--float-x', `${vx.current}px`);
     el.style.setProperty('--float-duration', `${duration}s`);
-    el.style.setProperty('--float-distance', `${vy.current - distance}px`);
+    el.style.setProperty('--float-distance', `${vy.current}px`);
 
     const inner = el.querySelector(
       '.float-up-fade__inner'
@@ -51,7 +55,7 @@ export default function FloatingMessage({
 
     inner?.addEventListener('animationend', handle);
     return () => inner?.removeEventListener('animationend', handle);
-  }, [duration, distance, sway, onFinish]);
+  }, [duration, onFinish]);
 
   if (!visible) return null;
 

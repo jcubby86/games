@@ -81,7 +81,6 @@ export const SocketContextProvider = ({
     );
 
     socketRef.current.on('poke', (message: Message<PokeMessageData>) => {
-      console.log('Poked by', message.data.from!.nickname);
       showFloatingMessage({
         children: `${message.data.from!.nickname} has poked you!`
       });
