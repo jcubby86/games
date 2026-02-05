@@ -56,7 +56,7 @@ const Layout = (): JSX.Element => {
 
       <footer className="footer bg-light py-2 px-4 d-flex gap-3">
         <a
-          href="https://github.com/jcubby86/games-cp4"
+          href="https://github.com/jcubby86/games"
           className="text-dark text-decoration-none link-danger ms-auto"
           target="_blank"
           rel="noreferrer"
@@ -72,7 +72,7 @@ const Layout = (): JSX.Element => {
           <i className="bi bi-linkedin"></i>
         </a>
         <a
-          href="mailto:games@jmbastian.com?&subject=Hello!&body=I'm reaching out about"
+          href="mailto:games@muffinjr.com?&subject=Hello!&body=I'm reaching out about"
           className="text-dark text-decoration-none link-warning"
           target="_blank"
           rel="noreferrer"

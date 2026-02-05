@@ -34,7 +34,7 @@ const Privacy = (): JSX.Element => {
         <h5>Contact</h5>
         <p>
           For privacy questions or concerns, please contact:{' '}
-          <a href="mailto:games@jmbastian.com">games@jmbastian.com</a>
+          <a href="mailto:games@muffinjr.com">games@muffinjr.com</a>
         </p>
       </div>
 

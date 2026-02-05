@@ -1,6 +1,6 @@
-<p align="center">
-  A party games web app inspired by jackbox games. This is a new version of the project built with a react front end and a node.js/postgresql back end. See original version of the project <a href="https://github.com/jcubby86/games">here</a>.
-</p>
+# jcubby86/games
+
+## A party games web app inspired by jackbox games
 
 ## Features
 
