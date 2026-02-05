@@ -20,7 +20,8 @@ interface AuthenticatedSocket extends Socket, AuthPayload {}
 
 @WebSocketGateway({
   cors: {
-    origin: '*',
+    origin: process.env.NODE_ENV === 'development' ? '*' : true,
+    credentials: true,
   },
   connectionStateRecovery: {
     maxDisconnectionDuration: 2 * 60 * 1000,

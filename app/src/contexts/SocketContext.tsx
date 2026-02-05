@@ -16,7 +16,7 @@ interface SocketContextType {
 }
 
 const SocketContext = createContext<SocketContextType | null>(null);
-const URL = import.meta.env.VITE_NGINX_BACKEND_ADDRESS as string | undefined;
+const URL = import.meta.env.VITE_BACKEND_ADDRESS as string | undefined;
 
 export const SocketContextProvider = ({
   children

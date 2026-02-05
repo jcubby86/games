@@ -15,11 +15,11 @@ const Layout = (): JSX.Element => {
     }
     try {
       await deletePlayer(context.token, context.player.uuid);
-      dispatchContext({ type: 'clear' });
-      navigate('/');
     } catch (err: unknown) {
       logError('Error leaving previous game', err);
     }
+    dispatchContext({ type: 'clear' });
+    navigate('/');
   };
 
   return (
