@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 
-import Icon from '../components/Icon';
 import { useAppContext } from '../contexts/AppContext';
 
 const Home = (): JSX.Element => {
@@ -15,7 +14,7 @@ const Home = (): JSX.Element => {
             to={context.game.type.toLowerCase()}
             className="btn btn-lg btn-success d-flex flex-column fw-bold px-5 col-12"
           >
-            <Icon icon="nf-mdi-account_convert" className="py-1" />
+            <i className="bi bi-joystick"></i>
             Return to Game
           </Link>
         )}
@@ -27,7 +26,7 @@ const Home = (): JSX.Element => {
             (context.game ? 'btn-outline-success' : 'btn-success')
           }
         >
-          <Icon icon="nf-mdi-account_check" className="flex-grow-1" />
+          <i className="bi bi-person-fill-up"></i>
           Join a Game
         </Link>
         <Link
@@ -38,7 +37,7 @@ const Home = (): JSX.Element => {
             (context.game ? 'btn-outline-success' : 'btn-success')
           }
         >
-          <Icon icon="nf-mdi-account_multiple_plus" className="flex-grow-1" />
+          <i className="bi bi-person-fill-add"></i>
           Create a Game
         </Link>
       </div>

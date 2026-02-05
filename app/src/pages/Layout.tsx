@@ -1,6 +1,5 @@
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 
-import Icon from '../components/Icon';
 import { useAppContext } from '../contexts/AppContext';
 import { deletePlayer } from '../utils/apiClient';
 import { logError } from '../utils/errorHandler';
@@ -28,7 +27,7 @@ const Layout = (): JSX.Element => {
         <nav className="navbar navbar-dark bg-dark">
           <div className="container-fluid">
             <Link className="navbar-brand text-light" to=".">
-              <i className="nf-fa-home px-3"></i>Games
+              <i className="bi bi-house-fill mx-1"></i>Games
             </Link>
 
             {context.player && context.token && (
@@ -40,7 +39,7 @@ const Layout = (): JSX.Element => {
                     leavePreviousGame();
                   }}
                 >
-                  <Icon icon="nf-mdi-account_off" className="pe-2" />
+                  <i className="bi bi-person-x mx-1"></i>
                   Leave Game
                 </button>
               </div>
@@ -62,7 +61,7 @@ const Layout = (): JSX.Element => {
           target="_blank"
           rel="noreferrer"
         >
-          <Icon icon="nf-cod-github_inverted" />
+          <i className="bi bi-github"></i>
         </a>
         <a
           href="https://www.linkedin.com/in/jacob-bastian-643033206/"
@@ -70,7 +69,7 @@ const Layout = (): JSX.Element => {
           target="_blank"
           rel="noreferrer"
         >
-          <Icon icon="nf-fa-linkedin_square" />
+          <i className="bi bi-linkedin"></i>
         </a>
         <a
           href="mailto:games@jmbastian.com?&subject=Hello!&body=I'm reaching out about"
@@ -78,14 +77,14 @@ const Layout = (): JSX.Element => {
           target="_blank"
           rel="noreferrer"
         >
-          <Icon icon="nf-mdi-email_variant" />
+          <i className="bi bi-envelope-fill"></i>
         </a>
         <Link
           to="/privacy"
           className="text-dark text-decoration-none link-secondary"
           title="Privacy Policy"
         >
-          <Icon icon="nf-fa-file_text" />
+          <i className="bi bi-shield-fill-check"></i>
         </Link>
       </footer>
     </>

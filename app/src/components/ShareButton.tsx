@@ -1,4 +1,3 @@
-import Icon from './Icon';
 import { logError } from '../utils/errorHandler';
 
 interface ShareProps {
@@ -43,7 +42,7 @@ const ShareButton = ({
         }}
         className={className}
       >
-        <Icon icon="nf-fa-share_square_o" />
+        <i className="bi bi-share-fill"></i>
       </button>
     );
   } else {

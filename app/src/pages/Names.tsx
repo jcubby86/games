@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import Icon from '../components/Icon';
 import List from '../components/List';
 import PlayerList from '../components/PlayerList';
 import RecreateButton from '../components/RecreateButton';
@@ -142,7 +141,7 @@ const Names = (): JSX.Element => {
                 if (confirm) setConfirm(false);
               }}
             >
-              <Icon icon="nf-fa-refresh" className="flex-grow-1" />
+              <i className="bi bi-arrow-clockwise"></i>
             </button>
           </div>
         </div>

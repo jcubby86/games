@@ -1,11 +1,13 @@
 // Import all of Bootstrap's SCSS
-@import '../node_modules/bootstrap/scss/bootstrap';
+$bootstrap-icons-font-dir: "bootstrap-icons/font/fonts";
+@import 'bootstrap/scss/bootstrap';
+@import "bootstrap-icons/font/bootstrap-icons";
 
 * {
   transition: all 0.15s ease-in-out;
 }
 
-span.icon {
+i.bi {
   aspect-ratio: initial;
   font-size: 1.2em;
 }

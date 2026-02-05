@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import Icon from '../components/Icon';
 import PlayerList from '../components/PlayerList';
 import RecreateButton from '../components/RecreateButton';
 import ShareButton from '../components/ShareButton';
@@ -145,7 +144,7 @@ const Story = (): JSX.Element => {
                 if (confirm) setConfirm(false);
               }}
             >
-              <Icon icon="nf-fa-refresh" className="flex-grow-1" />
+              <i className="bi bi-arrow-clockwise"></i>
             </button>
           </div>
         </div>
