@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
+import { isPrismaUniqueError } from 'src/filters/prisma-exception.filter';
 import { Game, GamePhase, GameType, Player } from 'src/generated/prisma/client';
 import { NameService } from 'src/name/name.service';
 import { PrismaService } from 'src/prisma.service';
@@ -141,22 +142,29 @@ export class GameService {
       );
     }
 
-    const player = await this.prisma.player.create({
-      data: {
-        nickname: nickname.toLowerCase(),
-        game: {
-          connect: { id: game.id },
+    try {
+      const player = await this.prisma.player.create({
+        data: {
+          nickname: nickname.toLowerCase(),
+          game: {
+            connect: { id: game.id },
+          },
         },
-      },
-    });
+      });
 
-    this.eventEmitter.emit('game.updated', {
-      game,
-      player,
-      action: 'game.player.joined',
-    } as GameUpdatedEvent);
+      this.eventEmitter.emit('game.updated', {
+        game,
+        player,
+        action: 'game.player.joined',
+      } as GameUpdatedEvent);
 
-    return this.getPlayer(player.uuid);
+      return this.getPlayer(player.uuid);
+    } catch (error) {
+      if (isPrismaUniqueError(error)) {
+        throw new BadRequestException('Nickname already taken in this game');
+      }
+      throw error;
+    }
   }
 
   async updatePlayer(uuid: string, nickname: string): Promise<PlayerDto> {
@@ -164,22 +172,29 @@ export class GameService {
       throw new BadRequestException('Nickname cannot be empty');
     }
 
-    const player = await this.prisma.player.update({
-      where: { uuid },
-      include: { game: true },
-      data: { nickname: nickname.toLowerCase() },
-    });
-    if (!player) {
-      throw new NotFoundException('Player not found');
+    try {
+      const player = await this.prisma.player.update({
+        where: { uuid },
+        include: { game: true },
+        data: { nickname: nickname.toLowerCase() },
+      });
+      if (!player) {
+        throw new NotFoundException('Player not found');
+      }
+
+      this.eventEmitter.emit('game.updated', {
+        game: player.game,
+        player,
+        action: 'game.player.updated',
+      } as GameUpdatedEvent);
+
+      return this.getPlayer(player.uuid);
+    } catch (error) {
+      if (isPrismaUniqueError(error)) {
+        throw new BadRequestException('Nickname already taken in this game');
+      }
+      throw error;
     }
-
-    this.eventEmitter.emit('game.updated', {
-      game: player.game,
-      player,
-      action: 'game.player.updated',
-    } as GameUpdatedEvent);
-
-    return this.getPlayer(player.uuid);
   }
 
   async getPlayer(uuid: string): Promise<PlayerDto> {

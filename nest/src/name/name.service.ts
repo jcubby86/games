@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 
+import { isPrismaUniqueError } from 'src/filters/prisma-exception.filter';
 import { GameService } from 'src/game/game.service';
 import type { GameUpdatedEvent } from 'src/game/game.service';
 import {
@@ -58,36 +59,45 @@ export class NameService {
     }
     const normalized = name.trim().toLowerCase();
 
-    const entry = await this.prisma.nameEntry.upsert({
-      where: {
-        gameId_playerId: {
-          gameId: player.gameId!,
-          playerId: player.id,
+    try {
+      const entry = await this.prisma.nameEntry.upsert({
+        where: {
+          gameId_playerId: {
+            gameId: player.gameId!,
+            playerId: player.id,
+          },
         },
-      },
-      update: {
-        name,
-        normalized,
-      },
-      create: {
-        name,
-        normalized,
-        order: Math.floor(Math.random() * 1000000),
-        playerId: player.id,
-        gameId: player.gameId!,
-      },
-    });
+        update: {
+          name,
+          normalized,
+        },
+        create: {
+          name,
+          normalized,
+          order: Math.floor(Math.random() * 1000000),
+          playerId: player.id,
+          gameId: player.gameId!,
+        },
+      });
 
-    this.eventEmitter.emit('name.updated', {
-      game: player.game,
-      action: 'name.entry.added',
-      player,
-    } as GameUpdatedEvent);
+      this.eventEmitter.emit('name.updated', {
+        game: player.game,
+        action: 'name.entry.added',
+        player,
+      } as GameUpdatedEvent);
 
-    return {
-      name: entry.name,
-      order: entry.order,
-    };
+      return {
+        name: entry.name,
+        order: entry.order,
+      };
+    } catch (error) {
+      if (isPrismaUniqueError(error)) {
+        throw new BadRequestException(
+          'Name already submitted by another player in this game',
+        );
+      }
+      throw error;
+    }
   }
 
   @OnEvent('name.updated')

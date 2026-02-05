@@ -29,7 +29,7 @@ const StartGame = ({
       await patchGame(context.token, context.game.uuid, PLAY);
       callback();
     } catch (err: unknown) {
-      alertError('Unable to start game. Please try again', err);
+      alertError('Unable to start game', err);
     }
   };
 

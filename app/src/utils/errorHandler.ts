@@ -2,33 +2,45 @@ import { AxiosError, CanceledError } from 'axios';
 
 import { showErrorToast } from '../components/ErrorToastPortal';
 
-const getErrorMessage = (message: string, err: unknown): string | null => {
+const getErrorMessages = (message: string, err: unknown) => {
   if (err instanceof CanceledError) {
     return null;
   } else if (err instanceof AxiosError) {
     const status = err.response?.status;
-    const detail = err.response?.data?.message || err.message;
-    return status
-      ? `${message} (${status}): ${detail}`
-      : `${message}: ${detail}`;
+    const responseMessage = err.response?.data?.message;
+    const detailed = status
+      ? `${message} (${status}): ${responseMessage || err.message}`
+      : `${message}: ${responseMessage || err.message}`;
+    const friendly = responseMessage
+      ? `${message}: ${responseMessage}`
+      : message;
+
+    return { friendly, detailed };
   } else if (err instanceof Error) {
-    return `${message}: ${err.message}`;
+    return {
+      detailed: `${message}: ${err.message}`
+    };
   } else {
-    return `${message}: ${String(err)}`;
+    return {
+      detailed: `${message}: ${String(err)}`
+    };
   }
 };
 
 export const logError = (message: string, err: unknown): void => {
-  const errorMessage = getErrorMessage(message, err);
+  const errorMessage = getErrorMessages(message, err);
   if (errorMessage) {
-    console.error(errorMessage);
+    console.error(errorMessage.detailed);
   }
 };
 
 export const alertError = (message: string, err: unknown): void => {
-  const errorMessage = getErrorMessage(message, err);
+  const errorMessage = getErrorMessages(message, err);
   if (errorMessage) {
-    console.error(errorMessage);
-    showErrorToast({ message: errorMessage, type: 'danger' });
+    console.error(errorMessage.detailed);
+    showErrorToast({
+      message: errorMessage.friendly ?? message,
+      type: 'danger'
+    });
   }
 };
