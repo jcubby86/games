@@ -168,9 +168,11 @@ export class NameService {
     );
 
     if (game.phase === GamePhase.READ) {
-      response.entries = entries.map((e) =>
+      const nameEntryDtos = entries.map((e) =>
         NameService.mapToNameEntryDto(e.entry),
       );
+      nameEntryDtos.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      response.entries = nameEntryDtos;
     }
 
     return response;
