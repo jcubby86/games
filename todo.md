@@ -1,4 +1,4 @@
 # todo
 
 - chat gpt integration
-- clean up front end error handling
+- test toast location with keyboard

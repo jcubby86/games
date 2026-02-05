@@ -36,17 +36,22 @@ function Toast({ message, type, onFinish }: ToastProps): JSX.Element | null {
 
   return (
     <div
-      className={`toast show align-items-center text-bg-${type} border-0 mb-2`}
+      className={`toast show align-items-center bg-${type} border-0 mb-2 ${
+        type === 'warning' ? 'text-dark' : 'text-white'
+      }`}
       role="alert"
       aria-live="assertive"
       aria-atomic="true"
+      data-bs-autohide="false"
       ref={ref}
     >
       <div className="d-flex">
         <div className="toast-body">{message}</div>
         <button
           type="button"
-          className="btn-close btn-close-white me-2 m-auto"
+          className={`btn-close me-2 m-auto ${
+            type === 'warning' ? '' : 'btn-close-white'
+          }`}
           data-bs-dismiss="toast"
           aria-label="Close"
           onClick={() => onFinish()}
@@ -74,7 +79,7 @@ export function ToastPortal(): JSX.Element | null {
   if (typeof document === 'undefined') return null;
 
   return createPortal(
-    <div ref={containerRef} className="toast-root">
+    <div ref={containerRef} className="toast-root toast-container pb-5">
       {messages.map((m) => (
         <Toast
           key={m.id}

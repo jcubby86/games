@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router';
 
 import { useAppContext } from '../contexts/AppContext';
-import { useSocket } from '../contexts/SocketContext';
+import { useSocketContext } from '../contexts/SocketContext';
 import { postGame, postPlayer } from '../utils/apiClient';
 import { alertError } from '../utils/errorHandler';
 
@@ -13,7 +13,7 @@ const RecreateButton = ({
   to?: string;
 }): JSX.Element => {
   const { context, dispatchContext } = useAppContext();
-  const socket = useSocket();
+  const socket = useSocketContext();
   const navigate = useNavigate();
 
   async function recreateGameHandler() {

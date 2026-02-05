@@ -1,5 +1,5 @@
 import { useAppContext } from '../contexts/AppContext';
-import { useSocket } from '../contexts/SocketContext';
+import { useSocketContext } from '../contexts/SocketContext';
 import { PlayerDto, PokeMessageData } from '../utils/types';
 
 interface PlayerListProps {
@@ -9,7 +9,7 @@ interface PlayerListProps {
 
 const PlayerList = ({ players, filter }: PlayerListProps): JSX.Element => {
   const { context } = useAppContext();
-  const socket = useSocket();
+  const socket = useSocketContext();
 
   function sendPoke(p: PlayerDto) {
     if (p.uuid !== context.player?.uuid) {

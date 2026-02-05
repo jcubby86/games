@@ -1,7 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
-import { ToastPortal } from './components/ToastPortal';
 import { FloatingMessagePortal } from './components/FloatingMessagePortal';
+import { ToastPortal } from './components/ToastPortal';
 import { AppContextProvider } from './contexts/AppContext';
 import { SocketContextProvider } from './contexts/SocketContext';
 import Create from './pages/Create';
@@ -14,7 +14,6 @@ import Story from './pages/Story';
 import StoryArchive from './pages/StoryArchive';
 import { NAME, STORY } from './utils/constants';
 import './App.scss';
-import 'react-tooltip/dist/react-tooltip.css';
 
 function App(): JSX.Element {
   return (

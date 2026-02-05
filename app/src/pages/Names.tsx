@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import Tooltip from 'react-bootstrap/esm/Tooltip';
 
 import Icon from '../components/Icon';
 import List from '../components/List';
 import PlayerList from '../components/PlayerList';
 import RecreateButton from '../components/RecreateButton';
 import StartGame from '../components/StartGame';
+import { showToast } from '../components/ToastPortal';
 import { useAppContext } from '../contexts/AppContext';
-import { useSocket } from '../contexts/SocketContext';
+import { useSocketContext } from '../contexts/SocketContext';
 import { useSuggestions } from '../hooks/useSuggestions';
 import { getPlayer, patchGame, postNameEntry } from '../utils/apiClient';
 import { END, JOIN, PLAY, READ } from '../utils/constants';
@@ -16,14 +16,16 @@ import { NameVariant } from '../utils/gameVariants';
 import { PlayerDto } from '../utils/types';
 
 const Names = (): JSX.Element => {
-  const { context } = useAppContext();
-  const socket = useSocket();
-  const [state, setState] = useState<PlayerDto | null>(null);
-  const entryRef = useRef<HTMLInputElement>(null);
-  const { suggestion, nextSuggestion, updateCategory } = useSuggestions(
+  const { suggestion, updateCategory, nextSuggestion } = useSuggestions(
     'MALE_NAME,FEMALE_NAME',
     10
   );
+
+  const { context } = useAppContext();
+  const socket = useSocketContext();
+  const [state, setState] = useState<PlayerDto | null>(null);
+  const [confirm, setConfirm] = useState(false);
+  const entryRef = useRef<HTMLInputElement>(null);
 
   const refreshData = useCallback(async () => {
     if (!context.player || !context.token) {
@@ -57,27 +59,38 @@ const Names = (): JSX.Element => {
     };
   }, [socket, refreshData]);
 
-  const Play = (): JSX.Element => {
-    const sendEntry = async () => {
+  if (state?.game?.phase === JOIN) {
+    return (
+      <StartGame
+        players={state.game.players}
+        title={NameVariant.title}
+        callback={() => setState(null)}
+      />
+    );
+  } else if (state?.game?.phase === PLAY && state?.canPlayerSubmit) {
+    const submitEntry = async () => {
       try {
-        if (
-          !entryRef.current!.value &&
-          !window.confirm(
-            "You haven't typed anything in! Do you want to use the placeholder text?"
-          )
-        ) {
+        if (!entryRef.current!.value && !confirm) {
+          setConfirm(true);
+          showToast({
+            message: "Press 'Confirm' to use the suggested name.",
+            type: 'warning'
+          });
           return;
         }
+
         await postNameEntry(
           context.token!,
           context.player!.uuid,
           entryRef.current!.value || suggestion
         );
-        updateCategory('');
-        refreshData();
         entryRef.current!.value = '';
+        updateCategory('');
+        setConfirm(false);
+        refreshData();
       } catch (err: unknown) {
         alertError('Error saving entry', err);
+        setConfirm(false);
       }
     };
 
@@ -86,42 +99,56 @@ const Names = (): JSX.Element => {
         className="w-100"
         onSubmit={(e) => {
           e.preventDefault();
-          sendEntry();
+          submitEntry();
         }}
       >
         <h3 className="text-center w-100">Enter a name:</h3>
         <input
+          type="search"
           placeholder={suggestion}
           ref={entryRef}
           className="form-control"
+          autoComplete="off"
+          spellCheck="false"
+          autoCorrect="off"
+          onChange={(e) => {
+            e.preventDefault();
+            if (confirm) setConfirm(false);
+          }}
         />
         <div className="container-fluid mt-4">
           <div className="row gap-4">
-            <input
-              type="submit"
-              value="Send"
-              className="btn btn-success col-9"
-            />
+            <button
+              className={`btn col-9 btn-${confirm ? 'warning' : 'success'}`}
+            >
+              {confirm ? (
+                <>
+                  <span
+                    className="spinner-border spinner-border-sm mx-1"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
+                  Confirm
+                </>
+              ) : (
+                <>Submit</>
+              )}
+            </button>
             <button
               className="btn btn-outline-secondary col"
               onClick={(e) => {
                 e.preventDefault();
                 nextSuggestion();
+                if (confirm) setConfirm(false);
               }}
-              data-tooltip-id="my-tooltip"
-              data-tooltip-content="New Suggestion"
-              data-tooltip-place="bottom"
             >
               <Icon icon="nf-fa-refresh" className="flex-grow-1" />
             </button>
           </div>
         </div>
-        <Tooltip id="my-tooltip" />
       </form>
     );
-  };
-
-  const Read = (): JSX.Element => {
+  } else if (state?.game?.phase === READ) {
     const endGame = async () => {
       try {
         await patchGame(context.token!, context.game!.uuid, END);
@@ -162,9 +189,7 @@ const Names = (): JSX.Element => {
         <HideNamesButton />
       </div>
     );
-  };
-
-  const End = (): JSX.Element => {
+  } else if (state?.game?.phase === END) {
     return (
       <div className="w-100">
         <h3 className="w-100 text-center pb-3">Enjoy the game!</h3>
@@ -173,9 +198,7 @@ const Names = (): JSX.Element => {
         </div>
       </div>
     );
-  };
-
-  const Wait = (): JSX.Element => {
+  } else {
     return (
       <div className="w-100">
         <h3 className="text-center w-100">Waiting for other players...</h3>
@@ -185,24 +208,6 @@ const Names = (): JSX.Element => {
         />
       </div>
     );
-  };
-
-  if (state?.game?.phase === JOIN) {
-    return (
-      <StartGame
-        players={state.game.players}
-        title={NameVariant.title}
-        callback={() => setState(null)}
-      />
-    );
-  } else if (state?.game?.phase === PLAY && state?.canPlayerSubmit) {
-    return <Play />;
-  } else if (state?.game?.phase === READ) {
-    return <Read />;
-  } else if (state?.game?.phase === END) {
-    return <End />;
-  } else {
-    return <Wait />;
   }
 };
 

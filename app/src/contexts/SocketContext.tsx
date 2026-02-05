@@ -115,7 +115,7 @@ export const SocketContextProvider = ({
   );
 };
 
-export const useSocket = () => {
+export const useSocketContext = () => {
   const socket = useContext(SocketContext);
   if (!socket) throw new Error('useSocket must be used inside SocketProvider');
   return socket;
