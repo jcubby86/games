@@ -1,4 +1,5 @@
 import { PrismaPg } from 'node_modules/@prisma/adapter-pg';
+
 import { Category, PrismaClient } from 'src/generated/prisma/client';
 import * as suggestions from 'src/suggestion/seed';
 
@@ -33,6 +34,7 @@ async function main() {
 
   await prisma.suggestion.createMany({
     data: allSuggestions,
+    skipDuplicates: true,
   });
 }
 main()
