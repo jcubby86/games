@@ -1,5 +1,6 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
+import { ToastPortal } from './components/ErrorToastPortal';
 import { FloatingMessagePortal } from './components/FloatingMessagePortal';
 import { AppContextProvider } from './contexts/AppContext';
 import { SocketContextProvider } from './contexts/SocketContext';
@@ -37,6 +38,7 @@ function App(): JSX.Element {
         </AppContextProvider>
       </BrowserRouter>
       <FloatingMessagePortal />
+      <ToastPortal />
     </>
   );
 }

@@ -12,7 +12,7 @@ type Message = {
   className?: string;
 };
 
-let listeners: Array<(m: Message) => void> = [];
+const listeners: Array<(m: Message) => void> = [];
 let idCounter = 0;
 
 export function showFloatingMessage(opts: Omit<Message, 'id'>) {
@@ -30,7 +30,7 @@ export function FloatingMessagePortal(): JSX.Element | null {
     const listener = (m: Message) => setMessages((prev) => [...prev, m]);
     listeners.push(listener);
     return () => {
-      listeners = listeners.filter((l) => l !== listener);
+      listeners.splice(listeners.indexOf(listener), 1);
     };
   }, []);
 
