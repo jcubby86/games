@@ -13,7 +13,6 @@ import Privacy from './pages/Privacy';
 import Story from './pages/Story';
 import StoryArchive from './pages/StoryArchive';
 import { NAME, STORY } from './utils/constants';
-import './App.scss';
 
 function App(): JSX.Element {
   return (
@@ -29,7 +28,7 @@ function App(): JSX.Element {
                 <Route path={`${STORY}/:gameUuid`} element={<StoryArchive />} />
                 <Route path={STORY} element={<Story />} />
                 <Route path={NAME} element={<Names />} />
-                <Route path="/privacy" element={<Privacy />} />
+                <Route path="privacy" element={<Privacy />} />
                 <Route path="*" element={<Home />} />
               </Route>
             </Routes>
