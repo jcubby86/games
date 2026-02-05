@@ -10,7 +10,7 @@ type Message = {
 const listeners: Array<(m: Message) => void> = [];
 let idCounter = 0;
 
-export function showErrorToast(opts: Omit<Message, 'id'>) {
+export function showToast(opts: Omit<Message, 'id'>) {
   const id = ++idCounter;
   const msg: Message = { id, ...opts };
   listeners.forEach((l) => l(msg));

@@ -1,6 +1,6 @@
 import { AxiosError, CanceledError } from 'axios';
 
-import { showErrorToast } from '../components/ErrorToastPortal';
+import { showToast } from '../components/ToastPortal';
 
 const getErrorMessages = (message: string, err: unknown) => {
   if (err instanceof CanceledError) {
@@ -38,7 +38,7 @@ export const alertError = (message: string, err: unknown): void => {
   const errorMessage = getErrorMessages(message, err);
   if (errorMessage) {
     console.error(errorMessage.detailed);
-    showErrorToast({
+    showToast({
       message: errorMessage.friendly ?? message,
       type: 'danger'
     });

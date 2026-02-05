@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
-import { ToastPortal } from './components/ErrorToastPortal';
+import { ToastPortal } from './components/ToastPortal';
 import { FloatingMessagePortal } from './components/FloatingMessagePortal';
 import { AppContextProvider } from './contexts/AppContext';
 import { SocketContextProvider } from './contexts/SocketContext';
