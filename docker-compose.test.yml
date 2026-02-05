@@ -1,6 +1,8 @@
 name: games-test
 services:
   app:
+    build:
+      context: ./app
     image: ghcr.io/jcubby86/games-app:test
     ports:
       - 3021:80
@@ -10,6 +12,8 @@ services:
       - backend
 
   backend:
+    build:
+      context: ./nest
     image: ghcr.io/jcubby86/games-backend:test
     ports :
       - 3000:3000
