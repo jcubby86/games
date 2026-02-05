@@ -1,4 +1,5 @@
 # todo
 
 - chat gpt integration
-- test toast location with keyboard
+- fix toast location under keyboard
+- prisma migrate and seed
