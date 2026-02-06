@@ -18,7 +18,22 @@ services:
     ports :
       - 3000:3000
     environment:
-      - DATABASE_URL=postgresql://postgres:password@192.168.1.34:5432/postgres
+      - DATABASE_URL=postgresql://postgres:password@db:5432/postgres
       - NODE_ENV=production
       - JWT_SECRET=123123
     restart: unless-stopped
+    depends_on:
+      - db
+
+  db:
+    image: postgres:17.2
+    restart: unless-stopped
+    ports:
+      - 5432:5432
+    environment: 
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  db-data:
