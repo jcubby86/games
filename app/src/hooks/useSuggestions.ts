@@ -1,41 +1,41 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useCallback, useState } from 'react';
 
 import { getSuggestions } from '../utils/apiClient';
-import { logError } from '../utils/errorHandler';
-import { SuggestionDto } from '../utils/types';
 
-export const useSuggestions = (
-  initialCategory?: string,
-  initialQuantity = 5
-) => {
-  const [category, setCategory] = useState<string>(initialCategory ?? '');
-  const [quantity] = useState<number>(initialQuantity);
-  const [suggestion, setSuggestion] = useState<string>('');
-  const suggestionsRef = useRef<Map<string, string[]>>(new Map());
+export const useSuggestions = (initialCategory?: string, quantity = 5) => {
+  const [category, setCategory] = useState(initialCategory ?? '');
+  const [offsets, setOffsets] = useState<{ [key: string]: number }>({});
+  const offset = offsets[category] ?? 0;
+
+  const suggestionQuery = useQuery({
+    queryKey: [
+      'suggestions',
+      { category, quantity, offset: Math.floor(offset / quantity) }
+    ],
+    queryFn: async () => {
+      if (category === '') {
+        return [];
+      }
+      const res = await getSuggestions(category, quantity);
+      return res.data;
+    }
+  });
 
   const nextSuggestion = useCallback(async () => {
-    try {
-      let stored = suggestionsRef.current.get(category) || [];
-      if (stored.length === 0 && category !== '') {
-        const suggestionResponse = await getSuggestions(category, quantity);
-        stored = suggestionResponse.data.map((s: SuggestionDto) => s.value);
-        suggestionsRef.current.set(category, stored);
-      }
-
-      setSuggestion(stored.shift() || '');
-      suggestionsRef.current.set(category, stored);
-    } catch (err: unknown) {
-      logError('Error fetching suggestions', err);
-    }
-  }, [category, quantity]);
+    setOffsets((prev) => ({
+      ...prev,
+      [category]: offset + 1
+    }));
+  }, [category, offset]);
 
   const updateCategory = useCallback((newCategory?: string) => {
     setCategory((prev) => newCategory ?? prev);
   }, []);
 
-  useEffect(() => {
-    nextSuggestion();
-  }, [category, nextSuggestion]);
+  const suggestion = suggestionQuery.isSuccess
+    ? suggestionQuery.data[offset % quantity]?.value
+    : '';
 
-  return { category, suggestion, updateCategory, nextSuggestion };
+  return { suggestion, updateCategory, nextSuggestion };
 };

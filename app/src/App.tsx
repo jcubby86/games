@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import { FloatingMessagePortal } from './components/FloatingMessagePortal';
@@ -14,26 +15,33 @@ import Story from './pages/Story';
 import StoryArchive from './pages/StoryArchive';
 import { NAME, STORY } from './utils/constants';
 
+const client = new QueryClient();
+
 function App(): JSX.Element {
   return (
     <>
       <BrowserRouter>
-        <AppContextProvider>
-          <SocketContextProvider>
-            <Routes>
-              <Route path="/" element={<Layout />}>
-                <Route index element={<Home />} />
-                <Route path="join" element={<Join />} />
-                <Route path="create" element={<Create />} />
-                <Route path={`${STORY}/:gameUuid`} element={<StoryArchive />} />
-                <Route path={STORY} element={<Story />} />
-                <Route path={NAME} element={<Names />} />
-                <Route path="privacy" element={<Privacy />} />
-                <Route path="*" element={<Home />} />
-              </Route>
-            </Routes>
-          </SocketContextProvider>
-        </AppContextProvider>
+        <QueryClientProvider client={client}>
+          <AppContextProvider>
+            <SocketContextProvider>
+              <Routes>
+                <Route path="/" element={<Layout />}>
+                  <Route index element={<Home />} />
+                  <Route path="join" element={<Join />} />
+                  <Route path="create" element={<Create />} />
+                  <Route
+                    path={`${STORY}/:gameUuid`}
+                    element={<StoryArchive />}
+                  />
+                  <Route path={STORY} element={<Story />} />
+                  <Route path={NAME} element={<Names />} />
+                  <Route path="privacy" element={<Privacy />} />
+                  <Route path="*" element={<Home />} />
+                </Route>
+              </Routes>
+            </SocketContextProvider>
+          </AppContextProvider>
+        </QueryClientProvider>
       </BrowserRouter>
       <FloatingMessagePortal />
       <ToastPortal />
