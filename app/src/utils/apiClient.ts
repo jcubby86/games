@@ -8,8 +8,8 @@ export function postGame(type: string) {
   });
 }
 
-export function getGameByCode(code: string, signal?: AbortSignal) {
-  return axios.get<GameDto>(`/api/games?code=${code}`, { signal });
+export function getGameByCode(code: string) {
+  return axios.get<GameDto>(`/api/games?code=${code}`);
 }
 
 export function patchGame(token: string, uuid: string, phase: string) {

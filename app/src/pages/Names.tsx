@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useRef, useState } from 'react';
 
 import List from '../components/List';
 import PlayerList from '../components/PlayerList';
@@ -10,9 +11,8 @@ import { useSocketContext } from '../contexts/SocketContext';
 import { useSuggestions } from '../hooks/useSuggestions';
 import { getPlayer, patchGame, postNameEntry } from '../utils/apiClient';
 import { END, JOIN, PLAY, READ } from '../utils/constants';
-import { alertError, logError } from '../utils/errorHandler';
+import { alertError } from '../utils/errorHandler';
 import { NameVariant } from '../utils/gameVariants';
-import { PlayerDto } from '../utils/types';
 
 const Names = (): JSX.Element => {
   const { suggestion, updateCategory, nextSuggestion } = useSuggestions(
@@ -22,75 +22,82 @@ const Names = (): JSX.Element => {
 
   const { context } = useAppContext();
   const socket = useSocketContext();
-  const [state, setState] = useState<PlayerDto | null>(null);
+  const queryClient = useQueryClient();
   const [confirm, setConfirm] = useState(false);
   const entryRef = useRef<HTMLInputElement>(null);
 
-  const refreshData = useCallback(async () => {
-    if (!context.player || !context.token) {
-      return;
-    }
-    try {
+  const playerQuery = useQuery({
+    queryKey: ['player', context.player?.uuid],
+    queryFn: async () => {
       const playerResponse = await getPlayer(
-        context.token,
-        context.player.uuid
+        context.token!,
+        context.player!.uuid
       );
-      setState(playerResponse.data);
-      updateCategory('MALE_NAME,FEMALE_NAME');
-    } catch (err: unknown) {
-      logError('Error fetching player', err);
+      return playerResponse.data;
+    },
+    enabled: !!context.player?.uuid && !!context.token
+  });
+
+  const postNameMutation = useMutation({
+    mutationFn: (name: string) =>
+      postNameEntry(context.token!, context.player!.uuid, name),
+    onSuccess: async () => {
+      entryRef.current!.value = '';
+      updateCategory('');
+      setConfirm(false);
+      await queryClient.invalidateQueries({ queryKey: ['player'] });
+    },
+    onError: (err: unknown) => {
+      setConfirm(false);
+      alertError('Error saving entry', err);
     }
-  }, [context, updateCategory]);
+  });
+
+  const updateGameMutation = useMutation({
+    mutationFn: (phase: string) =>
+      patchGame(context.token!, context.game!.uuid, phase),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['player'] }),
+    onError: (err: unknown) => alertError('Error updating game', err)
+  });
+
+  const player = playerQuery.data;
 
   useEffect(() => {
-    refreshData();
-  }, [refreshData]);
+    updateCategory('MALE_NAME,FEMALE_NAME');
+  }, [player, updateCategory]);
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async function gameUpdated(_event: unknown) {
-      refreshData();
+    function gameUpdated(_event: unknown) {
+      queryClient.invalidateQueries({ queryKey: ['player'] });
     }
 
     socket.on('game.updated', gameUpdated);
     return () => {
       socket.off('game.updated', gameUpdated);
     };
-  }, [socket, refreshData]);
+  }, [socket, queryClient]);
 
-  if (state?.game?.phase === JOIN) {
+  if (player?.game?.phase === JOIN) {
     return (
       <StartGame
-        players={state.game.players}
+        players={player.game.players}
         title={NameVariant.title}
-        callback={() => setState(null)}
+        callback={() => queryClient.invalidateQueries({ queryKey: ['player'] })}
       />
     );
-  } else if (state?.game?.phase === PLAY && state?.canPlayerSubmit) {
+  } else if (player?.game?.phase === PLAY && player?.canPlayerSubmit) {
     const submitEntry = async () => {
-      try {
-        if (!entryRef.current!.value && !confirm) {
-          setConfirm(true);
-          showToast({
-            message: "Press 'Confirm' to use the suggested name.",
-            type: 'warning'
-          });
-          return;
-        }
-
-        await postNameEntry(
-          context.token!,
-          context.player!.uuid,
-          entryRef.current!.value || suggestion
-        );
-        entryRef.current!.value = '';
-        updateCategory('');
-        setConfirm(false);
-        refreshData();
-      } catch (err: unknown) {
-        alertError('Error saving entry', err);
-        setConfirm(false);
+      if (!entryRef.current!.value && !confirm) {
+        setConfirm(true);
+        showToast({
+          message: "Press 'Confirm' to use the suggested name.",
+          type: 'warning'
+        });
+        return;
       }
+
+      postNameMutation.mutate(entryRef.current!.value || suggestion);
     };
 
     return (
@@ -147,16 +154,7 @@ const Names = (): JSX.Element => {
         </div>
       </form>
     );
-  } else if (state?.game?.phase === READ) {
-    const endGame = async () => {
-      try {
-        await patchGame(context.token!, context.game!.uuid, END);
-        setState(null);
-      } catch (err: unknown) {
-        alertError('Error updating game', err);
-      }
-    };
-
+  } else if (player?.game?.phase === READ) {
     const HideNamesButton = (): JSX.Element => {
       if (context.player?.roles?.includes('host')) {
         return (
@@ -164,7 +162,7 @@ const Names = (): JSX.Element => {
             className={'btn btn-danger mt-4'}
             onClick={(e) => {
               e.preventDefault();
-              endGame();
+              updateGameMutation.mutate(END);
             }}
           >
             Hide Names
@@ -175,7 +173,7 @@ const Names = (): JSX.Element => {
       }
     };
 
-    const sortedEntries = [...state!.entries!].sort((a, b) => {
+    const sortedEntries = [...player!.entries!].sort((a, b) => {
       return b.order! - a.order!;
     });
 
@@ -188,7 +186,7 @@ const Names = (): JSX.Element => {
         <HideNamesButton />
       </div>
     );
-  } else if (state?.game?.phase === END) {
+  } else if (player?.game?.phase === END) {
     return (
       <div className="w-100">
         <h3 className="w-100 text-center pb-3">Enjoy the game!</h3>
@@ -202,7 +200,7 @@ const Names = (): JSX.Element => {
       <div className="w-100">
         <h3 className="text-center w-100">Waiting for other players...</h3>
         <PlayerList
-          players={state?.game?.players}
+          players={player?.game?.players}
           filter={(p) => p.canPlayerSubmit ?? true}
         />
       </div>

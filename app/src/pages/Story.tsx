@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import PlayerList from '../components/PlayerList';
@@ -11,9 +12,8 @@ import { useSocketContext } from '../contexts/SocketContext';
 import { useSuggestions } from '../hooks/useSuggestions';
 import { getPlayer, postStoryEntry } from '../utils/apiClient';
 import { JOIN, PLAY, READ } from '../utils/constants';
-import { alertError, logError } from '../utils/errorHandler';
+import { alertError } from '../utils/errorHandler';
 import { StoryVariant } from '../utils/gameVariants';
-import { PlayerDto } from '../utils/types';
 
 const Story = (): JSX.Element => {
   const { suggestion, updateCategory, nextSuggestion } =
@@ -21,75 +21,75 @@ const Story = (): JSX.Element => {
 
   const { context } = useAppContext();
   const socket = useSocketContext();
-  const [state, setState] = useState<PlayerDto | null>(null);
+  const queryClient = useQueryClient();
   const [confirm, setConfirm] = useState(false);
   const entryRef = useRef<HTMLTextAreaElement>(null);
 
-  const refreshData = useCallback(async () => {
-    if (!context.player || !context.token) {
-      return;
-    }
-    try {
+  const playerQuery = useQuery({
+    queryKey: ['player', context.player?.uuid],
+    queryFn: async () => {
       const playerResponse = await getPlayer(
-        context.token,
-        context.player.uuid
+        context.token!,
+        context.player!.uuid
       );
-      setState(playerResponse.data);
-      updateCategory(playerResponse.data.entry?.hint?.category);
-    } catch (err: unknown) {
-      logError('Error fetching player', err);
+      return playerResponse.data;
+    },
+    enabled: !!context.player?.uuid && !!context.token
+  });
+
+  const postStoryMutation = useMutation({
+    mutationFn: (value: string) =>
+      postStoryEntry(context.token!, context.player!.uuid, value),
+    onSuccess: async () => {
+      entryRef.current!.value = '';
+      updateCategory('');
+      setConfirm(false);
+      await queryClient.invalidateQueries({ queryKey: ['player'] });
+    },
+    onError: (err: unknown) => {
+      setConfirm(false);
+      alertError('Error saving entry', err);
     }
-  }, [context, updateCategory]);
+  });
+
+  const player = playerQuery.data;
 
   useEffect(() => {
-    refreshData();
-  }, [refreshData]);
+    updateCategory(player?.entry?.hint?.category);
+  }, [player, updateCategory]);
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     function gameUpdated(_event: unknown) {
-      refreshData();
+      queryClient.invalidateQueries({ queryKey: ['player'] });
     }
 
     socket.on('game.updated', gameUpdated);
     return () => {
       socket.off('game.updated', gameUpdated);
     };
-  }, [socket, refreshData]);
+  }, [socket, queryClient]);
 
-  if (state?.game?.phase === JOIN) {
+  if (player?.game?.phase === JOIN) {
     return (
       <StartGame
-        players={state.game.players}
+        players={player.game.players}
         title={StoryVariant.title}
-        callback={() => setState(null)}
+        callback={() => queryClient.invalidateQueries({ queryKey: ['player'] })}
       />
     );
-  } else if (state?.game?.phase === PLAY && state?.canPlayerSubmit) {
+  } else if (player?.game?.phase === PLAY && player?.canPlayerSubmit) {
     const submitEntry = async () => {
-      try {
-        if (!entryRef.current!.value && !confirm) {
-          setConfirm(true);
-          showToast({
-            message: "Press 'Confirm' to use the suggested name.",
-            type: 'warning'
-          });
-          return;
-        }
-
-        await postStoryEntry(
-          context.token!,
-          context.player!.uuid,
-          entryRef.current!.value || suggestion
-        );
-        entryRef.current!.value = '';
-        updateCategory('');
-        setConfirm(false);
-        refreshData();
-      } catch (err: unknown) {
-        alertError('An error has occurred', err);
-        setConfirm(false);
+      if (!entryRef.current!.value && !confirm) {
+        setConfirm(true);
+        showToast({
+          message: "Press 'Confirm' to use the suggested name.",
+          type: 'warning'
+        });
+        return;
       }
+
+      postStoryMutation.mutate(entryRef.current!.value || suggestion);
     };
 
     return (
@@ -100,9 +100,9 @@ const Story = (): JSX.Element => {
           submitEntry();
         }}
       >
-        <h3 className="text-center w-100">{state?.entry?.hint?.prompt}</h3>
+        <h3 className="text-center w-100">{player?.entry?.hint?.prompt}</h3>
         <p className="form-label">
-          {state?.entry?.hint?.filler} {state?.entry?.hint?.prefix}
+          {player?.entry?.hint?.filler} {player?.entry?.hint?.prefix}
         </p>
         <textarea
           placeholder={suggestion}
@@ -117,7 +117,7 @@ const Story = (): JSX.Element => {
             if (confirm) setConfirm(false);
           }}
         />
-        <p className="form-label">{state?.entry?.hint?.suffix}</p>
+        <p className="form-label">{player?.entry?.hint?.suffix}</p>
         <div className="container-fluid mt-4">
           <div className="row gap-4">
             <button
@@ -150,24 +150,24 @@ const Story = (): JSX.Element => {
         </div>
       </form>
     );
-  } else if (state?.game?.phase === READ) {
+  } else if (player?.game?.phase === READ) {
     return (
       <div className="w-100">
         <p className="lh-lg fs-5 px-2 w-100 text-break">
-          {state?.entry?.story}
+          {player?.entry?.story}
         </p>
         <div className="container-fluid">
           <div className="row gap-4">
             <RecreateButton className="col btn btn-success" />
             <Link
-              to={`/story/${state!.game!.uuid}`}
+              to={`/story/${player!.game!.uuid}`}
               className="col btn btn-outline-success"
             >
               See all
             </Link>
             <ShareButton
               className="btn col-2"
-              path={`/story/${state!.game!.uuid}`}
+              path={`/story/${player!.game!.uuid}`}
               title={'Games: ' + StoryVariant.title}
               text="Read my hilarious story!"
             />
@@ -180,7 +180,7 @@ const Story = (): JSX.Element => {
       <div className="w-100">
         <h3 className="text-center w-100">Waiting for other players...</h3>
         <PlayerList
-          players={state?.game?.players}
+          players={player?.game?.players}
           filter={(p) => p.canPlayerSubmit ?? true}
         />
       </div>

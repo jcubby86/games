@@ -14,12 +14,10 @@ export const useSuggestions = (initialCategory?: string, quantity = 5) => {
       { category, quantity, offset: Math.floor(offset / quantity) }
     ],
     queryFn: async () => {
-      if (category === '') {
-        return [];
-      }
       const res = await getSuggestions(category, quantity);
       return res.data;
-    }
+    },
+    enabled: category !== ''
   });
 
   const nextSuggestion = useCallback(async () => {
