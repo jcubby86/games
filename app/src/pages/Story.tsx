@@ -26,7 +26,7 @@ const categories = [
 const Story = () => {
   const { suggestion, updateCategory, nextSuggestion } = useSuggestions({
     initialCategory: categories[0],
-    prefetchCategories: categories
+    quantity: 5
   });
 
   const { context } = useAppContext();
@@ -36,7 +36,7 @@ const Story = () => {
   const entryRef = useRef<HTMLTextAreaElement>(null);
 
   const playerQuery = useQuery({
-    queryKey: ['player', context.player?.uuid],
+    queryKey: ['players', context.player?.uuid],
     queryFn: async () => {
       const playerResponse = await getPlayer(
         context.token!,
@@ -60,7 +60,7 @@ const Story = () => {
       entryRef.current!.value = '';
       updateCategory(data.hint?.category);
       setConfirm(false);
-      await queryClient.invalidateQueries({ queryKey: ['player'] });
+      await queryClient.invalidateQueries({ queryKey: ['players'] });
     },
     onError: (err: unknown) => {
       setConfirm(false);
@@ -71,7 +71,7 @@ const Story = () => {
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     function gameUpdated(_event: unknown) {
-      void queryClient.invalidateQueries({ queryKey: ['player'] });
+      void queryClient.invalidateQueries({ queryKey: ['players'] });
     }
 
     socket.on('game.updated', gameUpdated);
@@ -88,7 +88,7 @@ const Story = () => {
         players={player.game.players}
         title={StoryVariant.title}
         callback={() =>
-          void queryClient.invalidateQueries({ queryKey: ['player'] })
+          void queryClient.invalidateQueries({ queryKey: ['players'] })
         }
       />
     );

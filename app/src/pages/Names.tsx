@@ -27,7 +27,7 @@ const Names = () => {
   const entryRef = useRef<HTMLInputElement>(null);
 
   const playerQuery = useQuery({
-    queryKey: ['player', context.player?.uuid],
+    queryKey: ['players', context.player?.uuid],
     queryFn: async () => {
       const playerResponse = await getPlayer(
         context.token!,
@@ -51,7 +51,7 @@ const Names = () => {
       entryRef.current!.value = '';
       nextSuggestion();
       setConfirm(false);
-      await queryClient.invalidateQueries({ queryKey: ['player'] });
+      await queryClient.invalidateQueries({ queryKey: ['players'] });
     },
     onError: (err: unknown) => {
       setConfirm(false);
@@ -62,14 +62,14 @@ const Names = () => {
   const updateGameMutation = useMutation({
     mutationFn: (phase: string) =>
       patchGame(context.token!, context.game!.uuid, phase),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['player'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['players'] }),
     onError: (err: unknown) => alertError('Error updating game', err)
   });
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     function gameUpdated(_event: unknown) {
-      void queryClient.invalidateQueries({ queryKey: ['player'] });
+      void queryClient.invalidateQueries({ queryKey: ['players'] });
     }
 
     socket.on('game.updated', gameUpdated);
@@ -86,7 +86,7 @@ const Names = () => {
         players={player.game.players}
         title={NameVariant.title}
         callback={() =>
-          void queryClient.invalidateQueries({ queryKey: ['player'] })
+          void queryClient.invalidateQueries({ queryKey: ['players'] })
         }
       />
     );
