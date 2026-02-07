@@ -15,7 +15,7 @@ import { alertError } from '../utils/errorHandler';
 import { NameVariant } from '../utils/gameVariants';
 
 const Names = (): JSX.Element => {
-  const { suggestion, updateCategory, nextSuggestion } = useSuggestions(
+  const { suggestion, nextSuggestion } = useSuggestions(
     'MALE_NAME,FEMALE_NAME',
     10
   );
@@ -39,11 +39,17 @@ const Names = (): JSX.Element => {
   });
 
   const postNameMutation = useMutation({
-    mutationFn: (name: string) =>
-      postNameEntry(context.token!, context.player!.uuid, name),
+    mutationFn: async (name: string) => {
+      const response = await postNameEntry(
+        context.token!,
+        context.player!.uuid,
+        name
+      );
+      return response.data;
+    },
     onSuccess: async () => {
       entryRef.current!.value = '';
-      updateCategory('');
+      nextSuggestion();
       setConfirm(false);
       await queryClient.invalidateQueries({ queryKey: ['player'] });
     },
@@ -60,12 +66,6 @@ const Names = (): JSX.Element => {
     onError: (err: unknown) => alertError('Error updating game', err)
   });
 
-  const player = playerQuery.data;
-
-  useEffect(() => {
-    updateCategory('MALE_NAME,FEMALE_NAME');
-  }, [player, updateCategory]);
-
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     function gameUpdated(_event: unknown) {
@@ -77,6 +77,8 @@ const Names = (): JSX.Element => {
       socket.off('game.updated', gameUpdated);
     };
   }, [socket, queryClient]);
+
+  const player = playerQuery.data;
 
   if (player?.game?.phase === JOIN) {
     return (

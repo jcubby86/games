@@ -93,6 +93,7 @@ export class StoryService {
     return {
       values: entry.values,
       story: entry.story || undefined,
+      hint: hints[entry.values.length],
     };
   }
 

@@ -38,11 +38,17 @@ const Story = (): JSX.Element => {
   });
 
   const postStoryMutation = useMutation({
-    mutationFn: (value: string) =>
-      postStoryEntry(context.token!, context.player!.uuid, value),
-    onSuccess: async () => {
+    mutationFn: async (value: string) => {
+      const response = await postStoryEntry(
+        context.token!,
+        context.player!.uuid,
+        value
+      );
+      return response.data;
+    },
+    onSuccess: async (data) => {
       entryRef.current!.value = '';
-      updateCategory('');
+      updateCategory(data.hint?.category);
       setConfirm(false);
       await queryClient.invalidateQueries({ queryKey: ['player'] });
     },
@@ -52,23 +58,19 @@ const Story = (): JSX.Element => {
     }
   });
 
-  const player = playerQuery.data;
-
-  useEffect(() => {
-    updateCategory(player?.entry?.hint?.category);
-  }, [player, updateCategory]);
-
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     function gameUpdated(_event: unknown) {
       queryClient.invalidateQueries({ queryKey: ['player'] });
     }
-
+    
     socket.on('game.updated', gameUpdated);
     return () => {
       socket.off('game.updated', gameUpdated);
     };
   }, [socket, queryClient]);
+
+  const player = playerQuery.data;
 
   if (player?.game?.phase === JOIN) {
     return (
@@ -83,7 +85,7 @@ const Story = (): JSX.Element => {
       if (!entryRef.current!.value && !confirm) {
         setConfirm(true);
         showToast({
-          message: "Press 'Confirm' to use the suggested name.",
+          message: "Press 'Confirm' to use the suggested value.",
           type: 'warning'
         });
         return;
