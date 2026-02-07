@@ -15,7 +15,8 @@ export default function StoryArchive() {
       const response = await getStoryEntries(gameUuid!);
       return response.data;
     },
-    enabled: !!gameUuid
+    enabled: !!gameUuid,
+    staleTime: Infinity
   });
 
   const stories = storyQuery.data;

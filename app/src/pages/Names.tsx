@@ -35,7 +35,8 @@ const Names = () => {
       );
       return playerResponse.data;
     },
-    enabled: !!context.player?.uuid && !!context.token
+    enabled: !!context.player?.uuid && !!context.token,
+    staleTime: 120000 // 2 minutes
   });
 
   const postNameMutation = useMutation({

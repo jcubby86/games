@@ -27,7 +27,8 @@ const Join = () => {
       return res.data;
     },
     enabled: code.length === 4,
-    retry: false
+    retry: false,
+    staleTime: 300000 // 5 minutes
   });
 
   const leavePreviousGame = async () => {

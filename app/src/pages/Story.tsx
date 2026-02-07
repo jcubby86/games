@@ -26,7 +26,8 @@ const categories = [
 const Story = () => {
   const { suggestion, updateCategory, nextSuggestion } = useSuggestions({
     initialCategory: categories[0],
-    quantity: 5
+    quantity: 5,
+    prefetchCategories: categories
   });
 
   const { context } = useAppContext();
@@ -44,7 +45,8 @@ const Story = () => {
       );
       return playerResponse.data;
     },
-    enabled: !!context.player?.uuid && !!context.token
+    enabled: !!context.player?.uuid && !!context.token,
+    staleTime: 120000 // 2 minutes
   });
 
   const postStoryMutation = useMutation({
