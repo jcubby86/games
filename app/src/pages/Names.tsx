@@ -10,7 +10,7 @@ import { useAppContext } from '../contexts/AppContext';
 import { useSocketContext } from '../contexts/SocketContext';
 import { useSuggestions } from '../hooks/useSuggestions';
 import { getPlayer, patchGame, postNameEntry } from '../utils/apiClient';
-import { END, JOIN, PLAY, READ } from '../utils/constants';
+import { END, JOIN, nameEntryMaxLength, PLAY, READ } from '../utils/constants';
 import { alertError } from '../utils/errorHandler';
 import { NameVariant } from '../utils/gameVariants';
 
@@ -122,6 +122,7 @@ const Names = () => {
           autoComplete="off"
           spellCheck="false"
           autoCorrect="off"
+          maxLength={nameEntryMaxLength}
           onChange={(e) => {
             e.preventDefault();
             if (confirm) setConfirm(false);

@@ -1,7 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
 
 import { SuggestionService } from './suggestion.service';
-import { SuggestionDto } from 'src/types/game.types';
+import { SuggestionDto } from 'src/game/game.types';
 
 @Controller('api/suggestions')
 export class SuggestionController {

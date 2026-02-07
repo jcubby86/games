@@ -11,7 +11,7 @@ import { useAppContext } from '../contexts/AppContext';
 import { useSocketContext } from '../contexts/SocketContext';
 import { useSuggestions } from '../hooks/useSuggestions';
 import { getPlayer, postStoryEntry } from '../utils/apiClient';
-import { JOIN, PLAY, READ } from '../utils/constants';
+import { JOIN, PLAY, READ, storyEntryMaxLength } from '../utils/constants';
 import { alertError } from '../utils/errorHandler';
 import { StoryVariant } from '../utils/gameVariants';
 
@@ -128,6 +128,7 @@ const Story = () => {
           autoComplete="off"
           spellCheck="false"
           autoCorrect="off"
+          maxLength={player?.entry?.hint?.limit ?? storyEntryMaxLength}
           onChange={(e) => {
             e.preventDefault();
             if (confirm) setConfirm(false);

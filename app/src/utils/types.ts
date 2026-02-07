@@ -9,6 +9,7 @@ export interface Hint {
   suffix: string;
   prompt: string;
   category: string;
+  limit: number;
 }
 
 export interface StoryEntryDto {

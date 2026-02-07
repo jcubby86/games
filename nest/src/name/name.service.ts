@@ -7,8 +7,10 @@ import {
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 
 import { isPrismaUniqueError } from 'src/filters/prisma-exception.filter';
+import { nameEntryMaxLength } from 'src/game/game.constants';
 import { GameService } from 'src/game/game.service';
 import type { GameUpdatedEvent } from 'src/game/game.service';
+import { NameEntryDto, PlayerDto } from 'src/game/game.types';
 import {
   Game,
   GamePhase,
@@ -17,7 +19,6 @@ import {
   Player,
 } from 'src/generated/prisma/client';
 import { PrismaService } from 'src/prisma.service';
-import { NameEntryDto, PlayerDto } from 'src/types/game.types';
 
 interface NameMapEntry {
   player: Player;
@@ -68,7 +69,7 @@ export class NameService {
           },
         },
         update: {
-          name,
+          name: name.substring(0, nameEntryMaxLength),
           normalized,
         },
         create: {

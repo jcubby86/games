@@ -6,12 +6,13 @@ import {
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
+import { gameCodeLength, nicknameMaxLength } from './game.constants';
 import { isPrismaUniqueError } from 'src/filters/prisma-exception.filter';
+import { GameDto, PlayerDto } from 'src/game/game.types';
 import { Game, GamePhase, GameType, Player } from 'src/generated/prisma/client';
 import { NameService } from 'src/name/name.service';
 import { PrismaService } from 'src/prisma.service';
 import { StoryService } from 'src/story/story.service';
-import { GameDto, PlayerDto } from 'src/types/game.types';
 
 export interface GameUpdatedEvent {
   game: Game;
@@ -34,7 +35,7 @@ export class GameService {
     return Math.random()
       .toString(36)
       .replace(/[^a-z]+/g, '')
-      .substring(0, 4)
+      .substring(0, gameCodeLength)
       .toUpperCase();
   }
 
@@ -145,7 +146,7 @@ export class GameService {
     try {
       const player = await this.prisma.player.create({
         data: {
-          nickname: nickname.toLowerCase(),
+          nickname: nickname.toLowerCase().substring(0, nicknameMaxLength),
           game: {
             connect: { id: game.id },
           },
@@ -176,7 +177,9 @@ export class GameService {
       const player = await this.prisma.player.update({
         where: { uuid },
         include: { game: true },
-        data: { nickname: nickname.toLowerCase() },
+        data: {
+          nickname: nickname.toLowerCase().substring(0, nicknameMaxLength),
+        },
       });
       if (!player) {
         throw new NotFoundException('Player not found');

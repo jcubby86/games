@@ -1,5 +1,9 @@
+import {
+  nameEntryMaxLength,
+  storyEntryMaxLength,
+} from 'src/game/game.constants';
+import { Hint } from 'src/game/game.types';
 import { Category } from 'src/generated/prisma/enums';
-import { Hint } from 'src/types/game.types';
 
 export const hints: Hint[] = [
   {
@@ -8,6 +12,7 @@ export const hints: Hint[] = [
     suffix: ' ',
     prompt: "Man's name:",
     category: Category.MALE_NAME,
+    limit: nameEntryMaxLength,
   },
   {
     filler: '(Man) ',
@@ -15,6 +20,7 @@ export const hints: Hint[] = [
     suffix: ' ',
     prompt: "Woman's name:",
     category: Category.FEMALE_NAME,
+    limit: nameEntryMaxLength,
   },
   {
     filler: '(Man) and (Woman) ',
@@ -22,6 +28,7 @@ export const hints: Hint[] = [
     suffix: ' ',
     prompt: 'Present Action:',
     category: Category.PRESENT_ACTION,
+    limit: storyEntryMaxLength,
   },
   {
     filler: '',
@@ -29,6 +36,7 @@ export const hints: Hint[] = [
     suffix: '" ',
     prompt: 'Statement:',
     category: Category.STATEMENT,
+    limit: storyEntryMaxLength,
   },
   {
     filler: '',
@@ -36,6 +44,7 @@ export const hints: Hint[] = [
     suffix: '" ',
     prompt: 'Statement:',
     category: Category.STATEMENT,
+    limit: storyEntryMaxLength,
   },
   {
     filler: '',
@@ -43,5 +52,6 @@ export const hints: Hint[] = [
     suffix: '',
     prompt: 'Past Action:',
     category: Category.PAST_ACTION,
+    limit: storyEntryMaxLength,
   },
 ];

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { useAppContext } from '../contexts/AppContext';
 import { deletePlayer, postGame, postPlayer } from '../utils/apiClient';
+import { nicknameMaxLength } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
 import { gameVariants } from '../utils/gameVariants';
 import generateNickname from '../utils/nicknameGeneration';
@@ -73,7 +74,7 @@ const Create = () => {
             spellCheck="false"
             autoCorrect="off"
             placeholder={suggestion}
-            maxLength={30}
+            maxLength={nicknameMaxLength}
             defaultValue={context.player?.nickname}
             ref={nicknameRef}
           />

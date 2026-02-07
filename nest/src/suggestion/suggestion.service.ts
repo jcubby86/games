@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 
 import { SUGGESTION_PROVIDERS, SuggestionProvider } from './suggestion.factory';
+import { SuggestionDto } from 'src/game/game.types';
 import { Category } from 'src/generated/prisma/client';
-import { SuggestionDto } from 'src/types/game.types';
 
 @Injectable()
 export class SuggestionService {

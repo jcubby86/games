@@ -7,8 +7,10 @@ import {
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 
 import { hints } from './story.constants';
+import { storyEntryMaxLength } from 'src/game/game.constants';
 import { GameService } from 'src/game/game.service';
 import type { GameUpdatedEvent } from 'src/game/game.service';
+import { PlayerDto, StoryEntryDto } from 'src/game/game.types';
 import {
   Game,
   GamePhase,
@@ -17,7 +19,6 @@ import {
   StoryEntry,
 } from 'src/generated/prisma/client';
 import { PrismaService } from 'src/prisma.service';
-import { PlayerDto, StoryEntryDto } from 'src/types/game.types';
 
 interface StoryMapEntry {
   player: Player;
@@ -74,7 +75,7 @@ export class StoryService {
       },
       update: {
         values: {
-          push: value,
+          push: value.substring(0, storyEntryMaxLength),
         },
       },
       create: {

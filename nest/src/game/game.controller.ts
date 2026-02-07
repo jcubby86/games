@@ -13,15 +13,10 @@ import {
 import type { Response } from 'express';
 
 import { GameService } from './game.service';
+import { GameDto, PlayerDto, NameEntryDto, StoryEntryDto } from './game.types';
 import { GameAuthGuard, Roles } from '../auth/auth.guard';
 import { AuthService } from '../auth/auth.service';
 import { StoryService } from '../story/story.service';
-import {
-  GameDto,
-  PlayerDto,
-  NameEntryDto,
-  StoryEntryDto,
-} from '../types/game.types';
 import { NameService } from 'src/name/name.service';
 
 @Controller('api')

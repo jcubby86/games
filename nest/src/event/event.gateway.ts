@@ -14,7 +14,7 @@ import type {
   GameUpdatedMessageData,
   Message,
   PokeMessageData,
-} from 'src/types/game.types';
+} from 'src/game/game.types';
 
 interface AuthenticatedSocket extends Socket, AuthPayload {}
 

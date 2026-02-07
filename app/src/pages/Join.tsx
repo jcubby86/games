@@ -9,6 +9,7 @@ import {
   patchPlayer,
   postPlayer
 } from '../utils/apiClient';
+import { gameCodeLength, nicknameMaxLength } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
 import { gameVariants } from '../utils/gameVariants';
 import generateNickname from '../utils/nicknameGeneration';
@@ -113,7 +114,7 @@ const Join = () => {
             spellCheck="false"
             autoCorrect="off"
             placeholder="abxy"
-            maxLength={4}
+            maxLength={gameCodeLength}
             value={code}
             onChange={(e) => {
               e.preventDefault();
@@ -134,7 +135,7 @@ const Join = () => {
             spellCheck="false"
             autoCorrect="off"
             placeholder={suggestion}
-            maxLength={30}
+            maxLength={nicknameMaxLength}
             defaultValue={context.player?.nickname}
             ref={nicknameRef}
           />
