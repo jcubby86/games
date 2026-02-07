@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 
 import RecreateButton from '../components/RecreateButton';
@@ -9,16 +9,16 @@ import { StoryArchiveDto } from '../utils/types';
 
 export default function StoryArchive() {
   const { gameUuid } = useParams();
-  const [stories, setStories] = useState<StoryArchiveDto[]>([]);
-
-  useEffect(() => {
-    async function fetchStories() {
+  const storyQuery = useQuery({
+    queryKey: ['storyEntries', gameUuid],
+    queryFn: async () => {
       const response = await getStoryEntries(gameUuid!);
-      setStories(response.data);
-    }
+      return response.data;
+    },
+    enabled: !!gameUuid
+  });
 
-    void fetchStories();
-  }, [gameUuid]);
+  const stories = storyQuery.data;
 
   const Items = () => {
     return (

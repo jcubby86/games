@@ -33,9 +33,13 @@ export const useSuggestions = ({
     }));
   }, [category, offset]);
 
-  const updateCategory = useCallback((newCategory?: string) => {
-    setCategory((prev) => newCategory ?? prev);
-  }, []);
+  const updateCategory = useCallback(
+    (newCategory?: string) => {
+      nextSuggestion();
+      setCategory((prev) => newCategory ?? prev);
+    },
+    [nextSuggestion]
+  );
 
   const suggestion = suggestionQuery.isSuccess
     ? suggestionQuery.data[offset % quantity]?.value
