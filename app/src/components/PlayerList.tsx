@@ -14,7 +14,7 @@ const PlayerList = ({ players, filter }: PlayerListProps) => {
   function sendPoke(p: PlayerDto) {
     if (p.uuid !== context.player?.uuid) {
       socket.emit('poke', {
-        data: { to: p } as PokeMessageData
+        data: { to: p } satisfies PokeMessageData
       });
     }
   }

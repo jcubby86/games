@@ -76,7 +76,7 @@ export class EventGateway implements OnGatewayInit {
     this.server.to(`player:${message.data.to!.uuid}`).emit('poke', {
       data: {
         from: socket.player,
-      } as PokeMessageData,
+      } satisfies PokeMessageData,
       timestamp: Date.now(),
     });
 

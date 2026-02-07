@@ -32,7 +32,7 @@ const STORAGE_KEYS = {
   PLAYER_ID: 'games-v3-player-id',
   GAME_ID: 'games-v3-game-id',
   TOKEN: 'games-v3-token'
-} as const;
+};
 
 // Helper functions for localStorage
 const saveToStorage = (state: AppState) => {

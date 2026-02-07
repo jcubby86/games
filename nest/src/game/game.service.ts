@@ -122,7 +122,7 @@ export class GameService {
     this.eventEmitter.emit('game.updated', {
       game,
       action: 'game.phase.updated',
-    } as GameUpdatedEvent);
+    } satisfies GameUpdatedEvent);
 
     return GameService.mapToGameDto(game);
   }
@@ -157,7 +157,7 @@ export class GameService {
         game,
         player,
         action: 'game.player.joined',
-      } as GameUpdatedEvent);
+      } satisfies GameUpdatedEvent);
 
       return this.getPlayer(player.uuid);
     } catch (error) {
@@ -186,10 +186,10 @@ export class GameService {
       }
 
       this.eventEmitter.emit('game.updated', {
-        game: player.game,
+        game: player.game!,
         player,
         action: 'game.player.updated',
-      } as GameUpdatedEvent);
+      } satisfies GameUpdatedEvent);
 
       return this.getPlayer(player.uuid);
     } catch (error) {
@@ -251,7 +251,7 @@ export class GameService {
         game: player.game,
         player,
         action: 'game.player.left',
-      } as GameUpdatedEvent);
+      } satisfies GameUpdatedEvent);
 
       player.game = null;
     }

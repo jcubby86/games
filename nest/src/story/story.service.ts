@@ -86,10 +86,10 @@ export class StoryService {
     });
 
     this.eventEmitter.emit('story.updated', {
-      game: player.game,
+      game: player.game!,
       action: 'story.entry.added',
       player,
-    } as GameUpdatedEvent);
+    } satisfies GameUpdatedEvent);
 
     return {
       values: entry.values,
@@ -144,7 +144,7 @@ export class StoryService {
       this.eventEmitter.emit('game.updated', {
         game: event.game,
         action: 'game.phase.completed',
-      } as GameUpdatedEvent);
+      } satisfies GameUpdatedEvent);
     } else if (allSubmitted) {
       this.logger.debug(
         `All players have submitted their current story entry for game ${event.game.uuid}.`,
@@ -153,7 +153,7 @@ export class StoryService {
       this.eventEmitter.emit('game.updated', {
         game: event.game,
         action: 'story.round.completed',
-      } as GameUpdatedEvent);
+      } satisfies GameUpdatedEvent);
     }
   }
 

@@ -82,10 +82,10 @@ export class NameService {
       });
 
       this.eventEmitter.emit('name.updated', {
-        game: player.game,
+        game: player.game!,
         action: 'name.entry.added',
         player,
-      } as GameUpdatedEvent);
+      } satisfies GameUpdatedEvent);
 
       return {
         name: entry.name,
@@ -131,7 +131,7 @@ export class NameService {
       this.eventEmitter.emit('game.updated', {
         game: event.game,
         action: 'game.phase.updated',
-      } as GameUpdatedEvent);
+      } satisfies GameUpdatedEvent);
     }
   }
 
