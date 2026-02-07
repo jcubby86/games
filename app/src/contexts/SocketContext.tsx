@@ -1,4 +1,11 @@
-import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useEffectEvent,
+  useRef,
+  useState
+} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Socket, io } from 'socket.io-client';
 
@@ -27,6 +34,50 @@ export const SocketContextProvider = ({
   const [connected, setConnected] = useState<boolean>(false);
   const navigate = useNavigate();
 
+  const handleConnect = useEffectEvent(() => {
+    setConnected(true);
+    return console.log('Connected to websocket server');
+  });
+
+  const handleConnectError = useEffectEvent((err: Error) => {
+    setConnected(false);
+
+    if (err.message === 'jwt expired') {
+      dispatchContext({ type: 'clear' });
+      void navigate('/');
+    }
+
+    return console.log('Connection error: ', err.message);
+  });
+
+  const handleDisconnect = useEffectEvent(() => {
+    setConnected(false);
+    return console.log('Disconnected from websocket server');
+  });
+
+  const handleGameRecreated = useEffectEvent(
+    async (message: Message<GameDto>) => {
+      const playerResponse = await postPlayer(
+        message.data.uuid,
+        context.player!.nickname
+      );
+      dispatchContext({
+        type: 'save',
+        game: playerResponse.data.game!,
+        player: playerResponse.data,
+        token: playerResponse.headers['x-auth-token'] as string
+      });
+
+      void navigate(`/` + playerResponse.data.game!.type.toLowerCase());
+    }
+  );
+
+  const handlePoke = useEffectEvent((message: Message<PokeMessageData>) => {
+    showFloatingMessage({
+      children: `${message.data.from!.nickname} has poked you!`
+    });
+  });
+
   useEffect(() => {
     if (!context.token) {
       return;
@@ -38,55 +89,16 @@ export const SocketContextProvider = ({
       }
     });
 
-    socketRef.current.on('connect', () => {
-      setConnected(true);
-      return console.log('Connected to websocket server');
-    });
-
-    socketRef.current.on('connect_error', (err) => {
-      setConnected(false);
-
-      if (err.message === 'jwt expired') {
-        dispatchContext({ type: 'clear' });
-        void navigate('/');
-      }
-
-      return console.log('Connection error: ', err.message);
-    });
-
-    socketRef.current.on('disconnect', () => {
-      setConnected(false);
-      return console.log('Disconnected from websocket server');
-    });
-
-    socketRef.current.on(
-      'game.recreated',
-      async (message: Message<GameDto>) => {
-        const playerResponse = await postPlayer(
-          message.data.uuid,
-          context.player!.nickname
-        );
-        dispatchContext({
-          type: 'save',
-          game: playerResponse.data.game!,
-          player: playerResponse.data,
-          token: playerResponse.headers['x-auth-token'] as string
-        });
-
-        void navigate(`/` + playerResponse.data.game!.type.toLowerCase());
-      }
-    );
-
-    socketRef.current.on('poke', (message: Message<PokeMessageData>) => {
-      showFloatingMessage({
-        children: `${message.data.from!.nickname} has poked you!`
-      });
-    });
+    socketRef.current.on('connect', handleConnect);
+    socketRef.current.on('connect_error', handleConnectError);
+    socketRef.current.on('disconnect', handleDisconnect);
+    socketRef.current.on('game.recreated', handleGameRecreated);
+    socketRef.current.on('poke', handlePoke);
 
     return () => {
       socketRef.current?.disconnect();
     };
-  }, [context, dispatchContext, navigate]);
+  }, [context]);
 
   const emit: SocketContextType['emit'] = (event, message) => {
     socketRef.current?.emit(event, message);

@@ -1,5 +1,5 @@
 import { queryOptions, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useEffectEvent, useState } from 'react';
 
 import { getSuggestions } from '../utils/apiClient';
 
@@ -40,14 +40,18 @@ export const useSuggestions = ({
     suggestionOptions(category, quantity, offsetKey)
   );
 
-  useEffect(() => {
+  const prefetch = useEffectEvent(() => {
     if (!prefetchCategories) {
       return;
     }
     prefetchCategories.forEach((cat) => {
       void queryClient.prefetchQuery(suggestionOptions(cat, quantity, 0));
     });
-  }, [queryClient, prefetchCategories, quantity]);
+  });
+
+  useEffect(() => {
+    prefetch();
+  }, []);
 
   const nextSuggestion = useCallback(() => {
     setOffsets((prev) => ({

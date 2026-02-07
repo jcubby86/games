@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 
 import List from '../components/List';
 import PlayerList from '../components/PlayerList';
@@ -67,17 +67,17 @@ const Names = () => {
     onError: (err: unknown) => alertError('Error updating game', err)
   });
 
-  useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    function gameUpdated(_event: unknown) {
-      void queryClient.invalidateQueries({ queryKey: ['players'] });
-    }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const gameUpdated = useEffectEvent((_event: unknown) => {
+    void queryClient.invalidateQueries({ queryKey: ['players'] });
+  });
 
+  useEffect(() => {
     socket.on('game.updated', gameUpdated);
     return () => {
       socket.off('game.updated', gameUpdated);
     };
-  }, [socket, queryClient]);
+  }, [socket]);
 
   const player = playerQuery.data;
 
