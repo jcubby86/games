@@ -5,36 +5,45 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 import importPlugin from 'eslint-plugin-import';
 import { defineConfig } from 'eslint/config';
+import reactPlugin from 'eslint-plugin-react';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactQuery from '@tanstack/eslint-plugin-query';
 
 export default defineConfig(
   {
-    ignores: ['eslint.config.mjs'],
+    ignores: ['eslint.config.mjs']
   },
   eslint.configs.recommended,
   tseslint.configs.recommendedTypeChecked,
   eslintPluginPrettierRecommended,
   importPlugin.flatConfigs.recommended,
   importPlugin.flatConfigs.typescript,
+  reactPlugin.configs.flat.recommended,
+  reactHooks.configs.flat.recommended,
+  reactQuery.configs['flat/recommended'],
   {
     languageOptions: {
       globals: {
         ...globals.node,
-        ...globals.jest,
+        ...globals.jest
       },
       sourceType: 'commonjs',
       parserOptions: {
         projectService: true,
-        tsconfigRootDir: import.meta.dirname,
-      },
+        tsconfigRootDir: import.meta.dirname
+      }
     },
     settings: {
       'import/resolver': {
         typescript: {
           typescript: true,
-          node: true,
-        },
+          node: true
+        }
       },
-    },
+      'react': {
+        version: 'detect'
+      }
+    }
   },
   {
     rules: {
@@ -49,12 +58,14 @@ export default defineConfig(
             'builtin', // Built-in imports (come from NodeJS native) go first
             'external', // External imports (come from node_modules) go second
             ['internal', 'parent', 'sibling', 'index'],
-            'unknown',
+            'unknown'
           ],
           'newlines-between': 'always',
-          alphabetize: { order: 'asc', caseInsensitive: true },
-        },
+          alphabetize: { order: 'asc', caseInsensitive: true }
+        }
       ],
-    },
-  },
+      '@tanstack/query/exhaustive-deps': 'off',
+      'react/react-in-jsx-scope': 'off'
+    }
+  }
 );

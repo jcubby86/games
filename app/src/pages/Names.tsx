@@ -15,10 +15,10 @@ import { alertError } from '../utils/errorHandler';
 import { NameVariant } from '../utils/gameVariants';
 
 const Names = (): JSX.Element => {
-  const { suggestion, nextSuggestion } = useSuggestions(
-    'MALE_NAME,FEMALE_NAME',
-    10
-  );
+  const { suggestion, nextSuggestion } = useSuggestions({
+    initialCategory: 'MALE_NAME,FEMALE_NAME',
+    quantity: 10
+  });
 
   const { context } = useAppContext();
   const socket = useSocketContext();

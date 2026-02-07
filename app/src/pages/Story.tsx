@@ -15,9 +15,19 @@ import { JOIN, PLAY, READ } from '../utils/constants';
 import { alertError } from '../utils/errorHandler';
 import { StoryVariant } from '../utils/gameVariants';
 
+const categories = [
+  'MALE_NAME',
+  'FEMALE_NAME',
+  'STATEMENT',
+  'PRESENT_ACTION',
+  'PAST_ACTION'
+];
+
 const Story = (): JSX.Element => {
-  const { suggestion, updateCategory, nextSuggestion } =
-    useSuggestions('MALE_NAME');
+  const { suggestion, updateCategory, nextSuggestion } = useSuggestions({
+    initialCategory: categories[0],
+    prefetchCategories: categories
+  });
 
   const { context } = useAppContext();
   const socket = useSocketContext();
@@ -63,7 +73,7 @@ const Story = (): JSX.Element => {
     function gameUpdated(_event: unknown) {
       queryClient.invalidateQueries({ queryKey: ['player'] });
     }
-    
+
     socket.on('game.updated', gameUpdated);
     return () => {
       socket.off('game.updated', gameUpdated);
