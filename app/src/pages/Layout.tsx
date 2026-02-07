@@ -1,26 +1,8 @@
-import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 
-import { useAppContext } from '../contexts/AppContext';
-import { deletePlayer } from '../utils/apiClient';
-import { logError } from '../utils/errorHandler';
+import LeaveButton from '../components/LeaveButton';
 
 const Layout = () => {
-  const navigate = useNavigate();
-  const { context, dispatchContext } = useAppContext();
-
-  const leavePreviousGame = async () => {
-    if (!context.player || !context.token) {
-      return;
-    }
-    try {
-      await deletePlayer(context.token, context.player.uuid);
-    } catch (err: unknown) {
-      logError('Error leaving previous game', err);
-    }
-    dispatchContext({ type: 'clear' });
-    void navigate('/');
-  };
-
   return (
     <>
       <header>
@@ -29,21 +11,7 @@ const Layout = () => {
             <Link className="navbar-brand text-light" to=".">
               <i className="bi bi-house-fill mx-1"></i>Games
             </Link>
-
-            {context.player && context.token && (
-              <div className="d-flex justify-content-start">
-                <button
-                  className="btn btn-outline-danger"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    void leavePreviousGame();
-                  }}
-                >
-                  <i className="bi bi-person-x mx-1"></i>
-                  Leave Game
-                </button>
-              </div>
-            )}
+            <LeaveButton />
           </div>
         </nav>
       </header>
