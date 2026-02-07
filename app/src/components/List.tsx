@@ -1,4 +1,4 @@
-const List = ({ items }: { items?: string[] }): JSX.Element => {
+const List = ({ items }: { items?: string[] }) => {
   if (!items || items.length === 0) {
     return <></>;
   }

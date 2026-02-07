@@ -7,12 +7,7 @@ interface ShareProps {
   className?: string;
 }
 
-const ShareButton = ({
-  className,
-  path,
-  title,
-  text
-}: ShareProps): JSX.Element => {
+const ShareButton = ({ className, path, title, text }: ShareProps) => {
   const share = async () => {
     try {
       if (navigator.share) {

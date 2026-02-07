@@ -11,7 +11,7 @@ const RecreateButton = ({
 }: {
   className?: string;
   to?: string;
-}): JSX.Element => {
+}) => {
   const { context, dispatchContext } = useAppContext();
   const socket = useSocketContext();
   const navigate = useNavigate();

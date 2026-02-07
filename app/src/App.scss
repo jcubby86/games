@@ -50,11 +50,21 @@ footer i {
 */
 
 @keyframes floatSide {
-  0%   { transform: translateX(0); }
-  25%  { transform: translateX(calc(-1 * var(--float-x, 12px))); }
-  50%  { transform: translateX(calc(1 * var(--float-x, 12px))); }
-  75%  { transform: translateX(calc(-0.4 * var(--float-x, 12px))); }
-  100% { transform: translateX(0); }
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(calc(-1 * var(--float-x, 12px)));
+  }
+  50% {
+    transform: translateX(calc(1 * var(--float-x, 12px)));
+  }
+  75% {
+    transform: translateX(calc(-0.4 * var(--float-x, 12px)));
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
 
 @keyframes floatUpFadeY {
@@ -84,7 +94,8 @@ footer i {
   display: inline-block;
   will-change: transform, opacity;
   /* vertical + fade */
-  animation: floatUpFadeY var(--float-duration, 5s) var(--float-easing, cubic-bezier(.2,.9,.3,1)) forwards;
+  animation: floatUpFadeY var(--float-duration, 5s)
+    var(--float-easing, cubic-bezier(0.2, 0.9, 0.3, 1)) forwards;
 }
 
 /* Root wrapper that places the floating element just below the viewport bottom.

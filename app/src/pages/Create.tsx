@@ -7,7 +7,7 @@ import { alertError, logError } from '../utils/errorHandler';
 import { gameVariants } from '../utils/gameVariants';
 import generateNickname from '../utils/nicknameGeneration';
 
-const Create = (): JSX.Element => {
+const Create = () => {
   const { context, dispatchContext } = useAppContext();
   const [gameType, setGameType] = useState('');
   const nicknameRef = useRef<HTMLInputElement>(null);

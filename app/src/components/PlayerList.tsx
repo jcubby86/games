@@ -7,7 +7,7 @@ interface PlayerListProps {
   filter?: (player: PlayerDto) => boolean;
 }
 
-const PlayerList = ({ players, filter }: PlayerListProps): JSX.Element => {
+const PlayerList = ({ players, filter }: PlayerListProps) => {
   const { context } = useAppContext();
   const socket = useSocketContext();
 

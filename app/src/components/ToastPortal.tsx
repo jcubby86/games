@@ -23,7 +23,7 @@ type ToastProps = {
   onFinish: () => void;
 };
 
-function Toast({ message, type, onFinish }: ToastProps): JSX.Element | null {
+function Toast({ message, type, onFinish }: ToastProps) {
   const ref = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -61,7 +61,7 @@ function Toast({ message, type, onFinish }: ToastProps): JSX.Element | null {
   );
 }
 
-export function ToastPortal(): JSX.Element | null {
+export function ToastPortal() {
   const [messages, setMessages] = useState<Message[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
 

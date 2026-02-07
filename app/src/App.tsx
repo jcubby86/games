@@ -17,7 +17,7 @@ import { NAME, STORY } from './utils/constants';
 
 const client = new QueryClient();
 
-function App(): JSX.Element {
+function App() {
   return (
     <>
       <BrowserRouter>

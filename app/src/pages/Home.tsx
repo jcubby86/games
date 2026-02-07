@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 import { useAppContext } from '../contexts/AppContext';
 
-const Home = (): JSX.Element => {
+const Home = () => {
   const { context } = useAppContext();
 
   return (

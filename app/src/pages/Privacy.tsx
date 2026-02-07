@@ -1,4 +1,4 @@
-const Privacy = (): JSX.Element => {
+const Privacy = () => {
   return (
     <div className="privacy-policy">
       <h2 className="mb-4">Privacy Policy</h2>

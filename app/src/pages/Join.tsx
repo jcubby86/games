@@ -18,7 +18,7 @@ type JoinState =
   | { validity: 'valid'; game: GameDto }
   | { validity: 'unknown' | 'invalid' };
 
-const Join = (): JSX.Element => {
+const Join = () => {
   const { context, dispatchContext } = useAppContext();
   const [code, setCode] = useState<string>(context.game?.code || '');
   const [state, setState] = useState<JoinState>({

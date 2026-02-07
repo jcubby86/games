@@ -14,7 +14,7 @@ import { END, JOIN, PLAY, READ } from '../utils/constants';
 import { alertError } from '../utils/errorHandler';
 import { NameVariant } from '../utils/gameVariants';
 
-const Names = (): JSX.Element => {
+const Names = () => {
   const { suggestion, nextSuggestion } = useSuggestions({
     initialCategory: 'MALE_NAME,FEMALE_NAME',
     quantity: 10

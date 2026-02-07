@@ -23,7 +23,7 @@ const categories = [
   'PAST_ACTION'
 ];
 
-const Story = (): JSX.Element => {
+const Story = () => {
   const { suggestion, updateCategory, nextSuggestion } = useSuggestions({
     initialCategory: categories[0],
     prefetchCategories: categories

@@ -22,7 +22,7 @@ export function showFloatingMessage(opts: Omit<Message, 'id'>) {
   return id;
 }
 
-export function FloatingMessagePortal(): JSX.Element | null {
+export function FloatingMessagePortal() {
   const [messages, setMessages] = useState<Message[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
 

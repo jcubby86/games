@@ -4,7 +4,7 @@ import { useAppContext } from '../contexts/AppContext';
 import { deletePlayer } from '../utils/apiClient';
 import { logError } from '../utils/errorHandler';
 
-const Layout = (): JSX.Element => {
+const Layout = () => {
   const navigate = useNavigate();
   const { context, dispatchContext } = useAppContext();
 

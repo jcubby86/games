@@ -13,11 +13,7 @@ interface StartGameProps {
   players?: PlayerDto[];
 }
 
-const StartGame = ({
-  callback,
-  title,
-  players
-}: StartGameProps): JSX.Element => {
+const StartGame = ({ callback, title, players }: StartGameProps) => {
   const { context } = useAppContext();
   const codeRef = useRef<HTMLInputElement>(null);
 

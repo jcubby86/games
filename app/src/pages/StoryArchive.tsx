@@ -7,7 +7,7 @@ import { getStoryEntries } from '../utils/apiClient';
 import { StoryVariant } from '../utils/gameVariants';
 import { StoryArchiveDto } from '../utils/types';
 
-export default function StoryArchive(): JSX.Element {
+export default function StoryArchive() {
   const { gameUuid } = useParams();
   const [stories, setStories] = useState<StoryArchiveDto[]>([]);
 
@@ -20,7 +20,7 @@ export default function StoryArchive(): JSX.Element {
     void fetchStories();
   }, [gameUuid]);
 
-  const Items = (): JSX.Element => {
+  const Items = () => {
     return (
       <>
         {stories?.map((item) => {
@@ -30,7 +30,7 @@ export default function StoryArchive(): JSX.Element {
     );
   };
 
-  const ListItem = ({ item }: { item: StoryArchiveDto }): JSX.Element => {
+  const ListItem = ({ item }: { item: StoryArchiveDto }) => {
     return (
       <li id={item.player.uuid} className="list-group-item bg-light text-break">
         <div className="ms-2 me-auto">
