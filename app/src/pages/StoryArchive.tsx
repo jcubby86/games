@@ -55,7 +55,7 @@ export default function StoryArchive() {
         <div className="row gap-4">
           <RecreateButton className="btn btn-outline-success col" to="/story" />
           <ShareButton
-            className="btn col-2"
+            className="btn col-2 btn-outline-secondary"
             path={`/story/${gameUuid}`}
             title={'Games: ' + StoryVariant.title}
             text="Read my hilarious story!"

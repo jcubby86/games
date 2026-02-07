@@ -183,7 +183,7 @@ const Story = () => {
               See all
             </Link>
             <ShareButton
-              className="btn col-2"
+              className="btn col-2 btn-outline-secondary"
               path={`/story/${player.game.uuid}`}
               title={'Games: ' + StoryVariant.title}
               text="Read my hilarious story!"
