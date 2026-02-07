@@ -17,7 +17,7 @@ export default function StoryArchive(): JSX.Element {
       setStories(response.data);
     }
 
-    fetchStories();
+    void fetchStories();
   }, [gameUuid]);
 
   const Items = (): JSX.Element => {

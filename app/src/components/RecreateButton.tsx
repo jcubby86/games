@@ -30,7 +30,7 @@ const RecreateButton = ({
         type: 'save',
         game: gameResponse.data,
         player: playerResponse.data,
-        token: playerResponse.headers['x-auth-token']
+        token: playerResponse.headers['x-auth-token'] as string
       });
 
       if (to) {
@@ -47,7 +47,7 @@ const RecreateButton = ({
         className={className}
         onClick={(e) => {
           e.preventDefault();
-          recreateGameHandler();
+          void recreateGameHandler();
         }}
       >
         Play Again

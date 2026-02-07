@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Socket, io } from 'socket.io-client';
@@ -71,7 +70,7 @@ export const SocketContextProvider = ({
           type: 'save',
           game: playerResponse.data.game!,
           player: playerResponse.data,
-          token: playerResponse.headers['x-auth-token']
+          token: playerResponse.headers['x-auth-token'] as string
         });
 
         navigate(`/` + playerResponse.data.game!.type.toLowerCase());

@@ -40,7 +40,7 @@ export default defineConfig(
           node: true
         }
       },
-      'react': {
+      react: {
         version: 'detect'
       }
     }

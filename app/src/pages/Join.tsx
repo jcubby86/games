@@ -25,7 +25,7 @@ const Join = (): JSX.Element => {
     validity: 'unknown'
   });
   const nicknameRef = useRef<HTMLInputElement>(null);
-  const suggestionRef = useRef(generateNickname());
+  const [suggestion] = useState(generateNickname());
   const navigate = useNavigate();
 
   const leavePreviousGame = async () => {
@@ -45,7 +45,7 @@ const Join = (): JSX.Element => {
       if (state.validity !== 'valid') {
         return;
       }
-      const nickname = nicknameRef.current?.value || suggestionRef.current;
+      const nickname = nicknameRef.current?.value || suggestion;
 
       if (
         state.game.uuid === context.game?.uuid &&
@@ -66,7 +66,7 @@ const Join = (): JSX.Element => {
           type: 'save',
           game: state.game,
           player: playerResponse.data,
-          token: playerResponse.headers['x-auth-token']
+          token: playerResponse.headers['x-auth-token'] as string
         });
       } else {
         await leavePreviousGame();
@@ -75,7 +75,7 @@ const Join = (): JSX.Element => {
           type: 'save',
           game: state.game,
           player: playerResponse.data,
-          token: playerResponse.headers['x-auth-token']
+          token: playerResponse.headers['x-auth-token'] as string
         });
       }
       navigate('/' + state.game.type.toLowerCase());
@@ -103,11 +103,13 @@ const Join = (): JSX.Element => {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCode((c) => context.game?.code ?? c);
   }, [context]);
 
   useEffect(() => {
-    checkGameType(code);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void checkGameType(code);
   }, [code, checkGameType]);
 
   return (
@@ -116,7 +118,7 @@ const Join = (): JSX.Element => {
         className="row gap-3"
         onSubmit={(e) => {
           e.preventDefault();
-          submit();
+          void submit();
         }}
       >
         <div className="col p-0">
@@ -151,7 +153,7 @@ const Join = (): JSX.Element => {
             autoComplete="off"
             spellCheck="false"
             autoCorrect="off"
-            placeholder={suggestionRef.current}
+            placeholder={suggestion}
             maxLength={30}
             defaultValue={context.player?.nickname}
             ref={nicknameRef}

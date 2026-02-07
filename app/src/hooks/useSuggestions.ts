@@ -38,10 +38,7 @@ export const useSuggestions = ({
     void Promise.all(
       prefetchCategories.map((cat) =>
         queryClient.prefetchQuery({
-          queryKey: [
-            'suggestions',
-            { category: cat, quantity, offset: 0 }
-          ],
+          queryKey: ['suggestions', { category: cat, quantity, offset: 0 }],
           queryFn: () => queryFn(cat, quantity)
         })
       )
@@ -52,7 +49,7 @@ export const useSuggestions = ({
     prefetch();
   }, [prefetch]);
 
-  const nextSuggestion = useCallback(async () => {
+  const nextSuggestion = useCallback(() => {
     setOffsets((prev) => ({
       ...prev,
       [category]: offset + 1

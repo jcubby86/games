@@ -47,11 +47,13 @@ const loadFromStorage = (): AppState => {
   try {
     return {
       player:
-        JSON.parse(localStorage.getItem(STORAGE_KEYS.PLAYER_ID) || 'null') ||
-        undefined,
+        (JSON.parse(
+          localStorage.getItem(STORAGE_KEYS.PLAYER_ID) || 'null'
+        ) as PlayerDto) || undefined,
       game:
-        JSON.parse(localStorage.getItem(STORAGE_KEYS.GAME_ID) || 'null') ||
-        undefined,
+        (JSON.parse(
+          localStorage.getItem(STORAGE_KEYS.GAME_ID) || 'null'
+        ) as GameDto) || undefined,
       token: localStorage.getItem(STORAGE_KEYS.TOKEN) || undefined
     };
   } catch {

@@ -1,6 +1,13 @@
 import axios from 'axios';
 
-import { GameDto, PlayerDto, StoryArchiveDto, SuggestionDto } from './types';
+import {
+  GameDto,
+  NameEntryDto,
+  PlayerDto,
+  StoryArchiveDto,
+  StoryEntryDto,
+  SuggestionDto
+} from './types';
 
 export function postGame(type: string) {
   return axios.post<GameDto>('/api/games', {
@@ -59,7 +66,7 @@ export function deletePlayer(token: string, uuid: string) {
 }
 
 export function postNameEntry(token: string, playerUuid: string, name: string) {
-  return axios.post(
+  return axios.post<NameEntryDto>(
     `/api/players/${playerUuid}/name-entries`,
     {
       name
@@ -75,7 +82,7 @@ export function postStoryEntry(
   playerUuid: string,
   value: string
 ) {
-  return axios.post(
+  return axios.post<StoryEntryDto>(
     `/api/players/${playerUuid}/story-entries`,
     {
       value

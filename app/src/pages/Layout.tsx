@@ -36,7 +36,7 @@ const Layout = (): JSX.Element => {
                   className="btn btn-outline-danger"
                   onClick={(e) => {
                     e.preventDefault();
-                    leavePreviousGame();
+                    void leavePreviousGame();
                   }}
                 >
                   <i className="bi bi-person-x mx-1"></i>

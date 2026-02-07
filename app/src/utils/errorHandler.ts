@@ -7,6 +7,7 @@ const getErrorMessages = (message: string, err: unknown) => {
     return null;
   } else if (err instanceof AxiosError) {
     const status = err.response?.status;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
     const responseMessage = err.response?.data?.message;
     const detailed = status
       ? `${message} (${status}): ${responseMessage || err.message}`

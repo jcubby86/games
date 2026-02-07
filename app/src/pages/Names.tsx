@@ -69,7 +69,7 @@ const Names = (): JSX.Element => {
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     function gameUpdated(_event: unknown) {
-      queryClient.invalidateQueries({ queryKey: ['player'] });
+      void queryClient.invalidateQueries({ queryKey: ['player'] });
     }
 
     socket.on('game.updated', gameUpdated);
@@ -85,11 +85,13 @@ const Names = (): JSX.Element => {
       <StartGame
         players={player.game.players}
         title={NameVariant.title}
-        callback={() => queryClient.invalidateQueries({ queryKey: ['player'] })}
+        callback={() =>
+          void queryClient.invalidateQueries({ queryKey: ['player'] })
+        }
       />
     );
   } else if (player?.game?.phase === PLAY && player?.canPlayerSubmit) {
-    const submitEntry = async () => {
+    const submitEntry = () => {
       if (!entryRef.current!.value && !confirm) {
         setConfirm(true);
         showToast({
@@ -157,25 +159,7 @@ const Names = (): JSX.Element => {
       </form>
     );
   } else if (player?.game?.phase === READ) {
-    const HideNamesButton = (): JSX.Element => {
-      if (context.player?.roles?.includes('host')) {
-        return (
-          <button
-            className={'btn btn-danger mt-4'}
-            onClick={(e) => {
-              e.preventDefault();
-              updateGameMutation.mutate(END);
-            }}
-          >
-            Hide Names
-          </button>
-        );
-      } else {
-        return <></>;
-      }
-    };
-
-    const sortedEntries = [...player!.entries!].sort((a, b) => {
+    const sortedEntries = [...player.entries!].sort((a, b) => {
       return b.order! - a.order!;
     });
 
@@ -185,7 +169,17 @@ const Names = (): JSX.Element => {
           <h3 className="text-center w-100">Names:</h3>
           <List items={sortedEntries.map((e) => e.name ?? '')} />
         </div>
-        <HideNamesButton />
+        {player?.roles?.includes('host') && (
+          <button
+            className={'btn btn-danger mt-4'}
+            onClick={(e) => {
+              e.preventDefault();
+              updateGameMutation.mutate(END);
+            }}
+          >
+            Hide Names
+          </button>
+        )}
       </div>
     );
   } else if (player?.game?.phase === END) {

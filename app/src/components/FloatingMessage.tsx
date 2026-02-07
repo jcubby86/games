@@ -45,9 +45,7 @@ export default function FloatingMessage({
     el.style.setProperty('--float-duration', `${duration}s`);
     el.style.setProperty('--float-distance', `${vy.current}px`);
 
-    const inner = el.querySelector(
-      '.float-up-fade__inner'
-    ) as HTMLElement | null;
+    const inner = el.querySelector('.float-up-fade__inner');
     const handle = () => {
       setVisible(false);
       onFinish?.();

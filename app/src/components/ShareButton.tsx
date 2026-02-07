@@ -38,7 +38,7 @@ const ShareButton = ({
       <button
         onClick={(e) => {
           e.preventDefault();
-          share();
+          void share();
         }}
         className={className}
       >

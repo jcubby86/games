@@ -71,7 +71,7 @@ const Story = (): JSX.Element => {
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     function gameUpdated(_event: unknown) {
-      queryClient.invalidateQueries({ queryKey: ['player'] });
+      void queryClient.invalidateQueries({ queryKey: ['player'] });
     }
 
     socket.on('game.updated', gameUpdated);
@@ -87,11 +87,13 @@ const Story = (): JSX.Element => {
       <StartGame
         players={player.game.players}
         title={StoryVariant.title}
-        callback={() => queryClient.invalidateQueries({ queryKey: ['player'] })}
+        callback={() =>
+          void queryClient.invalidateQueries({ queryKey: ['player'] })
+        }
       />
     );
   } else if (player?.game?.phase === PLAY && player?.canPlayerSubmit) {
-    const submitEntry = async () => {
+    const submitEntry = () => {
       if (!entryRef.current!.value && !confirm) {
         setConfirm(true);
         showToast({
@@ -172,14 +174,14 @@ const Story = (): JSX.Element => {
           <div className="row gap-4">
             <RecreateButton className="col btn btn-success" />
             <Link
-              to={`/story/${player!.game!.uuid}`}
+              to={`/story/${player.game.uuid}`}
               className="col btn btn-outline-success"
             >
               See all
             </Link>
             <ShareButton
               className="btn col-2"
-              path={`/story/${player!.game!.uuid}`}
+              path={`/story/${player.game.uuid}`}
               title={'Games: ' + StoryVariant.title}
               text="Read my hilarious story!"
             />

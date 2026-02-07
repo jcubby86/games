@@ -33,20 +33,6 @@ const StartGame = ({
     }
   };
 
-  const SubmitButton = (): JSX.Element => {
-    if (context.player?.roles?.includes('host')) {
-      return (
-        <input
-          type="submit"
-          value="Start Game"
-          className="form-control btn btn-success mt-4 col-12"
-        />
-      );
-    } else {
-      return <></>;
-    }
-  };
-
   return (
     <>
       <div className="w-100">
@@ -57,7 +43,7 @@ const StartGame = ({
           className="row gap-3"
           onSubmit={(e) => {
             e.preventDefault();
-            startGame();
+            void startGame();
           }}
         >
           <div className="mb-3 col p-0">
@@ -92,7 +78,13 @@ const StartGame = ({
               id="playerCount"
             />
           </div>
-          <SubmitButton />
+          {context.player?.roles?.includes('host') && (
+            <input
+              type="submit"
+              value="Start Game"
+              className="form-control btn btn-success mt-4 col-12"
+            />
+          )}
         </form>
         <h3 className="text-center mt-5">Players:</h3>
         <PlayerList players={players} />

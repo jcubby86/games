@@ -11,7 +11,7 @@ const Create = (): JSX.Element => {
   const { context, dispatchContext } = useAppContext();
   const [gameType, setGameType] = useState('');
   const nicknameRef = useRef<HTMLInputElement>(null);
-  const suggestionRef = useRef(generateNickname());
+  const [suggestion] = useState(generateNickname());
   const navigate = useNavigate();
 
   const leavePreviousGame = async () => {
@@ -32,11 +32,11 @@ const Create = (): JSX.Element => {
         alert('Please select a game type');
         return;
       }
-      const nickname = nicknameRef.current?.value || suggestionRef.current;
+      const nickname = nicknameRef.current?.value || suggestion;
 
       const gameResponse = await postGame(gameType.toUpperCase());
 
-      leavePreviousGame();
+      await leavePreviousGame();
 
       const playerResponse = await postPlayer(gameResponse.data.uuid, nickname);
 
@@ -44,7 +44,7 @@ const Create = (): JSX.Element => {
         type: 'save',
         game: gameResponse.data,
         player: playerResponse.data,
-        token: playerResponse.headers['x-auth-token']
+        token: playerResponse.headers['x-auth-token'] as string
       });
 
       navigate('/' + gameType);
@@ -53,24 +53,12 @@ const Create = (): JSX.Element => {
     }
   };
 
-  const Description = (): JSX.Element => {
-    if (gameType) {
-      return (
-        <p className="p-3 text-wrap">
-          {gameVariants.find((v) => v.type === gameType)?.description}
-        </p>
-      );
-    } else {
-      return <></>;
-    }
-  };
-
   return (
     <div className="w-100">
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          submit();
+          void submit();
         }}
       >
         <div className="mb-3">
@@ -84,7 +72,7 @@ const Create = (): JSX.Element => {
             autoComplete="off"
             spellCheck="false"
             autoCorrect="off"
-            placeholder={suggestionRef.current}
+            placeholder={suggestion}
             maxLength={30}
             defaultValue={context.player?.nickname}
             ref={nicknameRef}
@@ -121,7 +109,11 @@ const Create = (): JSX.Element => {
           className="form-control btn btn-success"
         />
       </form>
-      <Description />
+      {gameType && (
+        <p className="p-3 text-wrap">
+          {gameVariants.find((v) => v.type === gameType)?.description}
+        </p>
+      )}
     </div>
   );
 };
