@@ -1,0 +1,65 @@
+// Import all of Bootstrap's SCSS
+$bootstrap-icons-font-dir: 'bootstrap-icons/font/fonts';
+@import 'bootstrap/scss/bootstrap';
+@import 'bootstrap-icons/font/bootstrap-icons';
+@import 'float';
+@import 'toast';
+@import 'glitch';
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+* {
+  transition: all 0.15s ease-in-out;
+}
+
+i.bi {
+  aspect-ratio: initial;
+  font-size: 1.2em;
+}
+
+.btn-lg span.icon {
+  font-size: 3em;
+}
+
+.btn span.icon,
+.btn span.icon i {
+  transition: initial;
+}
+.nf-mdi-account_check {
+  translate: 10% 0;
+}
+
+footer * {
+  transition: initial;
+}
+footer i {
+  font-size: 1.7em;
+  transition: all 0.15s ease-in-out !important;
+}
+
+/* Utility: prevent text selection */
+.no-select,
+.no-select * {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Optional: make it clear text isn't selectable */
+.no-select {
+  cursor: default;
+}
+

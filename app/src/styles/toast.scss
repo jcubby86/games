@@ -1,0 +1,24 @@
+@keyframes toastFadeOut {
+  0% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Error toast container in the bottom middle of the screen */
+.toast-root {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1100;
+}
+
+.toast-root .toast {
+  animation: toastFadeOut var(--toast-duration, 4s) ease-in-out forwards;
+}

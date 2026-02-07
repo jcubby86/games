@@ -8,6 +8,7 @@ const Home = () => {
   return (
     <>
       <div className="row justify-content-center gap-4 w-100 m-0">
+        <h1 className="glitch">Games</h1>
         {context.game && (
           <Link
             role="button"
