@@ -48,7 +48,7 @@ export const SocketContextProvider = ({
 
       if (err.message === 'jwt expired') {
         dispatchContext({ type: 'clear' });
-        navigate('/');
+        void navigate('/');
       }
 
       return console.log('Connection error: ', err.message);
@@ -73,7 +73,7 @@ export const SocketContextProvider = ({
           token: playerResponse.headers['x-auth-token'] as string
         });
 
-        navigate(`/` + playerResponse.data.game!.type.toLowerCase());
+        void navigate(`/` + playerResponse.data.game!.type.toLowerCase());
       }
     );
 

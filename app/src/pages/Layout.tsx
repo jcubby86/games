@@ -18,7 +18,7 @@ const Layout = () => {
       logError('Error leaving previous game', err);
     }
     dispatchContext({ type: 'clear' });
-    navigate('/');
+    void navigate('/');
   };
 
   return (

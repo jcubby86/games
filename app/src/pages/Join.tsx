@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useAppContext } from '../contexts/AppContext';
@@ -11,22 +12,23 @@ import {
 import { alertError, logError } from '../utils/errorHandler';
 import { gameVariants } from '../utils/gameVariants';
 import generateNickname from '../utils/nicknameGeneration';
-import { GameDto } from '../utils/types';
-import { eqIgnoreCase as eq } from '../utils/utils';
-
-type JoinState =
-  | { validity: 'valid'; game: GameDto }
-  | { validity: 'unknown' | 'invalid' };
 
 const Join = () => {
   const { context, dispatchContext } = useAppContext();
   const [code, setCode] = useState<string>(context.game?.code || '');
-  const [state, setState] = useState<JoinState>({
-    validity: 'unknown'
-  });
   const nicknameRef = useRef<HTMLInputElement>(null);
   const [suggestion] = useState(generateNickname());
   const navigate = useNavigate();
+
+  const gameQuery = useQuery({
+    queryKey: ['games', code],
+    queryFn: async () => {
+      const res = await getGameByCode(code);
+      return res.data;
+    },
+    enabled: code.length === 4,
+    retry: false
+  });
 
   const leavePreviousGame = async () => {
     if (!context.player || !context.token) {
@@ -42,18 +44,18 @@ const Join = () => {
 
   const submit = async () => {
     try {
-      if (state.validity !== 'valid') {
+      if (!gameQuery.isSuccess) {
         return;
       }
       const nickname = nicknameRef.current?.value || suggestion;
 
       if (
-        state.game.uuid === context.game?.uuid &&
+        gameQuery.data.uuid === context.game?.uuid &&
         nickname === context.player?.nickname
       ) {
         // noop
       } else if (
-        state.game.uuid === context.game?.uuid &&
+        gameQuery.data.uuid === context.game?.uuid &&
         context.player &&
         context.token
       ) {
@@ -64,53 +66,30 @@ const Join = () => {
         );
         dispatchContext({
           type: 'save',
-          game: state.game,
+          game: gameQuery.data,
           player: playerResponse.data,
           token: playerResponse.headers['x-auth-token'] as string
         });
       } else {
         await leavePreviousGame();
-        const playerResponse = await postPlayer(state.game.uuid, nickname);
+        const playerResponse = await postPlayer(gameQuery.data.uuid, nickname);
         dispatchContext({
           type: 'save',
-          game: state.game,
+          game: gameQuery.data,
           player: playerResponse.data,
           token: playerResponse.headers['x-auth-token'] as string
         });
       }
-      navigate('/' + state.game.type.toLowerCase());
+      void navigate('/' + gameQuery.data.type.toLowerCase());
     } catch (err: unknown) {
       alertError('Error joining game', err);
     }
   };
 
-  const checkGameType = useCallback(async (code: string) => {
-    try {
-      if (code.length !== 4) {
-        setState({ validity: 'unknown' });
-        return;
-      }
-      const gameResponse = await getGameByCode(code);
-      setState({
-        validity: 'valid',
-        game: gameResponse.data
-      });
-      return;
-    } catch (err: unknown) {
-      logError('Error checking game type', err);
-    }
-    setState({ validity: 'invalid' });
-  }, []);
-
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setCode((c) => context.game?.code ?? c);
-  }, [context]);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void checkGameType(code);
-  }, [code, checkGameType]);
+  }, [context.game]);
 
   return (
     <div>
@@ -161,23 +140,25 @@ const Join = () => {
         </div>
 
         <input
-          disabled={state.validity !== 'valid'}
+          disabled={!gameQuery.isSuccess}
           type="submit"
           className="form-control btn btn-success col-12 mt-3"
           value={
-            state.validity === 'valid' && context.game?.code === state.game.code
+            gameQuery.isSuccess && context.game?.code === gameQuery.data.code
               ? 'Return to Game'
               : 'Join Game'
           }
         />
-        {state.validity === 'valid' && (
+        {gameQuery.isSuccess && (
           <div className="text-muted">
-            {gameVariants.find((v) => eq(v.type, state.game.type))?.title}
+            {
+              gameVariants.find(
+                (v) => v.type === gameQuery.data.type.toLowerCase()
+              )?.title
+            }
           </div>
         )}
-        {state.validity === 'invalid' && (
-          <div className="text-danger">Game not found</div>
-        )}
+        {gameQuery.isError && <div className="text-danger">Game not found</div>}
       </form>
     </div>
   );

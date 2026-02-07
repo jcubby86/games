@@ -34,7 +34,7 @@ const RecreateButton = ({
       });
 
       if (to) {
-        navigate(to);
+        void navigate(to);
       }
     } catch (err: unknown) {
       alertError('Unable to create game', err);

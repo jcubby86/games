@@ -47,7 +47,7 @@ const Create = () => {
         token: playerResponse.headers['x-auth-token'] as string
       });
 
-      navigate('/' + gameType);
+      void navigate('/' + gameType);
     } catch (err: unknown) {
       alertError('Unable to create game', err);
     }
