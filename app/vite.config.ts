@@ -10,5 +10,18 @@ export default defineConfig({
       // string shorthand: http://localhost:5173/foo -> http://localhost:4567/foo
       '/api': process.env.VITE_BACKEND_ADDRESS
     }
+  },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        silenceDeprecations: [
+          'import',
+          'color-functions',
+          'global-builtin',
+          'if-function',
+          'slash-div'
+        ]
+      }
+    }
   }
 });
