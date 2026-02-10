@@ -157,13 +157,29 @@ export class StoryService {
     }
   }
 
+  trimQuotes(s: string) {
+    return s.replace(/^"+|"+$/g, '').trim();
+  }
+
+  endsWithPunctuation(s: string) {
+    return /[.!?]$/.test(s);
+  }
+
   createStories(entries: StoryEntry[]) {
     const offset = Math.floor(Math.random() * entries.length);
     for (let i = 0; i < entries.length; i++) {
       let s = '';
       for (let j = 0; j < hints.length; j++) {
-        const value = entries[(i + j + offset) % entries.length].values[j];
-        s += hints[j].prefix + value + hints[j].suffix;
+        const { prefix, suffix } = hints[j];
+
+        const entry = entries[(i + j + offset) % entries.length];
+        const value = this.trimQuotes(entry.values[j]);
+
+        if (suffix.includes('.') && this.endsWithPunctuation(value)) {
+          s += prefix + value + suffix.replace('.', '');
+        } else {
+          s += prefix + value + suffix;
+        }
       }
 
       entries[i].story = s;

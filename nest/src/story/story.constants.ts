@@ -7,7 +7,6 @@ import { Category } from 'src/generated/prisma/enums';
 
 export const hints: Hint[] = [
   {
-    filler: '',
     prefix: '',
     suffix: ' ',
     prompt: "Man's name:",
@@ -15,7 +14,6 @@ export const hints: Hint[] = [
     limit: nameEntryMaxLength,
   },
   {
-    filler: '(Man) ',
     prefix: 'and ',
     suffix: ' ',
     prompt: "Woman's name:",
@@ -23,34 +21,30 @@ export const hints: Hint[] = [
     limit: nameEntryMaxLength,
   },
   {
-    filler: '(Man) and (Woman) ',
     prefix: 'were ',
-    suffix: ' ',
-    prompt: 'Present Action:',
+    suffix: '. ',
+    prompt: '(Man) and (Woman) were __________.',
     category: Category.PRESENT_ACTION,
     limit: storyEntryMaxLength,
   },
   {
-    filler: '',
     prefix: 'He said, "',
-    suffix: '" ',
-    prompt: 'Statement:',
+    suffix: '." ',
+    prompt: 'He said, "__________."',
     category: Category.STATEMENT,
     limit: storyEntryMaxLength,
   },
   {
-    filler: '',
     prefix: 'She said, "',
-    suffix: '" ',
-    prompt: 'Statement:',
+    suffix: '." ',
+    prompt: 'She said, "__________."',
     category: Category.STATEMENT,
     limit: storyEntryMaxLength,
   },
   {
-    filler: '',
     prefix: 'So they ',
-    suffix: '',
-    prompt: 'Past Action:',
+    suffix: '.',
+    prompt: 'So they __________.',
     category: Category.PAST_ACTION,
     limit: storyEntryMaxLength,
   },

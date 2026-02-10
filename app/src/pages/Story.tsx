@@ -116,10 +116,7 @@ const Story = () => {
           submitEntry();
         }}
       >
-        <h3 className="text-center w-100">{player?.entry?.hint?.prompt}</h3>
-        <p className="form-label">
-          {player?.entry?.hint?.filler} {player?.entry?.hint?.prefix}
-        </p>
+        <h4 className="text-center w-100">{player?.entry?.hint?.prompt}</h4>
         <textarea
           placeholder={suggestion}
           ref={entryRef}
@@ -134,7 +131,6 @@ const Story = () => {
             if (confirm) setConfirm(false);
           }}
         />
-        <p className="form-label">{player?.entry?.hint?.suffix}</p>
         <div className="container-fluid mt-4">
           <div className="row gap-4">
             <button

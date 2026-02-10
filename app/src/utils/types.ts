@@ -4,7 +4,6 @@ export interface NameEntryDto {
 }
 
 export interface Hint {
-  filler: string;
   prefix: string;
   suffix: string;
   prompt: string;
