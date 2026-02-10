@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 
+import Glitch from './Glitch';
 import PlayerList from './PlayerList';
 import { useAppContext } from '../contexts/AppContext';
 import { patchGame } from '../utils/apiClient';
@@ -33,7 +34,7 @@ const StartGame = ({ callback, title, players }: StartGameProps) => {
     <>
       <div className="w-100">
         <div className="text-center mb-4">
-          <h1 className="text-nowrap">{title}</h1>
+          <Glitch text={title} className="mb-0" />
         </div>
         <form
           className="row gap-3"
@@ -42,10 +43,7 @@ const StartGame = ({ callback, title, players }: StartGameProps) => {
             void startGame();
           }}
         >
-          <div className="mb-3 col p-0">
-            <label htmlFor="gameCode" className="form-label">
-              Game Code:
-            </label>
+          <div className="form-floating mb-3 col p-0">
             <input
               className="form-control"
               type="text"
@@ -59,12 +57,13 @@ const StartGame = ({ callback, title, players }: StartGameProps) => {
                 e.preventDefault();
                 codeRef.current?.select();
               }}
+              placeholder="Game Code"
             />
-          </div>
-          <div className="mb-3 col p-0">
-            <label htmlFor="playerCount" className="form-label">
-              Player Count:
+            <label htmlFor="gameCode" className="form-label">
+              Game Code
             </label>
+          </div>
+          <div className="form-floating mb-3 col p-0">
             <input
               className="form-control"
               type="text"
@@ -72,13 +71,17 @@ const StartGame = ({ callback, title, players }: StartGameProps) => {
               aria-label="player count"
               readOnly
               id="playerCount"
+              placeholder="Player Count"
             />
+            <label htmlFor="playerCount" className="form-label">
+              Player Count
+            </label>
           </div>
           {context.player?.roles?.includes('host') && (
             <input
               type="submit"
               value="Start Game"
-              className="form-control btn btn-success mt-4 col-12"
+              className="form-control btn btn-success col-12"
             />
           )}
         </form>

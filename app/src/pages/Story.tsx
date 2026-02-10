@@ -124,7 +124,7 @@ const Story = () => {
           placeholder={suggestion}
           ref={entryRef}
           className="form-control"
-          rows={3}
+          style={{ minHeight: '100px' }}
           autoComplete="off"
           spellCheck="false"
           autoCorrect="off"

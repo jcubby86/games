@@ -6,13 +6,11 @@ import { deletePlayer, postGame, postPlayer } from '../utils/apiClient';
 import { nicknameMaxLength } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
 import { gameVariants } from '../utils/gameVariants';
-import generateNickname from '../utils/nicknameGeneration';
 
 const Create = () => {
   const { context, dispatchContext } = useAppContext();
   const [gameType, setGameType] = useState('');
-  const nicknameRef = useRef<HTMLInputElement>(null);
-  const [suggestion] = useState(generateNickname());
+  const nicknameInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
   const leavePreviousGame = async () => {
@@ -33,7 +31,14 @@ const Create = () => {
         alertError('Please select a game type', {});
         return;
       }
-      const nickname = nicknameRef.current?.value || suggestion;
+      if (!nicknameInputRef.current?.value) {
+        alertError('Please enter a nickname', {});
+        nicknameInputRef.current?.focus();
+        nicknameInputRef.current?.classList.add('is-invalid');
+        return;
+      }
+
+      const nickname = nicknameInputRef.current.value;
 
       const gameResponse = await postGame(gameType.toUpperCase());
 
@@ -48,6 +53,7 @@ const Create = () => {
         token: playerResponse.headers['x-auth-token'] as string
       });
 
+      nicknameInputRef.current?.classList.remove('is-invalid');
       void navigate('/' + gameType);
     } catch (err: unknown) {
       alertError('Unable to create game', err);
@@ -62,10 +68,7 @@ const Create = () => {
           void submit();
         }}
       >
-        <div className="mb-3">
-          <label htmlFor="nicknameInput" className="form-label">
-            Nickname:
-          </label>
+        <div className="form-floating mb-3">
           <input
             id="nicknameInput"
             className="form-control"
@@ -73,21 +76,20 @@ const Create = () => {
             autoComplete="off"
             spellCheck="false"
             autoCorrect="off"
-            placeholder={suggestion}
+            placeholder="Nickname"
             maxLength={nicknameMaxLength}
             defaultValue={context.player?.nickname}
-            ref={nicknameRef}
+            ref={nicknameInputRef}
           />
+          <label htmlFor="nicknameInput" className="form-label">
+            Nickname
+          </label>
         </div>
-        <div
-          className="btn-group-vertical d-block text-center m-4"
-          role="group"
-          aria-label="Game Type"
-        >
+        <ul className="list-group my-4">
           {gameVariants.map((variant) => {
             return (
-              <button
-                className={`btn btn-outline-primary opacity-75 ${gameType === variant.type ? 'active' : ''}`}
+              <li
+                className="list-group-item"
                 onClick={(e) => {
                   e.preventDefault();
                   setGameType(variant.type);
@@ -95,11 +97,24 @@ const Create = () => {
                 key={variant.type}
                 aria-pressed={gameType === variant.type}
               >
-                {variant.title}
-              </button>
+                <input
+                  className="form-check-input me-2"
+                  type="radio"
+                  name="listGroupRadio"
+                  value=""
+                  id={`radio-${variant.type}`}
+                  checked={gameType === variant.type}
+                />
+                <label
+                  className="form-check-label stretched-link"
+                  htmlFor={`radio-${variant.type}`}
+                >
+                  {variant.title}
+                </label>
+              </li>
             );
           })}
-        </div>
+        </ul>
         <input
           type="submit"
           value="Create Game"

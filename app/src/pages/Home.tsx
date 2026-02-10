@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 
+import Glitch from '../components/Glitch';
 import { useAppContext } from '../contexts/AppContext';
 
 const Home = () => {
@@ -8,7 +9,7 @@ const Home = () => {
   return (
     <>
       <div className="row justify-content-center gap-4 w-100 m-0">
-        <h1 className="glitch">Games</h1>
+        <Glitch text="Games" className="w-100 text-center" />
         {context.game && (
           <Link
             role="button"

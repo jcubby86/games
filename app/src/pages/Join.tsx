@@ -12,13 +12,11 @@ import {
 import { gameCodeLength, nicknameMaxLength } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
 import { gameVariants } from '../utils/gameVariants';
-import generateNickname from '../utils/nicknameGeneration';
 
 const Join = () => {
   const { context, dispatchContext } = useAppContext();
   const [code, setCode] = useState<string>(context.game?.code || '');
-  const nicknameRef = useRef<HTMLInputElement>(null);
-  const [suggestion] = useState(generateNickname());
+  const nicknameInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
   const gameQuery = useQuery({
@@ -49,7 +47,13 @@ const Join = () => {
       if (!gameQuery.isSuccess) {
         return;
       }
-      const nickname = nicknameRef.current?.value || suggestion;
+      if (!nicknameInputRef.current?.value) {
+        alertError('Please enter a nickname', {});
+        nicknameInputRef.current?.focus();
+        nicknameInputRef.current?.classList.add('is-invalid');
+        return;
+      }
+      const nickname = nicknameInputRef.current.value;
 
       if (
         gameQuery.data.uuid === context.game?.uuid &&
@@ -82,6 +86,8 @@ const Join = () => {
           token: playerResponse.headers['x-auth-token'] as string
         });
       }
+
+      nicknameInputRef.current?.classList.remove('is-invalid');
       void navigate('/' + gameQuery.data.type.toLowerCase());
     } catch (err: unknown) {
       alertError('Error joining game', err);
@@ -102,31 +108,28 @@ const Join = () => {
           void submit();
         }}
       >
-        <div className="col p-0">
-          <label htmlFor="codeInput" className="form-label">
-            Code:
-          </label>
+        <div className="form-floating col p-0">
           <input
             id="codeInput"
-            className="form-control"
+            className={`form-control ${gameQuery.isError ? 'is-invalid' : ''}`}
             type="search"
             autoComplete="off"
             spellCheck="false"
             autoCorrect="off"
-            placeholder="abxy"
+            placeholder="Game Code (abxy)"
             maxLength={gameCodeLength}
-            value={code}
+            defaultValue={context.game?.code}
             onChange={(e) => {
               e.preventDefault();
               setCode(e.target.value.toUpperCase());
             }}
           />
+          <label htmlFor="codeInput" className="form-label">
+            Game Code
+          </label>
         </div>
 
-        <div className="col p-0">
-          <label htmlFor="nicknameInput" className="form-label">
-            Nickname:
-          </label>
+        <div className="form-floating col p-0">
           <input
             id="nicknameInput"
             className="form-control"
@@ -134,11 +137,14 @@ const Join = () => {
             autoComplete="off"
             spellCheck="false"
             autoCorrect="off"
-            placeholder={suggestion}
+            placeholder="Nickname"
             maxLength={nicknameMaxLength}
             defaultValue={context.player?.nickname}
-            ref={nicknameRef}
+            ref={nicknameInputRef}
           />
+          <label htmlFor="nicknameInput" className="form-label">
+            Nickname
+          </label>
         </div>
 
         <input
@@ -152,7 +158,7 @@ const Join = () => {
           }
         />
         {gameQuery.isSuccess && (
-          <div className="text-muted">
+          <div className="w-100 text-center text-muted">
             {
               gameVariants.find(
                 (v) => v.type === gameQuery.data.type.toLowerCase()
@@ -160,7 +166,9 @@ const Join = () => {
             }
           </div>
         )}
-        {gameQuery.isError && <div className="text-danger">Game not found</div>}
+        {gameQuery.isError && (
+          <div className="w-100 text-center text-danger">Game not found</div>
+        )}
       </form>
     </div>
   );
