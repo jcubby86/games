@@ -34,7 +34,7 @@ const StartGame = ({ callback, title, players }: StartGameProps) => {
     <>
       <div className="w-100">
         <div className="text-center mb-4">
-          <Glitch text={title} className="mb-0" />
+          <Glitch text={title} className="mb-0 glitch-small" />
         </div>
         <form
           className="row gap-3"
