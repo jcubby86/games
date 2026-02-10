@@ -30,7 +30,7 @@ const Create = () => {
   const submit = async () => {
     try {
       if (!gameVariants.map((t) => t.type).includes(gameType)) {
-        alert('Please select a game type');
+        alertError('Please select a game type', {});
         return;
       }
       const nickname = nicknameRef.current?.value || suggestion;
@@ -87,17 +87,13 @@ const Create = () => {
           {gameVariants.map((variant) => {
             return (
               <button
-                className={
-                  'btn opacity-75 ' +
-                  (gameType === variant.type
-                    ? 'btn-primary'
-                    : 'btn-outline-primary')
-                }
+                className={`btn btn-outline-primary opacity-75 ${gameType === variant.type ? 'active' : ''}`}
                 onClick={(e) => {
                   e.preventDefault();
                   setGameType(variant.type);
                 }}
                 key={variant.type}
+                aria-pressed={gameType === variant.type}
               >
                 {variant.title}
               </button>
@@ -108,6 +104,7 @@ const Create = () => {
           type="submit"
           value="Create Game"
           className="form-control btn btn-success"
+          disabled={!gameType}
         />
       </form>
       {gameType && (

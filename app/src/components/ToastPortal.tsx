@@ -36,27 +36,21 @@ function Toast({ message, type, onFinish }: ToastProps) {
 
   return (
     <div
-      className={`toast show align-items-center bg-${type} border-0 mb-2 ${
-        type === 'warning' ? 'text-dark' : 'text-white'
-      }`}
+      className={`toast show align-items-center text-bg-${type} border-0 mb-2 d-flex`}
       role="alert"
       aria-live="assertive"
       aria-atomic="true"
       data-bs-autohide="false"
       ref={ref}
     >
-      <div className="d-flex">
-        <div className="toast-body">{message}</div>
-        <button
-          type="button"
-          className={`btn-close me-2 m-auto ${
-            type === 'warning' ? '' : 'btn-close-white'
-          }`}
-          data-bs-dismiss="toast"
-          aria-label="Close"
-          onClick={() => onFinish()}
-        ></button>
-      </div>
+      <div className="toast-body">{message}</div>
+      <button
+        type="button"
+        className={`btn-close me-2 m-auto`}
+        data-bs-dismiss="toast"
+        aria-label="Close"
+        onClick={() => onFinish()}
+      ></button>
     </div>
   );
 }

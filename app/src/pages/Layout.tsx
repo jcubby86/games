@@ -6,9 +6,9 @@ const Layout = () => {
   return (
     <>
       <header>
-        <nav className="navbar navbar-dark bg-dark">
+        <nav className="navbar text-bg-dark" data-bs-theme="dark">
           <div className="container-fluid">
-            <Link className="navbar-brand text-light" to=".">
+            <Link className="navbar-brand" to=".">
               <i className="bi bi-house-fill mx-1"></i>Games
             </Link>
             <LeaveButton />
@@ -22,7 +22,7 @@ const Layout = () => {
         </div>
       </main>
 
-      <footer className="footer bg-light py-2 px-4 d-flex gap-3">
+      <footer className="footer text-bg-light py-2 px-4 d-flex gap-3">
         <a
           href="https://github.com/jcubby86/games"
           className="text-dark text-decoration-none link-danger ms-auto"

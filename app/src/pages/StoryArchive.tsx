@@ -33,7 +33,10 @@ export default function StoryArchive() {
 
   const ListItem = ({ item }: { item: StoryArchiveDto }) => {
     return (
-      <li id={item.player.uuid} className="list-group-item bg-light text-break">
+      <li
+        id={item.player.uuid}
+        className="list-group-item text-bg-light text-break"
+      >
         <div className="ms-2 me-auto">
           <p className="fw-bold mb-1">{item.player.nickname}</p>
           <p>{item.story}</p>
