@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useAppContext } from '../contexts/AppContext';
@@ -16,8 +16,15 @@ import { gameVariants } from '../utils/gameVariants';
 const Join = () => {
   const { context, dispatchContext } = useAppContext();
   const [code, setCode] = useState<string>(context.game?.code || '');
+  const [prevContextCode, setPrevContextCode] = useState(context.game?.code);
   const nicknameInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+
+  // Sync code state with context changes during render
+  if (context.game?.code !== prevContextCode) {
+    setCode(context.game?.code || '');
+    setPrevContextCode(context.game?.code);
+  }
 
   const gameQuery = useQuery({
     queryKey: ['games', code],
@@ -94,11 +101,6 @@ const Join = () => {
     }
   };
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setCode((c) => context.game?.code ?? c);
-  }, [context.game]);
-
   return (
     <div>
       <form
@@ -118,7 +120,7 @@ const Join = () => {
             autoCorrect="off"
             placeholder="Game Code (abxy)"
             maxLength={gameCodeLength}
-            defaultValue={context.game?.code}
+            value={code}
             onChange={(e) => {
               e.preventDefault();
               setCode(e.target.value.toUpperCase());

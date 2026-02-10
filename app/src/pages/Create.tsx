@@ -90,10 +90,6 @@ const Create = () => {
             return (
               <li
                 className="list-group-item"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setGameType(variant.type);
-                }}
                 key={variant.type}
                 aria-pressed={gameType === variant.type}
               >
@@ -101,9 +97,12 @@ const Create = () => {
                   className="form-check-input me-2"
                   type="radio"
                   name="listGroupRadio"
-                  value=""
+                  value={variant.type}
                   id={`radio-${variant.type}`}
                   checked={gameType === variant.type}
+                  onChange={(e) => {
+                    setGameType(e.target.value);
+                  }}
                 />
                 <label
                   className="form-check-label stretched-link"
