@@ -8,7 +8,7 @@ const Home = () => {
 
   return (
     <>
-      <div className="row justify-content-center gap-4 w-100 m-0">
+      <div className="row justify-content-center gap-2 w-100 m-0">
         <Glitch text="Games" className="w-100 text-center" />
         {context.game && (
           <Link
@@ -25,22 +25,26 @@ const Home = () => {
           to="/join"
           className={
             'btn btn-lg d-flex flex-column fw-bold col ' +
-            (context.game ? 'btn-outline-success' : 'btn-success')
+            (context.game
+              ? 'btn-outline-success bg-success-subtle'
+              : 'btn-success')
           }
         >
           <i className="bi bi-person-fill-up"></i>
-          Join a Game
+          Join Game
         </Link>
         <Link
           role="button"
           to="/create"
           className={
             'btn btn-lg d-flex flex-column fw-bold col ' +
-            (context.game ? 'btn-outline-success' : 'btn-success')
+            (context.game
+              ? 'btn-outline-success bg-success-subtle'
+              : 'btn-success')
           }
         >
           <i className="bi bi-person-fill-add"></i>
-          Create a Game
+          Create Game
         </Link>
       </div>
     </>

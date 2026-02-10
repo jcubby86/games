@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 
+import Glitch from '../components/Glitch';
 import RecreateButton from '../components/RecreateButton';
 import ShareButton from '../components/ShareButton';
 import { getStoryEntries } from '../utils/apiClient';
@@ -33,12 +34,11 @@ export default function StoryArchive() {
 
   const ListItem = ({ item }: { item: StoryArchiveDto }) => {
     return (
-      <li
-        id={item.player.uuid}
-        className="list-group-item text-bg-light text-break"
-      >
+      <li id={item.player.uuid} className="list-group-item text-break">
         <div className="ms-2 me-auto">
-          <p className="fw-bold mb-1">{item.player.nickname}</p>
+          <p className="fw-bold mb-1 text-decoration-underline">
+            {item.player.nickname}
+          </p>
           <p>{item.story}</p>
         </div>
       </li>
@@ -48,17 +48,20 @@ export default function StoryArchive() {
   return (
     <div className="d-flex flex-column w-100">
       <div className="text-center">
-        <h1 className="text-nowrap">{StoryVariant.title}</h1>
+        <Glitch text={StoryVariant.title} className="mb-0 glitch-small" />
       </div>
 
-      <ul className="list-group list-group-flush my-3 w-100">
+      <ul className="list-group my-3 w-100">
         <Items />
       </ul>
       <div className="container-fluid">
-        <div className="row gap-4">
-          <RecreateButton className="btn btn-outline-success col" to="/story" />
+        <div className="row gap-2">
+          <RecreateButton
+            className="btn btn-outline-success bg-success-subtle col"
+            to="/story"
+          />
           <ShareButton
-            className="btn col-2 btn-outline-secondary"
+            className="btn col-2 btn-outline-secondary bg-secondary-subtle"
             path={`/story/${gameUuid}`}
             title={'Games: ' + StoryVariant.title}
             text="Read my hilarious story!"

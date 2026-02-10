@@ -132,7 +132,7 @@ const Story = () => {
           }}
         />
         <div className="container-fluid mt-4">
-          <div className="row gap-4">
+          <div className="row gap-2">
             <button
               className={`btn col-9 btn-${confirm ? 'warning' : 'success'}`}
             >
@@ -166,20 +166,20 @@ const Story = () => {
   } else if (player?.game?.phase === READ) {
     return (
       <div className="w-100">
-        <p className="lh-lg fs-5 px-2 w-100 text-break">
+        <p className="border rounded bg-white lh-lg fs-6 px-3 py-1 w-100 text-break">
           {player?.entry?.story}
         </p>
         <div className="container-fluid">
-          <div className="row gap-4">
+          <div className="row gap-2">
             <RecreateButton className="col btn btn-success" />
             <Link
               to={`/story/${player.game.uuid}`}
-              className="col btn btn-outline-success"
+              className="col btn btn-outline-success bg-success-subtle"
             >
               See all
             </Link>
             <ShareButton
-              className="btn col-2 btn-outline-secondary"
+              className="btn col-2 btn-outline-secondary bg-secondary-subtle"
               path={`/story/${player.game.uuid}`}
               title={'Games: ' + StoryVariant.title}
               text="Read my hilarious story!"
@@ -191,7 +191,7 @@ const Story = () => {
   } else {
     return (
       <div className="w-100">
-        <h3 className="text-center w-100">Waiting for other players...</h3>
+        <h4 className="text-center w-100">Waiting for other players...</h4>
         <PlayerList
           players={player?.game?.players}
           filter={(p) => p.canPlayerSubmit ?? true}

@@ -113,7 +113,7 @@ const Names = () => {
           submitEntry();
         }}
       >
-        <h3 className="text-center w-100">Enter a name:</h3>
+        <h4 className="text-center w-100">Enter a name:</h4>
         <input
           type="search"
           placeholder={suggestion}
@@ -129,7 +129,7 @@ const Names = () => {
           }}
         />
         <div className="container-fluid mt-4">
-          <div className="row gap-4">
+          <div className="row gap-2">
             <button
               className={`btn col-9 btn-${confirm ? 'warning' : 'success'}`}
             >
@@ -168,7 +168,7 @@ const Names = () => {
     return (
       <div className="w-100 d-flex flex-column">
         <div className="w-100">
-          <h3 className="text-center w-100">Names:</h3>
+          <h4 className="text-center w-100">Names:</h4>
           <List items={sortedEntries.map((e) => e.name ?? '')} />
         </div>
         {player?.roles?.includes('host') && (
@@ -186,17 +186,15 @@ const Names = () => {
     );
   } else if (player?.game?.phase === END) {
     return (
-      <div className="w-100">
-        <h3 className="w-100 text-center pb-3">Enjoy the game!</h3>
-        <div className="d-flex justify-content-center">
-          <RecreateButton className="btn btn-success" />
-        </div>
+      <div className="w-100 d-flex flex-column">
+        <h4 className="w-100 text-center pb-3">Enjoy the game!</h4>
+        <RecreateButton className="btn btn-success" />
       </div>
     );
   } else {
     return (
       <div className="w-100">
-        <h3 className="text-center w-100">Waiting for other players...</h3>
+        <h4 className="text-center w-100">Waiting for other players...</h4>
         <PlayerList
           players={player?.game?.players}
           filter={(p) => p.canPlayerSubmit ?? true}

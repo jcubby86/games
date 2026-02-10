@@ -6,7 +6,7 @@ const List = ({ items }: { items?: string[] }) => {
   return (
     <ul className="list-group mt-3">
       {items.map((item: string, index: number) => (
-        <li key={index} className="list-group-item text-break">
+        <li key={index} className="list-group-item text-break no-select">
           {item}
         </li>
       ))}

@@ -38,7 +38,7 @@ const LeaveButton = () => {
   if (context.player && context.token) {
     return (
       <button
-        className={`btn btn-outline-danger ${confirm ? 'active' : ''}`}
+        className={`btn btn-sm btn-outline-danger ${confirm ? 'bg-danger-subtle' : ''}`}
         onClick={(e) => {
           e.preventDefault();
           void leavePreviousGame();

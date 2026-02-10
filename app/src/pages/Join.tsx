@@ -104,7 +104,7 @@ const Join = () => {
   return (
     <div>
       <form
-        className="row gap-3"
+        className="row gap-2"
         onSubmit={(e) => {
           e.preventDefault();
           void submit();

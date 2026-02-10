@@ -33,11 +33,11 @@ const StartGame = ({ callback, title, players }: StartGameProps) => {
   return (
     <>
       <div className="w-100">
-        <div className="text-center mb-4">
+        <div className="text-center mb-3">
           <Glitch text={title} className="mb-0 glitch-small" />
         </div>
         <form
-          className="row gap-3"
+          className="row gap-2 mb-4"
           onSubmit={(e) => {
             e.preventDefault();
             void startGame();
@@ -85,7 +85,6 @@ const StartGame = ({ callback, title, players }: StartGameProps) => {
             />
           )}
         </form>
-        <h3 className="text-center mt-5">Players:</h3>
         <PlayerList players={players} />
       </div>
     </>
