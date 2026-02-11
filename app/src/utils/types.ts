@@ -47,8 +47,13 @@ export interface StoryArchiveDto {
 
 export interface GameUpdatedMessageData {
   game: GameDto;
-  player?: PlayerDto;
-  action: string;
+  player: PlayerDto | null;
+  action:
+    | 'player.joined'
+    | 'player.left'
+    | 'player.updated'
+    | 'player.entry.submitted'
+    | 'phase.updated';
 }
 
 export interface PokeMessageData {

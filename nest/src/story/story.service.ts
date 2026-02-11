@@ -87,7 +87,7 @@ export class StoryService {
 
     this.eventEmitter.emit('story.updated', {
       game: player.game!,
-      action: 'story.entry.added',
+      action: 'player.entry.submitted',
       player,
     } satisfies GameUpdatedEvent);
 
@@ -143,17 +143,17 @@ export class StoryService {
 
       this.eventEmitter.emit('game.updated', {
         game: event.game,
-        action: 'game.phase.completed',
+        action: 'phase.updated',
+        player: null,
       } satisfies GameUpdatedEvent);
     } else if (allSubmitted) {
-      this.logger.debug(
-        `All players have submitted their current story entry for game ${event.game.uuid}.`,
-      );
-
       this.eventEmitter.emit('game.updated', {
         game: event.game,
-        action: 'story.round.completed',
+        action: 'player.entry.submitted',
+        player: null,
       } satisfies GameUpdatedEvent);
+    } else {
+      this.eventEmitter.emit('game.updated', event);
     }
   }
 

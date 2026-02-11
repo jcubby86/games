@@ -116,7 +116,7 @@ export class EventGateway implements OnGatewayInit {
             uuid: event.player.uuid,
             nickname: event.player.nickname,
           }
-        : undefined,
+        : null,
       action: event.action,
     };
     const message: Message<GameUpdatedMessageData> = { data };

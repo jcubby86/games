@@ -8,7 +8,11 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { gameCodeLength, nicknameMaxLength } from './game.constants';
 import { isPrismaUniqueError } from 'src/filters/prisma-exception.filter';
-import { GameDto, PlayerDto } from 'src/game/game.types';
+import {
+  GameDto,
+  PlayerDto,
+  GameUpdatedMessageData,
+} from 'src/game/game.types';
 import { Game, GamePhase, GameType, Player } from 'src/generated/prisma/client';
 import { NameService } from 'src/name/name.service';
 import { PrismaService } from 'src/prisma.service';
@@ -16,8 +20,8 @@ import { StoryService } from 'src/story/story.service';
 
 export interface GameUpdatedEvent {
   game: Game;
-  player?: Player;
-  action: string;
+  player: Player | null;
+  action: GameUpdatedMessageData['action'];
 }
 
 @Injectable()
@@ -121,7 +125,8 @@ export class GameService {
 
     this.eventEmitter.emit('game.updated', {
       game,
-      action: 'game.phase.updated',
+      action: 'phase.updated',
+      player: null,
     } satisfies GameUpdatedEvent);
 
     return GameService.mapToGameDto(game);
@@ -156,7 +161,7 @@ export class GameService {
       this.eventEmitter.emit('game.updated', {
         game,
         player,
-        action: 'game.player.joined',
+        action: 'player.joined',
       } satisfies GameUpdatedEvent);
 
       return this.getPlayer(player.uuid);
@@ -188,7 +193,7 @@ export class GameService {
       this.eventEmitter.emit('game.updated', {
         game: player.game!,
         player,
-        action: 'game.player.updated',
+        action: 'player.updated',
       } satisfies GameUpdatedEvent);
 
       return this.getPlayer(player.uuid);
@@ -250,7 +255,7 @@ export class GameService {
       this.eventEmitter.emit('game.updated', {
         game: player.game,
         player,
-        action: 'game.player.left',
+        action: 'player.left',
       } satisfies GameUpdatedEvent);
 
       player.game = null;
