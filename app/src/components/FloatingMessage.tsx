@@ -3,8 +3,6 @@ import { useEffect, useRef, useState } from 'react';
 type Props = {
   children: React.ReactNode;
   duration?: number;
-  /** length for vertical travel, e.g. 60 */
-  distance?: number;
   /** max horizontal sway in px (number). Actual offset is random within +/- sway/2 */
   sway?: number;
   className?: string;
@@ -27,7 +25,6 @@ function calculateSway(maxSway: number) {
 export default function FloatingMessage({
   children,
   duration = 5,
-  distance = 300,
   sway = 80,
   className = '',
   onFinish
@@ -35,7 +32,7 @@ export default function FloatingMessage({
   const ref = useRef<HTMLSpanElement | null>(null);
   const [visible, setVisible] = useState(true);
   const vx = useRef(calculateSway(sway));
-  const vy = useRef(calculateSway(sway) - distance);
+  const vy = useRef(calculateSway(sway) - window.innerHeight / 1.5);
 
   useEffect(() => {
     const el = ref.current;
@@ -59,7 +56,7 @@ export default function FloatingMessage({
 
   return (
     <span ref={ref} className={`float-up-fade ${className}`}>
-      <span className="float-up-fade__inner">{children}</span>
+      <span className="float-up-fade__inner no-select">{children}</span>
     </span>
   );
 }

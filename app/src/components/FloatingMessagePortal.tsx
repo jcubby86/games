@@ -7,7 +7,6 @@ type Message = {
   id: number;
   children: React.ReactNode;
   duration?: number;
-  distance?: number;
   sway?: number;
   className?: string;
 };
@@ -53,7 +52,6 @@ export function FloatingMessagePortal() {
         >
           <FloatingMessage
             duration={m.duration}
-            distance={m.distance}
             sway={m.sway}
             className={m.className}
             onFinish={() => remove(m.id)}
