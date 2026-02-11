@@ -32,7 +32,7 @@ export default function FloatingMessage({
   const ref = useRef<HTMLSpanElement | null>(null);
   const [visible, setVisible] = useState(true);
   const vx = useRef(calculateSway(sway));
-  const vy = useRef(calculateSway(sway) - window.innerHeight / 1.5);
+  const vy = useRef(calculateSway(sway) - window.innerHeight / 2);
 
   useEffect(() => {
     const el = ref.current;
@@ -56,7 +56,9 @@ export default function FloatingMessage({
 
   return (
     <span ref={ref} className={`float-up-fade ${className}`}>
-      <span className="float-up-fade__inner no-select">{children}</span>
+      <span className="float-up-fade__inner no-select border px-1 border-danger-subtle rounded-pill bg-danger-subtle">
+        {children}
+      </span>
     </span>
   );
 }

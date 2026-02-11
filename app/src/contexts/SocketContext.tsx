@@ -79,8 +79,13 @@ export const SocketContextProvider = ({
   });
 
   const handlePoke = useEffectEvent((message: Message<PokeMessageData>) => {
+    const nickname = message.data.from!.nickname;
     showFloatingMessage({
-      children: `${message.data.from!.nickname} has poked you!`
+      children: (
+        <>
+          {nickname} <i className="bi bi-hand-index-thumb"></i>
+        </>
+      )
     });
   });
 
