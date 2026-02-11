@@ -61,7 +61,7 @@ const PlayerList = ({ players, filter }: PlayerListProps) => {
           return (
             <button
               key={p.uuid}
-              className={`list-group-item list-group-item-action d-flex justify-content-between align-items-center no-select ${isCurrentPlayer ? 'fw-bold' : ''}`}
+              className={`list-group-item list-group-item-light list-group-item-action border d-flex justify-content-between align-items-center no-select ${isCurrentPlayer ? 'fw-bold' : ''}`}
               disabled={isCurrentPlayer}
               aria-disabled={isCurrentPlayer}
               onClick={(e) => {
