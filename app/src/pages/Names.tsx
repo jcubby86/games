@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useEffectEvent, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 import List from '../components/List';
 import PlayerList from '../components/PlayerList';
@@ -7,7 +7,6 @@ import RecreateButton from '../components/RecreateButton';
 import StartGame from '../components/StartGame';
 import { showToast } from '../components/ToastPortal';
 import { useAppContext } from '../contexts/AppContext';
-import { useSocketContext } from '../contexts/SocketContext';
 import { useSuggestions } from '../hooks/useSuggestions';
 import { getPlayer, patchGame, postNameEntry } from '../utils/apiClient';
 import { END, JOIN, nameEntryMaxLength, PLAY, READ } from '../utils/constants';
@@ -21,7 +20,6 @@ const Names = () => {
   });
 
   const { context } = useAppContext();
-  const socket = useSocketContext();
   const queryClient = useQueryClient();
   const [confirm, setConfirm] = useState(false);
   const entryRef = useRef<HTMLInputElement>(null);
@@ -66,18 +64,6 @@ const Names = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['players'] }),
     onError: (err: unknown) => alertError('Error updating game', err)
   });
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const gameUpdated = useEffectEvent((_event: unknown) => {
-    void queryClient.invalidateQueries({ queryKey: ['players'] });
-  });
-
-  useEffect(() => {
-    socket.on('game.updated', gameUpdated);
-    return () => {
-      socket.off('game.updated', gameUpdated);
-    };
-  }, [socket]);
 
   const player = playerQuery.data;
 

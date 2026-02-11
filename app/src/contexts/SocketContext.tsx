@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import {
   createContext,
   useContext,
@@ -33,6 +34,7 @@ export const SocketContextProvider = ({
   const socketRef = useRef<Socket | null>(null);
   const [connected, setConnected] = useState<boolean>(false);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const handleConnect = useEffectEvent(() => {
     setConnected(true);
@@ -72,6 +74,10 @@ export const SocketContextProvider = ({
     }
   );
 
+  const gameUpdated = useEffectEvent(() => {
+    void queryClient.invalidateQueries({ queryKey: ['players'] });
+  });
+
   const handlePoke = useEffectEvent((message: Message<PokeMessageData>) => {
     showFloatingMessage({
       children: `${message.data.from!.nickname} has poked you!`
@@ -92,6 +98,7 @@ export const SocketContextProvider = ({
     socketRef.current.on('connect', handleConnect);
     socketRef.current.on('connect_error', handleConnectError);
     socketRef.current.on('disconnect', handleDisconnect);
+    socketRef.current.on('game.updated', gameUpdated);
     socketRef.current.on('game.recreated', handleGameRecreated);
     socketRef.current.on('poke', handlePoke);
 

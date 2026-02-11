@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useEffectEvent, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import PlayerList from '../components/PlayerList';
@@ -8,7 +8,6 @@ import ShareButton from '../components/ShareButton';
 import StartGame from '../components/StartGame';
 import { showToast } from '../components/ToastPortal';
 import { useAppContext } from '../contexts/AppContext';
-import { useSocketContext } from '../contexts/SocketContext';
 import { useSuggestions } from '../hooks/useSuggestions';
 import { getPlayer, postStoryEntry } from '../utils/apiClient';
 import { JOIN, PLAY, READ, storyEntryMaxLength } from '../utils/constants';
@@ -31,7 +30,6 @@ const Story = () => {
   });
 
   const { context } = useAppContext();
-  const socket = useSocketContext();
   const queryClient = useQueryClient();
   const [confirm, setConfirm] = useState(false);
   const entryRef = useRef<HTMLTextAreaElement>(null);
@@ -69,18 +67,6 @@ const Story = () => {
       alertError('Error saving entry', err);
     }
   });
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const gameUpdated = useEffectEvent((_event: unknown) => {
-    void queryClient.invalidateQueries({ queryKey: ['players'] });
-  });
-
-  useEffect(() => {
-    socket.on('game.updated', gameUpdated);
-    return () => {
-      socket.off('game.updated', gameUpdated);
-    };
-  }, [socket]);
 
   const player = playerQuery.data;
 
