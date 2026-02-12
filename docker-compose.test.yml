@@ -29,11 +29,13 @@ services:
       
   db:
     image: postgres:latest
-    restart: unless-stopped
+    ports:
+      - 5432:5432
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - db-data:/var/lib/postgresql
+    restart: unless-stopped
     healthcheck:
       test: /usr/bin/pg_isready
 
