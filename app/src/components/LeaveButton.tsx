@@ -1,3 +1,4 @@
+import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -11,8 +12,17 @@ const LeaveButton = () => {
   const { context, dispatchContext } = useAppContext();
   const [confirm, setConfirm] = useState(false);
 
-  const leavePreviousGame = async () => {
-    if (!context.player || !context.token) {
+  const leaveGameMutation = useMutation({
+    mutationFn: () => deletePlayer(context.token!, context.player!.uuid),
+    onSuccess: async () => {
+      dispatchContext({ type: 'clear' });
+      await navigate('/');
+    },
+    onError: (err: unknown) => logError('Error leaving game', err)
+  });
+
+  const leavePreviousGame = () => {
+    if (!context.player || !context.token || leaveGameMutation.isPending) {
       return;
     }
     if (!confirm) {
@@ -26,13 +36,7 @@ const LeaveButton = () => {
       return;
     }
 
-    try {
-      await deletePlayer(context.token, context.player.uuid);
-    } catch (err: unknown) {
-      logError('Error leaving previous game', err);
-    }
-    dispatchContext({ type: 'clear' });
-    void navigate('/');
+    leaveGameMutation.mutate();
   };
 
   if (context.player && context.token) {
@@ -43,6 +47,7 @@ const LeaveButton = () => {
           e.preventDefault();
           void leavePreviousGame();
         }}
+        disabled={leaveGameMutation.isPending}
       >
         <i className="bi bi-person-x mx-1"></i>
         Leave Game

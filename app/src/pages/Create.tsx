@@ -1,3 +1,4 @@
+import { useMutation } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -6,6 +7,7 @@ import { deletePlayer, postGame, postPlayer } from '../utils/apiClient';
 import { nicknameMaxLength } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
 import { gameVariants } from '../utils/gameVariants';
+import { GameDto } from '../utils/types';
 
 const Create = () => {
   const { context, dispatchContext } = useAppContext();
@@ -13,52 +15,71 @@ const Create = () => {
   const nicknameInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
+  const leaveGameMutation = useMutation({
+    mutationFn: () => deletePlayer(context.token!, context.player!.uuid),
+    onSuccess: () => dispatchContext({ type: 'clear' }),
+    onError: (err: unknown) => logError('Error leaving game', err)
+  });
+
   const leavePreviousGame = async () => {
     if (!context.player || !context.token) {
       return;
     }
-    try {
-      await deletePlayer(context.token, context.player.uuid);
-      dispatchContext({ type: 'clear' });
-    } catch (err: unknown) {
-      logError('Error leaving previous game', err);
-    }
+    await leaveGameMutation.mutateAsync();
   };
 
-  const submit = async () => {
-    try {
-      if (!gameVariants.map((t) => t.type).includes(gameType)) {
-        alertError('Please select a game type', {});
-        return;
-      }
-      if (!nicknameInputRef.current?.value) {
-        alertError('Please enter a nickname', {});
-        nicknameInputRef.current?.focus();
-        nicknameInputRef.current?.classList.add('is-invalid');
-        return;
-      }
+  const createGameMutation = useMutation({
+    mutationFn: async (gameType: string) => postGame(gameType.toUpperCase()),
+    onError: (err: unknown) => alertError('Unable to create game', err)
+  });
 
-      const nickname = nicknameInputRef.current.value;
-
-      const gameResponse = await postGame(gameType.toUpperCase());
-
-      await leavePreviousGame();
-
-      const playerResponse = await postPlayer(gameResponse.data.uuid, nickname);
-
+  const createPlayerMutation = useMutation({
+    mutationFn: ({ game, nickname }: { game: GameDto; nickname: string }) =>
+      postPlayer(game.uuid, nickname),
+    onSuccess: (playerResponse) =>
       dispatchContext({
         type: 'save',
-        game: gameResponse.data,
         player: playerResponse.data,
+        game: playerResponse.data.game!,
         token: playerResponse.headers['x-auth-token'] as string
-      });
+      }),
+    onError: (err: unknown) => alertError('Unable to create player', err)
+  });
 
-      nicknameInputRef.current?.classList.remove('is-invalid');
-      void navigate('/' + gameType);
-    } catch (err: unknown) {
-      alertError('Unable to create game', err);
+  const submit = async () => {
+    if (!formEnabled) {
+      return;
     }
+    if (!gameVariants.map((t) => t.type).includes(gameType)) {
+      alertError('Please select a game type', {});
+      return;
+    }
+    if (!nicknameInputRef.current?.value) {
+      alertError('Please enter a nickname', {});
+      nicknameInputRef.current?.focus();
+      nicknameInputRef.current?.classList.add('is-invalid');
+      return;
+    }
+
+    const nickname = nicknameInputRef.current.value;
+
+    const gameResponse = await createGameMutation.mutateAsync(gameType);
+
+    await leavePreviousGame();
+
+    await createPlayerMutation.mutateAsync({
+      game: gameResponse.data,
+      nickname
+    });
+
+    nicknameInputRef.current?.classList.remove('is-invalid');
+    void navigate('/' + gameType);
   };
+
+  const formEnabled =
+    gameType !== '' &&
+    !createGameMutation.isPending &&
+    !createPlayerMutation.isPending;
 
   return (
     <div className="w-100">
@@ -118,7 +139,7 @@ const Create = () => {
           type="submit"
           value="Create Game"
           className="form-control btn btn-success"
-          disabled={!gameType}
+          disabled={!formEnabled}
         />
       </form>
       {gameType && (

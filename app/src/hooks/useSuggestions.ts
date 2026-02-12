@@ -15,7 +15,7 @@ function suggestionOptions(
   offsetKey: number
 ) {
   return queryOptions({
-    queryKey: ['suggestions', category, quantity, offsetKey],
+    queryKey: ['suggestions', { category, quantity, offsetKey }],
     queryFn: async () => {
       const response = await getSuggestions(category, quantity);
       return response.data;

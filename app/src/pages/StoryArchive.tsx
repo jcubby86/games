@@ -11,7 +11,7 @@ import { StoryArchiveDto } from '../utils/types';
 export default function StoryArchive() {
   const { gameUuid } = useParams();
   const storyQuery = useQuery({
-    queryKey: ['storyEntries', gameUuid],
+    queryKey: ['games', { uuid: gameUuid }, 'story-entries'],
     queryFn: async () => {
       const response = await getStoryEntries(gameUuid!);
       return response.data;

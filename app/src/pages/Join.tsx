@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -12,6 +12,7 @@ import {
 import { gameCodeLength, nicknameMaxLength } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
 import { gameVariants } from '../utils/gameVariants';
+import { GameDto } from '../utils/types';
 
 const Join = () => {
   const { context, dispatchContext } = useAppContext();
@@ -27,7 +28,7 @@ const Join = () => {
   }
 
   const gameQuery = useQuery({
-    queryKey: ['games', code],
+    queryKey: ['games', { code }],
     queryFn: async () => {
       const res = await getGameByCode(code);
       return res.data;
@@ -37,69 +38,88 @@ const Join = () => {
     staleTime: 300000 // 5 minutes
   });
 
+  const leaveGameMutation = useMutation({
+    mutationFn: () => deletePlayer(context.token!, context.player!.uuid),
+    onSuccess: () => dispatchContext({ type: 'clear' }),
+    onError: (err: unknown) => logError('Error leaving game', err)
+  });
+
+  const updatePlayerMutation = useMutation({
+    mutationFn: (nickname: string) =>
+      patchPlayer(context.token!, context.player!.uuid, nickname),
+    onSuccess: (playerResponse) =>
+      dispatchContext({
+        type: 'save',
+        game: playerResponse.data.game!,
+        player: playerResponse.data,
+        token: playerResponse.headers['x-auth-token'] as string
+      }),
+    onError: (err: unknown) => {
+      alertError('Error updating nickname', err);
+    }
+  });
+
+  const createPlayerMutation = useMutation({
+    mutationFn: ({ game, nickname }: { game: GameDto; nickname: string }) =>
+      postPlayer(game.uuid, nickname),
+    onSuccess: (playerResponse) =>
+      dispatchContext({
+        type: 'save',
+        player: playerResponse.data,
+        game: playerResponse.data.game!,
+        token: playerResponse.headers['x-auth-token'] as string
+      }),
+    onError: (err: unknown) => {
+      alertError('Error joining game', err);
+    }
+  });
+
   const leavePreviousGame = async () => {
     if (!context.player || !context.token) {
       return;
     }
-    try {
-      await deletePlayer(context.token, context.player.uuid);
-      dispatchContext({ type: 'clear' });
-    } catch (err: unknown) {
-      logError('Error leaving previous game', err);
-    }
+    await leaveGameMutation.mutateAsync();
   };
 
   const submit = async () => {
-    try {
-      if (!gameQuery.isSuccess) {
-        return;
-      }
-      if (!nicknameInputRef.current?.value) {
-        alertError('Please enter a nickname', {});
-        nicknameInputRef.current?.focus();
-        nicknameInputRef.current?.classList.add('is-invalid');
-        return;
-      }
-      const nickname = nicknameInputRef.current.value;
-
-      if (
-        gameQuery.data.uuid === context.game?.uuid &&
-        nickname === context.player?.nickname
-      ) {
-        // noop
-      } else if (
-        gameQuery.data.uuid === context.game?.uuid &&
-        context.player &&
-        context.token
-      ) {
-        const playerResponse = await patchPlayer(
-          context.token,
-          context.player.uuid,
-          nickname
-        );
-        dispatchContext({
-          type: 'save',
-          game: gameQuery.data,
-          player: playerResponse.data,
-          token: playerResponse.headers['x-auth-token'] as string
-        });
-      } else {
-        await leavePreviousGame();
-        const playerResponse = await postPlayer(gameQuery.data.uuid, nickname);
-        dispatchContext({
-          type: 'save',
-          game: gameQuery.data,
-          player: playerResponse.data,
-          token: playerResponse.headers['x-auth-token'] as string
-        });
-      }
-
-      nicknameInputRef.current?.classList.remove('is-invalid');
-      void navigate('/' + gameQuery.data.type.toLowerCase());
-    } catch (err: unknown) {
-      alertError('Error joining game', err);
+    if (!formEnabled) {
+      return;
     }
+    if (!nicknameInputRef.current?.value) {
+      alertError('Please enter a nickname', {});
+      nicknameInputRef.current?.focus();
+      nicknameInputRef.current?.classList.add('is-invalid');
+      return;
+    }
+    const nickname = nicknameInputRef.current.value;
+
+    if (
+      gameQuery.data.uuid === context.game?.uuid &&
+      nickname === context.player?.nickname
+    ) {
+      // noop
+    } else if (
+      gameQuery.data.uuid === context.game?.uuid &&
+      context.player &&
+      context.token
+    ) {
+      await updatePlayerMutation.mutateAsync(nickname);
+    } else {
+      await leavePreviousGame();
+      await createPlayerMutation.mutateAsync({
+        game: gameQuery.data,
+        nickname
+      });
+    }
+
+    nicknameInputRef.current?.classList.remove('is-invalid');
+    void navigate('/' + gameQuery.data.type.toLowerCase());
   };
+
+  const formEnabled =
+    gameQuery.isSuccess &&
+    !updatePlayerMutation.isPending &&
+    !createPlayerMutation.isPending;
 
   return (
     <div>
@@ -150,7 +170,7 @@ const Join = () => {
         </div>
 
         <input
-          disabled={!gameQuery.isSuccess}
+          disabled={!formEnabled}
           type="submit"
           className="form-control btn btn-success col-12 mt-3"
           value={

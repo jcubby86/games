@@ -1,3 +1,4 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
 
 import Glitch from './Glitch';
@@ -9,25 +10,42 @@ import { alertError } from '../utils/errorHandler';
 import { PlayerDto } from '../utils/types';
 
 interface StartGameProps {
-  callback: () => void;
   title: string;
-  players?: PlayerDto[];
+  players: PlayerDto[] | undefined;
 }
 
-const StartGame = ({ callback, title, players }: StartGameProps) => {
+const StartGame = ({ title, players }: StartGameProps) => {
   const { context } = useAppContext();
   const codeRef = useRef<HTMLInputElement>(null);
+  const queryClient = useQueryClient();
 
-  const startGame = async () => {
-    if (!context.token || !context.game) {
+  const updateGameMutation = useMutation({
+    mutationFn: (phase: string) =>
+      patchGame(context.token!, context.game!.uuid, phase).then(
+        (res) => res.data
+      ),
+    onSuccess: (game) => {
+      queryClient.setQueryData(
+        ['players', { uuid: context.player?.uuid }],
+        (oldData: PlayerDto) => {
+          return {
+            ...oldData,
+            game: {
+              ...oldData.game,
+              phase: game.phase
+            }
+          };
+        }
+      );
+    },
+    onError: (err: unknown) => alertError('Unable to start game', err)
+  });
+
+  const startGame = () => {
+    if (!context.token || !context.game || updateGameMutation.isPending) {
       return;
     }
-    try {
-      await patchGame(context.token, context.game.uuid, PLAY);
-      callback();
-    } catch (err: unknown) {
-      alertError('Unable to start game', err);
-    }
+    updateGameMutation.mutate(PLAY);
   };
 
   return (
@@ -82,6 +100,7 @@ const StartGame = ({ callback, title, players }: StartGameProps) => {
               type="submit"
               value="Start Game"
               className="form-control btn btn-success col-12"
+              disabled={updateGameMutation.isPending}
             />
           )}
         </form>

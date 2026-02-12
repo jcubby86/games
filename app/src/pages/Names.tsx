@@ -12,6 +12,7 @@ import { getPlayer, patchGame, postNameEntry } from '../utils/apiClient';
 import { END, JOIN, nameEntryMaxLength, PLAY, READ } from '../utils/constants';
 import { alertError } from '../utils/errorHandler';
 import { NameVariant } from '../utils/gameVariants';
+import { PlayerDto } from '../utils/types';
 
 const Names = () => {
   const { suggestion, nextSuggestion } = useSuggestions({
@@ -25,7 +26,7 @@ const Names = () => {
   const entryRef = useRef<HTMLInputElement>(null);
 
   const playerQuery = useQuery({
-    queryKey: ['players', context.player?.uuid],
+    queryKey: ['players', { uuid: context.player?.uuid }],
     queryFn: async () => {
       const playerResponse = await getPlayer(
         context.token!,
@@ -46,11 +47,19 @@ const Names = () => {
       );
       return response.data;
     },
-    onSuccess: async () => {
+    onSuccess: () => {
       entryRef.current!.value = '';
       nextSuggestion();
       setConfirm(false);
-      await queryClient.invalidateQueries({ queryKey: ['players'] });
+      queryClient.setQueryData(
+        ['players', { uuid: context.player?.uuid }],
+        (oldData: PlayerDto) => {
+          return {
+            ...oldData,
+            canPlayerSubmit: false
+          };
+        }
+      );
     },
     onError: (err: unknown) => {
       setConfirm(false);
@@ -60,25 +69,36 @@ const Names = () => {
 
   const updateGameMutation = useMutation({
     mutationFn: (phase: string) =>
-      patchGame(context.token!, context.game!.uuid, phase),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['players'] }),
+      patchGame(context.token!, context.game!.uuid, phase).then(
+        (res) => res.data
+      ),
+    onSuccess: (game) => {
+      queryClient.setQueryData(
+        ['players', { uuid: context.player?.uuid }],
+        (oldData: PlayerDto) => {
+          return {
+            ...oldData,
+            game: {
+              ...oldData.game,
+              phase: game.phase
+            }
+          };
+        }
+      );
+    },
     onError: (err: unknown) => alertError('Error updating game', err)
   });
 
   const player = playerQuery.data;
+  const game = player?.game;
 
-  if (player?.game?.phase === JOIN) {
-    return (
-      <StartGame
-        players={player.game.players}
-        title={NameVariant.title}
-        callback={() =>
-          void queryClient.invalidateQueries({ queryKey: ['players'] })
-        }
-      />
-    );
-  } else if (player?.game?.phase === PLAY && player?.canPlayerSubmit) {
+  if (game?.phase === JOIN) {
+    return <StartGame title={NameVariant.title} players={game.players} />;
+  } else if (game?.phase === PLAY && player?.canPlayerSubmit) {
     const submitEntry = () => {
+      if (postNameMutation.isPending) {
+        return;
+      }
       if (!entryRef.current!.value && !confirm) {
         setConfirm(true);
         showToast({
@@ -118,6 +138,7 @@ const Names = () => {
           <div className="row gap-2">
             <button
               className={`btn col-9 btn-${confirm ? 'warning' : 'success'}`}
+              disabled={postNameMutation.isPending}
             >
               {confirm ? (
                 <>
@@ -146,8 +167,8 @@ const Names = () => {
         </div>
       </form>
     );
-  } else if (player?.game?.phase === READ) {
-    const sortedEntries = [...player.entries!].sort((a, b) => {
+  } else if (game?.phase === READ) {
+    const sortedEntries = [...player!.entries!].sort((a, b) => {
       return b.order! - a.order!;
     });
 
@@ -164,13 +185,14 @@ const Names = () => {
               e.preventDefault();
               updateGameMutation.mutate(END);
             }}
+            disabled={updateGameMutation.isPending}
           >
             Hide Names
           </button>
         )}
       </div>
     );
-  } else if (player?.game?.phase === END) {
+  } else if (game?.phase === END) {
     return (
       <div className="w-100 d-flex flex-column">
         <h4 className="w-100 text-center pb-3">Enjoy the game!</h4>
@@ -182,7 +204,7 @@ const Names = () => {
       <div className="w-100">
         <h4 className="text-center w-100">Waiting for other players...</h4>
         <PlayerList
-          players={player?.game?.players}
+          players={game?.players}
           filter={(p) => p.canPlayerSubmit ?? true}
         />
       </div>

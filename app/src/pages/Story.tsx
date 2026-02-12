@@ -13,6 +13,7 @@ import { getPlayer, postStoryEntry } from '../utils/apiClient';
 import { JOIN, PLAY, READ, storyEntryMaxLength } from '../utils/constants';
 import { alertError } from '../utils/errorHandler';
 import { StoryVariant } from '../utils/gameVariants';
+import { PlayerDto } from '../utils/types';
 
 const categories = [
   'MALE_NAME',
@@ -35,7 +36,7 @@ const Story = () => {
   const entryRef = useRef<HTMLTextAreaElement>(null);
 
   const playerQuery = useQuery({
-    queryKey: ['players', context.player?.uuid],
+    queryKey: ['players', { uuid: context.player?.uuid }],
     queryFn: async () => {
       const playerResponse = await getPlayer(
         context.token!,
@@ -56,11 +57,19 @@ const Story = () => {
       );
       return response.data;
     },
-    onSuccess: async (data) => {
+    onSuccess: (data) => {
       entryRef.current!.value = '';
       updateCategory(data.hint?.category);
       setConfirm(false);
-      await queryClient.invalidateQueries({ queryKey: ['players'] });
+      queryClient.setQueryData(
+        ['players', { uuid: context.player?.uuid }],
+        (oldData: PlayerDto) => {
+          return {
+            ...oldData,
+            canPlayerSubmit: false
+          };
+        }
+      );
     },
     onError: (err: unknown) => {
       setConfirm(false);
@@ -69,19 +78,15 @@ const Story = () => {
   });
 
   const player = playerQuery.data;
+  const game = player?.game;
 
-  if (player?.game?.phase === JOIN) {
-    return (
-      <StartGame
-        players={player.game.players}
-        title={StoryVariant.title}
-        callback={() =>
-          void queryClient.invalidateQueries({ queryKey: ['players'] })
-        }
-      />
-    );
-  } else if (player?.game?.phase === PLAY && player?.canPlayerSubmit) {
+  if (game?.phase === JOIN) {
+    return <StartGame title={StoryVariant.title} players={game.players} />;
+  } else if (game?.phase === PLAY && player?.canPlayerSubmit) {
     const submitEntry = () => {
+      if (postStoryMutation.isPending) {
+        return;
+      }
       if (!entryRef.current!.value && !confirm) {
         setConfirm(true);
         showToast({
@@ -102,7 +107,7 @@ const Story = () => {
           submitEntry();
         }}
       >
-        <h4 className="text-center w-100">{player?.entry?.hint?.prompt}</h4>
+        <h4 className="text-center w-100">{player.entry?.hint?.prompt}</h4>
         <textarea
           placeholder={suggestion}
           ref={entryRef}
@@ -111,7 +116,7 @@ const Story = () => {
           autoComplete="off"
           spellCheck="false"
           autoCorrect="off"
-          maxLength={player?.entry?.hint?.limit ?? storyEntryMaxLength}
+          maxLength={player.entry?.hint?.limit ?? storyEntryMaxLength}
           onChange={(e) => {
             e.preventDefault();
             if (confirm) setConfirm(false);
@@ -121,6 +126,7 @@ const Story = () => {
           <div className="row gap-2">
             <button
               className={`btn col-9 btn-${confirm ? 'warning' : 'success'}`}
+              disabled={postStoryMutation.isPending}
             >
               {confirm ? (
                 <>
@@ -149,7 +155,7 @@ const Story = () => {
         </div>
       </form>
     );
-  } else if (player?.game?.phase === READ) {
+  } else if (game?.phase === READ) {
     return (
       <div className="w-100">
         <p className="border rounded bg-white lh-lg fs-6 px-3 py-1 w-100 text-break">
@@ -159,14 +165,14 @@ const Story = () => {
           <div className="row gap-2">
             <RecreateButton className="col btn btn-success" />
             <Link
-              to={`/story/${player.game.uuid}`}
+              to={`/story/${game.uuid}`}
               className="col btn btn-outline-success bg-success-subtle"
             >
               See all
             </Link>
             <ShareButton
               className="btn col-2 btn-outline-secondary bg-secondary-subtle"
-              path={`/story/${player.game.uuid}`}
+              path={`/story/${game.uuid}`}
               title={'Games: ' + StoryVariant.title}
               text="Read my hilarious story!"
             />
@@ -179,7 +185,7 @@ const Story = () => {
       <div className="w-100">
         <h4 className="text-center w-100">Waiting for other players...</h4>
         <PlayerList
-          players={player?.game?.players}
+          players={game?.players}
           filter={(p) => p.canPlayerSubmit ?? true}
         />
       </div>
