@@ -1,3 +1,4 @@
+import { useMutation } from '@tanstack/react-query';
 import {
   createContext,
   useContext,
@@ -36,6 +37,20 @@ export const SocketContextProvider = ({
   const navigate = useNavigate();
   const { invalidatePlayerQuery } = usePlayerQuery();
 
+  const createPlayerMutation = useMutation({
+    mutationFn: ({ game }: { game: GameDto }) =>
+      postPlayer(game.uuid, context.player!.nickname),
+    onSuccess: async (playerResponse) => {
+      dispatchContext({
+        type: 'save',
+        game: playerResponse.data.game!,
+        player: playerResponse.data,
+        token: playerResponse.headers['x-auth-token'] as string
+      });
+      await navigate(`/` + playerResponse.data.game!.type.toLowerCase());
+    }
+  });
+
   const handleConnect = useEffectEvent(() => {
     setConnected(true);
     return console.log('Connected to websocket server');
@@ -57,22 +72,9 @@ export const SocketContextProvider = ({
     return console.log('Disconnected from websocket server');
   });
 
-  const handleGameRecreated = useEffectEvent(
-    async (message: Message<GameDto>) => {
-      const playerResponse = await postPlayer(
-        message.data.uuid,
-        context.player!.nickname
-      );
-      dispatchContext({
-        type: 'save',
-        game: playerResponse.data.game!,
-        player: playerResponse.data,
-        token: playerResponse.headers['x-auth-token'] as string
-      });
-
-      void navigate(`/` + playerResponse.data.game!.type.toLowerCase());
-    }
-  );
+  const handleGameRecreated = useEffectEvent((message: Message<GameDto>) => {
+    createPlayerMutation.mutate({ game: message.data });
+  });
 
   const gameUpdated = useEffectEvent(() => {
     void invalidatePlayerQuery();

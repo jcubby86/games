@@ -24,13 +24,17 @@ export const usePlayerQuery = () => {
   });
 
   const invalidatePlayerQuery = async () => {
-    await queryClient.invalidateQueries({
-      queryKey
-    });
+    if (!playerQuery.isFetching) {
+      await queryClient.invalidateQueries({
+        queryKey
+      });
+    }
   };
 
   const setPlayerQueryData = (updater: (oldData: PlayerDto) => PlayerDto) => {
-    queryClient.setQueryData(queryKey, updater);
+    if (!playerQuery.isFetching) {
+      queryClient.setQueryData(queryKey, updater);
+    }
   };
 
   return { playerQuery, invalidatePlayerQuery, setPlayerQueryData };
