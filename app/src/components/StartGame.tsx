@@ -1,13 +1,10 @@
-import { useMutation } from '@tanstack/react-query';
 import { useRef } from 'react';
 
 import Glitch from './Glitch';
 import PlayerList from './PlayerList';
 import { useAppContext } from '../contexts/AppContext';
-import { usePlayerQuery } from '../hooks/usePlayerQuery';
-import { patchGame } from '../utils/apiClient';
+import { useUpdateGameMutation } from '../hooks/useUpdateGameMutation';
 import { PLAY } from '../utils/constants';
-import { alertError } from '../utils/errorHandler';
 import { PlayerDto } from '../utils/types';
 
 interface StartGameProps {
@@ -18,26 +15,8 @@ interface StartGameProps {
 const StartGame = ({ title, players }: StartGameProps) => {
   const { context } = useAppContext();
   const codeRef = useRef<HTMLInputElement>(null);
-  const { setPlayerQueryData } = usePlayerQuery();
 
-  const updateGameMutation = useMutation({
-    mutationFn: (phase: string) =>
-      patchGame(context.token!, context.game!.uuid, phase).then(
-        (res) => res.data
-      ),
-    onSuccess: (game) => {
-      setPlayerQueryData((oldData: PlayerDto) => {
-        return {
-          ...oldData,
-          game: {
-            ...oldData.game!,
-            phase: game.phase
-          }
-        };
-      });
-    },
-    onError: (err: unknown) => alertError('Unable to start game', err)
-  });
+  const updateGameMutation = useUpdateGameMutation();
 
   const startGame = () => {
     if (!context.token || !context.game || updateGameMutation.isPending) {

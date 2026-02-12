@@ -14,11 +14,11 @@ const LeaveButton = () => {
 
   const leaveGameMutation = useMutation({
     mutationFn: () => deletePlayer(context.token!, context.player!.uuid),
-    onSuccess: async () => {
+    onError: (err: unknown) => logError('Error leaving game', err),
+    onSettled: async () => {
       dispatchContext({ type: 'clear' });
       await navigate('/');
-    },
-    onError: (err: unknown) => logError('Error leaving game', err)
+    }
   });
 
   const leavePreviousGame = () => {

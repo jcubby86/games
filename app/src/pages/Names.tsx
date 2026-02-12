@@ -9,7 +9,8 @@ import { showToast } from '../components/ToastPortal';
 import { useAppContext } from '../contexts/AppContext';
 import { usePlayerQuery } from '../hooks/usePlayerQuery';
 import { useSuggestions } from '../hooks/useSuggestions';
-import { patchGame, postNameEntry } from '../utils/apiClient';
+import { useUpdateGameMutation } from '../hooks/useUpdateGameMutation';
+import { postNameEntry } from '../utils/apiClient';
 import { END, JOIN, nameEntryMaxLength, PLAY, READ } from '../utils/constants';
 import { alertError } from '../utils/errorHandler';
 import { NameVariant } from '../utils/gameVariants';
@@ -53,24 +54,7 @@ const Names = () => {
     }
   });
 
-  const updateGameMutation = useMutation({
-    mutationFn: (phase: string) =>
-      patchGame(context.token!, context.game!.uuid, phase).then(
-        (res) => res.data
-      ),
-    onSuccess: (game) => {
-      setPlayerQueryData((oldData: PlayerDto) => {
-        return {
-          ...oldData,
-          game: {
-            ...oldData.game!,
-            phase: game.phase
-          }
-        };
-      });
-    },
-    onError: (err: unknown) => alertError('Error updating game', err)
-  });
+  const updateGameMutation = useUpdateGameMutation();
 
   const player = playerQuery.data;
   const game = player?.game;

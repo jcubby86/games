@@ -40,8 +40,8 @@ const Join = () => {
 
   const leaveGameMutation = useMutation({
     mutationFn: () => deletePlayer(context.token!, context.player!.uuid),
-    onSuccess: () => dispatchContext({ type: 'clear' }),
-    onError: (err: unknown) => logError('Error leaving game', err)
+    onError: (err: unknown) => logError('Error leaving game', err),
+    onSettled: () => dispatchContext({ type: 'clear' })
   });
 
   const updatePlayerMutation = useMutation({

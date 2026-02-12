@@ -9,16 +9,8 @@ import {
 import { GameDto, PlayerDto } from '../utils/types';
 
 export interface AppState {
-  player?: {
-    uuid: string;
-    nickname: string;
-    roles?: string[];
-  };
-  game?: {
-    uuid: string;
-    code: string;
-    type: string;
-  };
+  player?: Pick<PlayerDto, 'uuid' | 'nickname' | 'roles'>;
+  game?: Pick<GameDto, 'uuid' | 'code' | 'type'>;
   token?: string;
 }
 
