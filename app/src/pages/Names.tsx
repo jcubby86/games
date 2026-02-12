@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
 
 import List from '../components/List';
@@ -7,8 +7,9 @@ import RecreateButton from '../components/RecreateButton';
 import StartGame from '../components/StartGame';
 import { showToast } from '../components/ToastPortal';
 import { useAppContext } from '../contexts/AppContext';
+import { usePlayerQuery } from '../hooks/usePlayerQuery';
 import { useSuggestions } from '../hooks/useSuggestions';
-import { getPlayer, patchGame, postNameEntry } from '../utils/apiClient';
+import { patchGame, postNameEntry } from '../utils/apiClient';
 import { END, JOIN, nameEntryMaxLength, PLAY, READ } from '../utils/constants';
 import { alertError } from '../utils/errorHandler';
 import { NameVariant } from '../utils/gameVariants';
@@ -21,22 +22,10 @@ const Names = () => {
   });
 
   const { context } = useAppContext();
-  const queryClient = useQueryClient();
   const [confirm, setConfirm] = useState(false);
   const entryRef = useRef<HTMLInputElement>(null);
 
-  const playerQuery = useQuery({
-    queryKey: ['players', { uuid: context.player?.uuid }],
-    queryFn: async () => {
-      const playerResponse = await getPlayer(
-        context.token!,
-        context.player!.uuid
-      );
-      return playerResponse.data;
-    },
-    enabled: !!context.player?.uuid && !!context.token,
-    staleTime: 120000 // 2 minutes
-  });
+  const { playerQuery, setPlayerQueryData } = usePlayerQuery();
 
   const postNameMutation = useMutation({
     mutationFn: async (name: string) => {
@@ -51,15 +40,12 @@ const Names = () => {
       entryRef.current!.value = '';
       nextSuggestion();
       setConfirm(false);
-      queryClient.setQueryData(
-        ['players', { uuid: context.player?.uuid }],
-        (oldData: PlayerDto) => {
-          return {
-            ...oldData,
-            canPlayerSubmit: false
-          };
-        }
-      );
+      setPlayerQueryData((oldData: PlayerDto) => {
+        return {
+          ...oldData,
+          canPlayerSubmit: false
+        };
+      });
     },
     onError: (err: unknown) => {
       setConfirm(false);
@@ -73,18 +59,15 @@ const Names = () => {
         (res) => res.data
       ),
     onSuccess: (game) => {
-      queryClient.setQueryData(
-        ['players', { uuid: context.player?.uuid }],
-        (oldData: PlayerDto) => {
-          return {
-            ...oldData,
-            game: {
-              ...oldData.game,
-              phase: game.phase
-            }
-          };
-        }
-      );
+      setPlayerQueryData((oldData: PlayerDto) => {
+        return {
+          ...oldData,
+          game: {
+            ...oldData.game!,
+            phase: game.phase
+          }
+        };
+      });
     },
     onError: (err: unknown) => alertError('Error updating game', err)
   });

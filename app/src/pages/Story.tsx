@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -8,8 +8,9 @@ import ShareButton from '../components/ShareButton';
 import StartGame from '../components/StartGame';
 import { showToast } from '../components/ToastPortal';
 import { useAppContext } from '../contexts/AppContext';
+import { usePlayerQuery } from '../hooks/usePlayerQuery';
 import { useSuggestions } from '../hooks/useSuggestions';
-import { getPlayer, postStoryEntry } from '../utils/apiClient';
+import { postStoryEntry } from '../utils/apiClient';
 import { JOIN, PLAY, READ, storyEntryMaxLength } from '../utils/constants';
 import { alertError } from '../utils/errorHandler';
 import { StoryVariant } from '../utils/gameVariants';
@@ -31,22 +32,10 @@ const Story = () => {
   });
 
   const { context } = useAppContext();
-  const queryClient = useQueryClient();
   const [confirm, setConfirm] = useState(false);
   const entryRef = useRef<HTMLTextAreaElement>(null);
 
-  const playerQuery = useQuery({
-    queryKey: ['players', { uuid: context.player?.uuid }],
-    queryFn: async () => {
-      const playerResponse = await getPlayer(
-        context.token!,
-        context.player!.uuid
-      );
-      return playerResponse.data;
-    },
-    enabled: !!context.player?.uuid && !!context.token,
-    staleTime: 120000 // 2 minutes
-  });
+  const { playerQuery, setPlayerQueryData } = usePlayerQuery();
 
   const postStoryMutation = useMutation({
     mutationFn: async (value: string) => {
@@ -61,15 +50,12 @@ const Story = () => {
       entryRef.current!.value = '';
       updateCategory(data.hint?.category);
       setConfirm(false);
-      queryClient.setQueryData(
-        ['players', { uuid: context.player?.uuid }],
-        (oldData: PlayerDto) => {
-          return {
-            ...oldData,
-            canPlayerSubmit: false
-          };
-        }
-      );
+      setPlayerQueryData((oldData: PlayerDto) => {
+        return {
+          ...oldData,
+          canPlayerSubmit: false
+        };
+      });
     },
     onError: (err: unknown) => {
       setConfirm(false);

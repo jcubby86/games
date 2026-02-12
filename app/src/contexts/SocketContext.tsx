@@ -1,4 +1,3 @@
-import { useQueryClient } from '@tanstack/react-query';
 import {
   createContext,
   useContext,
@@ -12,6 +11,7 @@ import { Socket, io } from 'socket.io-client';
 
 import { useAppContext } from './AppContext';
 import { showFloatingMessage } from '../components/FloatingMessagePortal';
+import { usePlayerQuery } from '../hooks/usePlayerQuery';
 import { postPlayer } from '../utils/apiClient';
 import { GameDto, Message, PokeMessageData } from '../utils/types';
 
@@ -34,7 +34,7 @@ export const SocketContextProvider = ({
   const socketRef = useRef<Socket | null>(null);
   const [connected, setConnected] = useState<boolean>(false);
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const { invalidatePlayerQuery } = usePlayerQuery();
 
   const handleConnect = useEffectEvent(() => {
     setConnected(true);
@@ -75,7 +75,7 @@ export const SocketContextProvider = ({
   );
 
   const gameUpdated = useEffectEvent(() => {
-    void queryClient.invalidateQueries({ queryKey: ['players'] });
+    void invalidatePlayerQuery();
   });
 
   const handlePoke = useEffectEvent((message: Message<PokeMessageData>) => {
