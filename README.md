@@ -163,7 +163,7 @@ npm run start:dev
 
 ### Using Docker Compose
 
-See [docker-compose.yml](docker-compose.yml) for the complete configuration.
+See [compose.yml](compose.yml) for the complete configuration.
 
 ## License
 
