@@ -8,6 +8,7 @@ services:
       - 3021:80
     environment:
       - NGINX_BACKEND_ADDRESS=http://backend:3000
+    restart: unless-stopped
     depends_on: 
       - backend
 
@@ -18,22 +19,23 @@ services:
     ports :
       - 3000:3000
     environment:
-      - DATABASE_URL=postgresql://postgres:password@db:5432/postgres
-      - NODE_ENV=production
-      - JWT_SECRET=123123
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/postgres
+      - NODE_ENV=development
+      - JWT_SECRET=${JWT_SECRET}
     restart: unless-stopped
     depends_on:
-      - db
-
+      db:
+        condition: service_healthy
+      
   db:
-    image: postgres:17.2
+    image: postgres:latest
     restart: unless-stopped
-    ports:
-      - 5432:5432
-    environment: 
-      - POSTGRES_PASSWORD=password
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: /usr/bin/pg_isready
 
 volumes:
   db-data:

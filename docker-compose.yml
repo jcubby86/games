@@ -1,28 +1,21 @@
+name: games
 services:
   app:
-    build:
-      context: ./app
-    image: ghcr.io/jcubby86/games-app:${DOCKER_TAG:-latest}
+    image: ghcr.io/jcubby86/games-app:latest
     ports:
-      - ${WEB_PORT:-80}:80
+      - 3020:80
     environment:
-      - NGINX_BACKEND_ADDRESS=http://backend:${NODE_PORT:-3000}
+      - NGINX_BACKEND_ADDRESS=http://backend:3000
     restart: unless-stopped
     depends_on: 
       - backend
-      - db
 
   backend:
-    build:
-      context: ./nest
-    image: ghcr.io/jcubby86/games-backend:${DOCKER_TAG:-latest}
+    image: ghcr.io/jcubby86/games-backend:latest
     environment:
-      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/prisma?schema=public
-      - NODE_ENV=${NODE_ENV}
-      - NODE_PORT=${NODE_PORT:-3000}
-      - ADMIN_USERNAME=${ADMIN_USERNAME}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
-      - COOKIE_SECRET=${COOKIE_SECRET}
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/postgres
+      - NODE_ENV=production
+      - JWT_SECRET=${JWT_SECRET}
     restart: unless-stopped
     depends_on:
       db:
@@ -32,12 +25,11 @@ services:
     image: postgres:latest
     restart: unless-stopped
     environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
-      - /portainer/postgres/games-${NODE_ENV}:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql/data
     healthcheck:
       test: /usr/bin/pg_isready
-      interval: 5s
-      timeout: 5s
-      retries: 12
-      start_period: 30s
+
+volumes:
+  db-data:
