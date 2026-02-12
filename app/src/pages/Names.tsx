@@ -29,7 +29,7 @@ const Names = () => {
   const { playerQuery, setPlayerQueryData } = usePlayerQuery();
 
   const postNameMutation = useMutation({
-    mutationFn: async (name: string) => {
+    mutationFn: async ({ name }: { name: string }) => {
       const response = await postNameEntry(
         context.token!,
         context.player!.uuid,
@@ -75,7 +75,7 @@ const Names = () => {
         return;
       }
 
-      postNameMutation.mutate(entryRef.current!.value || suggestion);
+      postNameMutation.mutate({ name: entryRef.current!.value || suggestion });
     };
 
     return (
@@ -150,7 +150,7 @@ const Names = () => {
             className={'btn btn-danger mt-4'}
             onClick={(e) => {
               e.preventDefault();
-              updateGameMutation.mutate(END);
+              updateGameMutation.mutate({ phase: END });
             }}
             disabled={updateGameMutation.isPending}
           >

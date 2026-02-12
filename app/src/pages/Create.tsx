@@ -29,7 +29,7 @@ const Create = () => {
   };
 
   const createGameMutation = useMutation({
-    mutationFn: async (gameType: string) => postGame(gameType.toUpperCase()),
+    mutationFn: async ({ type }: { type: string }) => postGame(type),
     onError: (err: unknown) => alertError('Unable to create game', err)
   });
 
@@ -63,7 +63,9 @@ const Create = () => {
 
     const nickname = nicknameInputRef.current.value;
 
-    const gameResponse = await createGameMutation.mutateAsync(gameType);
+    const gameResponse = await createGameMutation.mutateAsync({
+      type: gameType.toUpperCase()
+    });
 
     await leavePreviousGame();
 

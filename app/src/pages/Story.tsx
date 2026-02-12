@@ -38,7 +38,7 @@ const Story = () => {
   const { playerQuery, setPlayerQueryData } = usePlayerQuery();
 
   const postStoryMutation = useMutation({
-    mutationFn: async (value: string) => {
+    mutationFn: async ({ value }: { value: string }) => {
       const response = await postStoryEntry(
         context.token!,
         context.player!.uuid,
@@ -82,7 +82,9 @@ const Story = () => {
         return;
       }
 
-      postStoryMutation.mutate(entryRef.current!.value || suggestion);
+      postStoryMutation.mutate({
+        value: entryRef.current!.value || suggestion
+      });
     };
 
     return (

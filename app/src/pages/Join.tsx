@@ -45,7 +45,7 @@ const Join = () => {
   });
 
   const updatePlayerMutation = useMutation({
-    mutationFn: (nickname: string) =>
+    mutationFn: ({ nickname }: { nickname: string }) =>
       patchPlayer(context.token!, context.player!.uuid, nickname),
     onSuccess: (playerResponse) =>
       dispatchContext({
@@ -103,7 +103,7 @@ const Join = () => {
       context.player &&
       context.token
     ) {
-      await updatePlayerMutation.mutateAsync(nickname);
+      await updatePlayerMutation.mutateAsync({ nickname });
     } else {
       await leavePreviousGame();
       await createPlayerMutation.mutateAsync({

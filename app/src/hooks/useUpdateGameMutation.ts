@@ -11,7 +11,7 @@ export const useUpdateGameMutation = () => {
   const { setPlayerQueryData } = usePlayerQuery();
 
   const updateGameMutation = useMutation({
-    mutationFn: (phase: string) =>
+    mutationFn: ({ phase }: { phase: string }) =>
       patchGame(context.token!, context.game!.uuid, phase),
     onSuccess: (gameResponse) => {
       setPlayerQueryData((oldData: PlayerDto) => {

@@ -24,14 +24,14 @@ const RecreateButton = ({
   });
 
   const createPlayerMutation = useMutation({
-    mutationFn: (game: GameDto) =>
+    mutationFn: ({ game }: { game: GameDto }) =>
       postPlayer(game.uuid, context.player!.nickname),
-    onSuccess: async (playerResponse, game) => {
+    onSuccess: async (playerResponse, { game }) => {
       socket.emit('game.recreated', { data: game });
 
       dispatchContext({
         type: 'save',
-        game,
+        game: playerResponse.data.game!,
         player: playerResponse.data,
         token: playerResponse.headers['x-auth-token'] as string
       });
@@ -48,7 +48,7 @@ const RecreateButton = ({
       return;
     }
     const gameResponse = await createGameMutation.mutateAsync();
-    createPlayerMutation.mutate(gameResponse.data);
+    createPlayerMutation.mutate({ game: gameResponse.data });
   }
 
   const formEnabled =

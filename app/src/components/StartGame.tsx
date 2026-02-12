@@ -22,7 +22,7 @@ const StartGame = ({ title, players }: StartGameProps) => {
     if (!context.token || !context.game || updateGameMutation.isPending) {
       return;
     }
-    updateGameMutation.mutate(PLAY);
+    updateGameMutation.mutate({ phase: PLAY });
   };
 
   return (
