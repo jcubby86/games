@@ -133,6 +133,19 @@ const Names = () => {
       return b.order! - a.order!;
     });
 
+    const hideNames = () => {
+      if (!confirm) {
+        setConfirm(true);
+        showToast({
+          message: 'Press again to confirm hiding names.',
+          type: 'danger'
+        });
+        return;
+      }
+      updateGameMutation.mutate({ phase: END });
+      setConfirm(false);
+    };
+
     return (
       <div className="w-100 d-flex flex-column">
         <div className="w-100">
@@ -144,11 +157,18 @@ const Names = () => {
             className={'btn btn-danger mt-4'}
             onClick={(e) => {
               e.preventDefault();
-              updateGameMutation.mutate({ phase: END });
+              hideNames();
             }}
             disabled={updateGameMutation.isPending}
           >
             Hide Names
+            {confirm && (
+              <span
+                className="spinner-border spinner-border-sm mx-1"
+                role="status"
+                aria-hidden="true"
+              ></span>
+            )}
           </button>
         )}
       </div>

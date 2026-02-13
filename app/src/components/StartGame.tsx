@@ -1,7 +1,8 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 import Glitch from './Glitch';
 import PlayerList from './PlayerList';
+import { showToast } from './ToastPortal';
 import { useAppContext } from '../contexts/AppContext';
 import { useUpdateGameMutation } from '../hooks/useUpdateGameMutation';
 import { PLAY } from '../utils/constants';
@@ -15,6 +16,7 @@ interface StartGameProps {
 const StartGame = ({ title, players }: StartGameProps) => {
   const { context } = useAppContext();
   const codeRef = useRef<HTMLInputElement>(null);
+  const [confirm, setConfirm] = useState(false);
 
   const updateGameMutation = useUpdateGameMutation();
 
@@ -22,7 +24,17 @@ const StartGame = ({ title, players }: StartGameProps) => {
     if (!context.token || !context.game || updateGameMutation.isPending) {
       return;
     }
+    if (!confirm) {
+      setConfirm(true);
+      showToast({
+        message: 'Press again to confirm all players have joined.',
+        type: 'success'
+      });
+      return;
+    }
+
     updateGameMutation.mutate({ phase: PLAY });
+    setConfirm(false);
   };
 
   return (
@@ -73,12 +85,19 @@ const StartGame = ({ title, players }: StartGameProps) => {
             </label>
           </div>
           {context.player?.roles?.includes('host') && (
-            <input
-              type="submit"
-              value="Start Game"
+            <button
               className="form-control btn btn-success col-12"
               disabled={updateGameMutation.isPending}
-            />
+            >
+              Start Game
+              {confirm && (
+                <span
+                  className="spinner-border spinner-border-sm mx-1"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+              )}
+            </button>
           )}
         </form>
         <PlayerList players={players} />
