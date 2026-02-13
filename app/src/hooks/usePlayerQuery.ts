@@ -2,7 +2,18 @@ import { useQueryClient, useQuery } from '@tanstack/react-query';
 
 import { useAppContext } from '../contexts/AppContext';
 import { getPlayer } from '../utils/apiClient';
-import { PlayerDto } from '../utils/types';
+import { GameDto, PlayerDto } from '../utils/types';
+
+const transformGame = (
+  game: GameDto | undefined,
+  updates: Partial<GameDto>
+) => {
+  if (!game) return undefined;
+  return {
+    ...game,
+    ...updates
+  };
+};
 
 export const usePlayerQuery = () => {
   const { context } = useAppContext();
@@ -37,5 +48,36 @@ export const usePlayerQuery = () => {
     }
   };
 
-  return { playerQuery, invalidatePlayerQuery, setPlayerQueryData };
+  const setPlayerSubmitted = () => {
+    setPlayerQueryData((oldData) => {
+      const players: PlayerDto[] | undefined = oldData.game?.players?.map(
+        (p) => ({
+          ...p,
+          canSubmit: p.uuid !== oldData.uuid && p.canSubmit
+        })
+      );
+
+      return {
+        ...oldData,
+        canSubmit: false,
+        game: transformGame(oldData.game, { players })
+      } satisfies PlayerDto;
+    });
+  };
+
+  const setGamePhase = (phase: string) => {
+    setPlayerQueryData((oldData) => {
+      return {
+        ...oldData,
+        game: transformGame(oldData.game, { phase })
+      } satisfies PlayerDto;
+    });
+  };
+
+  return {
+    playerQuery,
+    invalidatePlayerQuery,
+    setPlayerSubmitted,
+    setGamePhase
+  };
 };

@@ -6,10 +6,9 @@ import { Message, PlayerDto, PokeMessageData } from '../utils/types';
 
 interface PlayerListProps {
   players?: PlayerDto[];
-  filter?: (player: PlayerDto) => boolean;
 }
 
-const PlayerList = ({ players, filter }: PlayerListProps) => {
+const PlayerList = ({ players }: PlayerListProps) => {
   const { context } = useAppContext();
   const socket = useSocketContext();
   const [pokeCounts, setPokeCounts] = useState<{ [key: string]: number }>({});
@@ -55,7 +54,7 @@ const PlayerList = ({ players, filter }: PlayerListProps) => {
   return (
     <div>
       <div className="list-group mt-3">
-        {players.filter(filter ?? (() => true)).map((p: PlayerDto) => {
+        {players.map((p: PlayerDto) => {
           const isCurrentPlayer = p.uuid === context.player?.uuid;
           const pokeCount = pokeCounts[p.uuid] ?? 0;
           return (

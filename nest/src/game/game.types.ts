@@ -20,10 +20,10 @@ export interface StoryEntryDto {
 export interface PlayerDto {
   uuid: string;
   nickname: string;
+  game?: GameDto;
   entry?: StoryEntryDto;
   entries?: NameEntryDto[];
-  canPlayerSubmit?: boolean;
-  game?: GameDto;
+  canSubmit?: boolean;
   roles?: string[];
 }
 

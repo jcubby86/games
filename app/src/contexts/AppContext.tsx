@@ -63,14 +63,12 @@ type Action =
   | { type: 'load'; state: AppState };
 
 const reducer = (prev: AppState, action: Action): AppState => {
-  let newState: AppState;
-
   switch (action.type) {
     case 'clear':
       clearStorage();
       return {};
     case 'save': {
-      newState = {
+      const newState = {
         player: {
           uuid: action.player.uuid,
           nickname: action.player.nickname,
@@ -87,11 +85,7 @@ const reducer = (prev: AppState, action: Action): AppState => {
       return newState;
     }
     case 'load':
-      newState = {
-        ...prev,
-        ...action.state
-      };
-      return newState;
+      return action.state;
     default:
       return prev;
   }
@@ -109,7 +103,6 @@ export const AppContextProvider = ({
   useEffect(() => {
     const storedState = loadFromStorage();
 
-    // apply cached values immediately
     if (storedState.player || storedState.game || storedState.token) {
       dispatchContext({ type: 'load', state: storedState });
     }

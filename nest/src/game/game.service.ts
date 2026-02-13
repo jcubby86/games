@@ -55,14 +55,14 @@ export class GameService {
 
   static mapToPlayerDto(
     player: Player,
-    canPlayerSubmit?: boolean,
+    canSubmit?: boolean,
     game?: GameDto,
     roles?: string[],
   ): PlayerDto {
     return {
       uuid: player.uuid,
       nickname: player.nickname,
-      canPlayerSubmit: canPlayerSubmit ?? false,
+      canSubmit: canSubmit ?? false,
       game,
       roles,
     };

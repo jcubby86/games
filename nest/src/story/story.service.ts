@@ -62,7 +62,7 @@ export class StoryService {
       throw new BadRequestException('Game is not of type STORY');
     } else if (player.game!.phase !== GamePhase.PLAY) {
       throw new BadRequestException('Game is not in PLAY phase');
-    } else if (!(await this.canPlayerSubmit(player, player.game!))) {
+    } else if (!(await this.canSubmit(player, player.game!))) {
       throw new BadRequestException('Player cannot submit entry at this time');
     }
 
@@ -186,7 +186,7 @@ export class StoryService {
     }
   }
 
-  async canPlayerSubmit(player: Player, game: Game): Promise<boolean> {
+  async canSubmit(player: Player, game: Game): Promise<boolean> {
     const playerMap = await this.getPlayerSubmissionMap(game);
     return playerMap.get(player.uuid)!.canSubmit();
   }

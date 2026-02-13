@@ -14,7 +14,6 @@ import { postNameEntry } from '../utils/apiClient';
 import { END, JOIN, nameEntryMaxLength, PLAY, READ } from '../utils/constants';
 import { alertError } from '../utils/errorHandler';
 import { NameVariant } from '../utils/gameVariants';
-import { PlayerDto } from '../utils/types';
 
 const Names = () => {
   const { suggestion, nextSuggestion } = useSuggestions({
@@ -26,7 +25,7 @@ const Names = () => {
   const [confirm, setConfirm] = useState(false);
   const entryRef = useRef<HTMLInputElement>(null);
 
-  const { playerQuery, setPlayerQueryData } = usePlayerQuery();
+  const { playerQuery, setPlayerSubmitted } = usePlayerQuery();
 
   const postNameMutation = useMutation({
     mutationFn: async ({ name }: { name: string }) => {
@@ -41,12 +40,7 @@ const Names = () => {
       entryRef.current!.value = '';
       nextSuggestion();
       setConfirm(false);
-      setPlayerQueryData((oldData: PlayerDto) => {
-        return {
-          ...oldData,
-          canPlayerSubmit: false
-        };
-      });
+      setPlayerSubmitted();
     },
     onError: (err: unknown) => {
       setConfirm(false);
@@ -61,7 +55,7 @@ const Names = () => {
 
   if (game?.phase === JOIN) {
     return <StartGame title={NameVariant.title} players={game.players} />;
-  } else if (game?.phase === PLAY && player?.canPlayerSubmit) {
+  } else if (game?.phase === PLAY && player?.canSubmit) {
     const submitEntry = () => {
       if (postNameMutation.isPending) {
         return;
@@ -170,10 +164,7 @@ const Names = () => {
     return (
       <div className="w-100">
         <h4 className="text-center w-100">Waiting for other players...</h4>
-        <PlayerList
-          players={game?.players}
-          filter={(p) => p.canPlayerSubmit ?? true}
-        />
+        <PlayerList players={game?.players?.filter((p) => p.canSubmit)} />
       </div>
     );
   }

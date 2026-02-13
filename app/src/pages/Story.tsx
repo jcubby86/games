@@ -14,7 +14,6 @@ import { postStoryEntry } from '../utils/apiClient';
 import { JOIN, PLAY, READ, storyEntryMaxLength } from '../utils/constants';
 import { alertError } from '../utils/errorHandler';
 import { StoryVariant } from '../utils/gameVariants';
-import { PlayerDto } from '../utils/types';
 
 const categories = [
   'MALE_NAME',
@@ -35,7 +34,7 @@ const Story = () => {
   const [confirm, setConfirm] = useState(false);
   const entryRef = useRef<HTMLTextAreaElement>(null);
 
-  const { playerQuery, setPlayerQueryData } = usePlayerQuery();
+  const { playerQuery, setPlayerSubmitted } = usePlayerQuery();
 
   const postStoryMutation = useMutation({
     mutationFn: async ({ value }: { value: string }) => {
@@ -50,12 +49,7 @@ const Story = () => {
       entryRef.current!.value = '';
       updateCategory(data.hint?.category);
       setConfirm(false);
-      setPlayerQueryData((oldData: PlayerDto) => {
-        return {
-          ...oldData,
-          canPlayerSubmit: false
-        };
-      });
+      setPlayerSubmitted();
     },
     onError: (err: unknown) => {
       setConfirm(false);
@@ -68,7 +62,7 @@ const Story = () => {
 
   if (game?.phase === JOIN) {
     return <StartGame title={StoryVariant.title} players={game.players} />;
-  } else if (game?.phase === PLAY && player?.canPlayerSubmit) {
+  } else if (game?.phase === PLAY && player?.canSubmit) {
     const submitEntry = () => {
       if (postStoryMutation.isPending) {
         return;
@@ -172,10 +166,7 @@ const Story = () => {
     return (
       <div className="w-100">
         <h4 className="text-center w-100">Waiting for other players...</h4>
-        <PlayerList
-          players={game?.players}
-          filter={(p) => p.canPlayerSubmit ?? true}
-        />
+        <PlayerList players={game?.players?.filter((p) => p.canSubmit)} />
       </div>
     );
   }
