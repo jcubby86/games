@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 
 import Glitch from './Glitch';
 import PlayerList from './PlayerList';
+import Spinner from './Spinner';
 import { showToast } from './ToastPortal';
 import { useAppContext } from '../contexts/AppContext';
 import { useUpdateGameMutation } from '../hooks/useUpdateGameMutation';
@@ -89,14 +90,7 @@ const StartGame = ({ title, players }: StartGameProps) => {
               className="form-control btn btn-success col-12"
               disabled={updateGameMutation.isPending}
             >
-              Start Game
-              {confirm && (
-                <span
-                  className="spinner-border spinner-border-sm mx-1"
-                  role="status"
-                  aria-hidden="true"
-                ></span>
-              )}
+              Start Game <Spinner hide={!confirm} />
             </button>
           )}
         </form>

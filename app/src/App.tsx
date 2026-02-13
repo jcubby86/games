@@ -8,7 +8,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import { FloatingMessagePortal } from './components/FloatingMessagePortal';
-import { Loading } from './components/Loading';
+import Loading from './components/Loading';
 import { ToastPortal } from './components/ToastPortal';
 import { AppContextProvider } from './contexts/AppContext';
 import { SocketContextProvider } from './contexts/SocketContext';

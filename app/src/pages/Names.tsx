@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import List from '../components/List';
 import PlayerList from '../components/PlayerList';
 import RecreateButton from '../components/RecreateButton';
+import Spinner from '../components/Spinner';
 import StartGame from '../components/StartGame';
 import { showToast } from '../components/ToastPortal';
 import { useAppContext } from '../contexts/AppContext';
@@ -63,7 +64,7 @@ const Names = () => {
       if (!entryRef.current!.value && !confirm) {
         setConfirm(true);
         showToast({
-          message: 'Press "Confirm" to use the suggested name.',
+          message: 'Press again to use the placeholder.',
           type: 'warning'
         });
         return;
@@ -103,12 +104,7 @@ const Names = () => {
             >
               {confirm ? (
                 <>
-                  <span
-                    className="spinner-border spinner-border-sm mx-1"
-                    role="status"
-                    aria-hidden="true"
-                  ></span>
-                  Confirm
+                  Use Placeholder <Spinner />
                 </>
               ) : (
                 <>Submit</>
@@ -161,14 +157,7 @@ const Names = () => {
             }}
             disabled={updateGameMutation.isPending}
           >
-            Hide Names
-            {confirm && (
-              <span
-                className="spinner-border spinner-border-sm mx-1"
-                role="status"
-                aria-hidden="true"
-              ></span>
-            )}
+            Hide Names <Spinner hide={!confirm} />
           </button>
         )}
       </div>

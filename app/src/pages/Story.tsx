@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import PlayerList from '../components/PlayerList';
 import RecreateButton from '../components/RecreateButton';
 import ShareButton from '../components/ShareButton';
+import Spinner from '../components/Spinner';
 import StartGame from '../components/StartGame';
 import { showToast } from '../components/ToastPortal';
 import { useAppContext } from '../contexts/AppContext';
@@ -70,7 +71,7 @@ const Story = () => {
       if (!entryRef.current!.value && !confirm) {
         setConfirm(true);
         showToast({
-          message: 'Press "Confirm" to use the suggested name.',
+          message: 'Press again to use the placeholder.',
           type: 'warning'
         });
         return;
@@ -112,12 +113,7 @@ const Story = () => {
             >
               {confirm ? (
                 <>
-                  <span
-                    className="spinner-border spinner-border-sm mx-1"
-                    role="status"
-                    aria-hidden="true"
-                  ></span>
-                  Confirm
+                  Use Placeholder <Spinner hide={!confirm} />
                 </>
               ) : (
                 <>Submit</>

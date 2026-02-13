@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 
+import Spinner from './Spinner';
 import { showToast } from './ToastPortal';
 import { useAppContext } from '../contexts/AppContext';
 import { useSocketContext } from '../contexts/SocketContext';
@@ -81,14 +82,7 @@ const RecreateButton = ({
         }}
         disabled={!formEnabled}
       >
-        Play Again
-        {confirm && (
-          <span
-            className="spinner-border spinner-border-sm mx-1"
-            role="status"
-            aria-hidden="true"
-          ></span>
-        )}
+        Play Again <Spinner hide={!confirm} />
       </button>
     );
   } else {

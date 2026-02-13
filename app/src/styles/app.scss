@@ -55,6 +55,15 @@ footer i {
   cursor: default;
 }
 
+#player-list .list-group-item {
+  transition: background-color 0.3s ease-out;
+}
+
+#player-list .list-group-item:active {
+  background-color: var(--bs-danger-bg-subtle) !important;
+  transition: background-color 0.1s;
+}
+
 $navbar-padding-y: 0.2rem;
 
 // Import all of Bootstrap's SCSS

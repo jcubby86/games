@@ -53,14 +53,14 @@ const PlayerList = ({ players }: PlayerListProps) => {
 
   return (
     <div>
-      <div className="list-group mt-3">
+      <div className="list-group mt-3" id="player-list">
         {players.map((p: PlayerDto) => {
           const isCurrentPlayer = p.uuid === context.player?.uuid;
           const pokeCount = pokeCounts[p.uuid] ?? 0;
           return (
             <button
               key={p.uuid}
-              className={`list-group-item list-group-item-light list-group-item-action border d-flex justify-content-between align-items-center no-select ${isCurrentPlayer ? 'fw-bold' : ''}`}
+              className={`list-group-item list-group-item-action border d-flex justify-content-between align-items-center no-select ${isCurrentPlayer ? 'fw-bold' : ''}`}
               disabled={isCurrentPlayer}
               aria-disabled={isCurrentPlayer}
               onClick={(e) => {
