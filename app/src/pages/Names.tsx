@@ -63,7 +63,7 @@ const Names = () => {
       if (!entryRef.current!.value && !confirm) {
         setConfirm(true);
         showToast({
-          message: "Press 'Confirm' to use the suggested name.",
+          message: 'Press "Confirm" to use the suggested name.',
           type: 'warning'
         });
         return;

@@ -39,8 +39,8 @@
     opacity: 1;
   }
   80% {
-    transform: translateY(calc(var(--float-distance, -200px) * 0.8));
-    opacity: 0.6;
+    transform: translateY(var(--float-distance, -200px));
+    opacity: 0.8;
   }
   100% {
     transform: translateY(var(--float-distance, -200px));

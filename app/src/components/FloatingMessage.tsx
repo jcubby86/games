@@ -32,7 +32,7 @@ export default function FloatingMessage({
   const ref = useRef<HTMLSpanElement | null>(null);
   const [visible, setVisible] = useState(true);
   const vx = useRef(calculateSway(sway));
-  const vy = useRef(calculateSway(sway) - window.innerHeight / 2);
+  const vy = useRef(calculateSway(sway) - window.innerHeight / 2.5);
 
   useEffect(() => {
     const el = ref.current;
