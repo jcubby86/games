@@ -1,10 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Toast, ToastContainer } from 'react-bootstrap';
+import { Variant } from 'react-bootstrap/esm/types';
 import { createPortal } from 'react-dom';
 
 type Message = {
   id: number;
   message: string;
-  type: 'danger' | 'warning' | 'success';
+  header: string;
+  type: Variant;
 };
 
 const listeners: Array<(m: Message) => void> = [];
@@ -17,47 +20,8 @@ export function showToast(opts: Omit<Message, 'id'>) {
   return id;
 }
 
-type ToastProps = {
-  message: string;
-  type: 'danger' | 'warning' | 'success';
-  onFinish: () => void;
-};
-
-function Toast({ message, type, onFinish }: ToastProps) {
-  const ref = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    el.addEventListener('animationend', onFinish);
-    return () => el.removeEventListener('animationend', onFinish);
-  }, [onFinish]);
-
-  return (
-    <div
-      className={`toast show align-items-center text-bg-${type} border-0 mb-2 d-flex`}
-      role="alert"
-      aria-live="assertive"
-      aria-atomic="true"
-      data-bs-autohide="false"
-      ref={ref}
-    >
-      <div className="toast-body">{message}</div>
-      <button
-        type="button"
-        className={`btn-close me-2 m-auto`}
-        data-bs-dismiss="toast"
-        aria-label="Close"
-        onClick={() => onFinish()}
-      ></button>
-    </div>
-  );
-}
-
 export function ToastPortal() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const listener = (m: Message) => setMessages((prev) => [...prev, m]);
@@ -68,20 +32,31 @@ export function ToastPortal() {
   }, []);
 
   const remove = (id: number) =>
-    setMessages((prev) => prev.filter((m) => m.id !== id));
+    setTimeout(
+      () => setMessages((prev) => prev.filter((m) => m.id !== id)),
+      1500
+    );
 
   if (typeof document === 'undefined') return null;
 
   return createPortal(
-    <div ref={containerRef} className="toast-root toast-container pb-5">
-      {messages.map((m) => (
-        <Toast
-          key={m.id}
-          message={m.message}
-          type={m.type}
-          onFinish={() => remove(m.id)}
-        />
-      ))}
+    <div aria-live="polite" aria-atomic="true" className="position-relative">
+      <ToastContainer position="bottom-center" className="pb-5">
+        {messages.map((m) => (
+          <Toast
+            key={`toast-${m.id}`}
+            onClose={() => remove(m.id)}
+            bg={m.type}
+            delay={4000}
+            autohide
+          >
+            <Toast.Header>
+              <strong className="me-auto">{m.header}</strong>
+            </Toast.Header>
+            <Toast.Body>{m.message}</Toast.Body>
+          </Toast>
+        ))}
+      </ToastContainer>
     </div>,
     document.body
   );

@@ -41,6 +41,7 @@ export const alertError = (message: string, err: unknown): void => {
     console.error(errorMessage.detailed);
     showToast({
       message: errorMessage.friendly ?? message,
+      header: 'Error',
       type: 'danger'
     });
   }

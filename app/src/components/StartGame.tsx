@@ -29,6 +29,7 @@ const StartGame = ({ title, players }: StartGameProps) => {
       setConfirm(true);
       showToast({
         message: 'Press again to confirm all players have joined.',
+        header: 'Confirm',
         type: 'success'
       });
       return;

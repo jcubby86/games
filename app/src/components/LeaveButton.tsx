@@ -29,6 +29,7 @@ const LeaveButton = () => {
       setConfirm(true);
       showToast({
         message: 'Press again to leave the current game.',
+        header: 'Confirm',
         type: 'danger'
       });
 

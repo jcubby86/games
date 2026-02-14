@@ -60,6 +60,7 @@ const RecreateButton = ({
       setConfirm(true);
       showToast({
         message: 'Press again to confirm recreating the game.',
+        header: 'Confirm',
         type: 'success'
       });
       return;

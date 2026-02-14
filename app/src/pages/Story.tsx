@@ -72,6 +72,7 @@ const Story = () => {
         setConfirm(true);
         showToast({
           message: 'Press again to use the placeholder.',
+          header: 'Confirm',
           type: 'warning'
         });
         return;

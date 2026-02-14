@@ -65,6 +65,7 @@ const Names = () => {
         setConfirm(true);
         showToast({
           message: 'Press again to use the placeholder.',
+          header: 'Confirm',
           type: 'warning'
         });
         return;
@@ -134,6 +135,7 @@ const Names = () => {
         setConfirm(true);
         showToast({
           message: 'Press again to confirm hiding names.',
+          header: 'Confirm',
           type: 'danger'
         });
         return;
