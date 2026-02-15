@@ -5,7 +5,7 @@ import {
 } from '@tanstack/react-query';
 import { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import { FloatingMessagePortal } from './components/FloatingMessagePortal';
 import Loading from './components/Loading';
@@ -36,7 +36,7 @@ function AppRoutes() {
         <Route path={STORY} element={<Story />} />
         <Route path={NAME} element={<Names />} />
         <Route path="privacy" element={<Privacy />} />
-        <Route path="*" element={<Home />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
   );

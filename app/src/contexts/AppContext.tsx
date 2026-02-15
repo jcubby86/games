@@ -1,4 +1,11 @@
-import { Dispatch, createContext, useContext, useReducer } from 'react';
+import {
+  Dispatch,
+  createContext,
+  useContext,
+  useEffect,
+  useReducer
+} from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { GameDto, PlayerDto } from '../utils/types';
 
@@ -101,9 +108,21 @@ export const AppContextProvider = ({
   );
 };
 
-export const useAppContext = () => {
+export const useAppContext = (required = false) => {
   const appContext = useContext(AppContext);
-  if (!appContext)
+
+  if (!appContext) {
     throw new Error('useAppContext must be used inside AppContextProvider');
+  }
+
+  const navigate = useNavigate();
+  const { player, game, token } = appContext.context;
+
+  useEffect(() => {
+    if (required && (!player || !game || !token)) {
+      void navigate('/', { replace: true });
+    }
+  }, [required, player, game, token, navigate]);
+
   return appContext;
 };

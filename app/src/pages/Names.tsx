@@ -23,7 +23,7 @@ const Names = () => {
     quantity: 10
   });
 
-  const { context } = useAppContext();
+  const { context } = useAppContext(true);
   const entryRef = useRef<HTMLInputElement>(null);
 
   const { playerQuery, setPlayerSubmitted } = usePlayerQuery();

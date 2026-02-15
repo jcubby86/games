@@ -16,7 +16,7 @@ const LeaveButton = () => {
     onError: (err: unknown) => logError('Error leaving game', err),
     onSettled: async () => {
       dispatchContext({ type: 'clear' });
-      await navigate('/');
+      await navigate('/', { replace: true });
     }
   });
 

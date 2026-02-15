@@ -32,7 +32,7 @@ const Story = () => {
     prefetchCategories: categories
   });
 
-  const { context } = useAppContext();
+  const { context } = useAppContext(true);
   const entryRef = useRef<HTMLTextAreaElement>(null);
 
   const { playerQuery, setPlayerSubmitted } = usePlayerQuery();
