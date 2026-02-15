@@ -62,7 +62,7 @@ const Create = () => {
       return;
     }
     if (!nicknameInputRef.current?.value) {
-      alertError('Please enter a nickname', {});
+      alertError('Please enter a nickname', undefined);
       nicknameInputRef.current?.focus();
       nicknameInputRef.current?.classList.add('is-invalid');
       return;
