@@ -1,9 +1,8 @@
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 
 import Glitch from './Glitch';
+import { showModal } from './ModalPortal';
 import PlayerList from './PlayerList';
-import Spinner from './Spinner';
-import { showToast } from './ToastPortal';
 import { useAppContext } from '../contexts/AppContext';
 import { useUpdateGameMutation } from '../hooks/useUpdateGameMutation';
 import { PLAY } from '../utils/constants';
@@ -17,7 +16,6 @@ interface StartGameProps {
 const StartGame = ({ title, players }: StartGameProps) => {
   const { context } = useAppContext();
   const codeRef = useRef<HTMLInputElement>(null);
-  const [confirm, setConfirm] = useState(false);
 
   const updateGameMutation = useUpdateGameMutation();
 
@@ -25,18 +23,12 @@ const StartGame = ({ title, players }: StartGameProps) => {
     if (!context.token || !context.game || updateGameMutation.isPending) {
       return;
     }
-    if (!confirm) {
-      setConfirm(true);
-      showToast({
-        message: 'Press again to confirm all players have joined.',
-        header: 'Confirm',
-        type: 'success'
-      });
-      return;
-    }
-
-    updateGameMutation.mutate({ phase: PLAY });
-    setConfirm(false);
+    showModal({
+      title: 'Start Game',
+      body: 'Are you sure you want to start the game? Make sure all players have joined and are ready.',
+      onConfirm: () => updateGameMutation.mutateAsync({ phase: PLAY }),
+      confirmVariant: 'success'
+    });
   };
 
   return (
@@ -91,7 +83,7 @@ const StartGame = ({ title, players }: StartGameProps) => {
               className="form-control btn btn-success col-12"
               disabled={updateGameMutation.isPending}
             >
-              Start Game <Spinner hide={!confirm} />
+              Start Game
             </button>
           )}
         </form>

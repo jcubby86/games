@@ -1,12 +1,11 @@
 import { useMutation } from '@tanstack/react-query';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 
 import List from '../components/List';
+import { showModal } from '../components/ModalPortal';
 import PlayerList from '../components/PlayerList';
 import RecreateButton from '../components/RecreateButton';
-import Spinner from '../components/Spinner';
 import StartGame from '../components/StartGame';
-import { showToast } from '../components/ToastPortal';
 import { useAppContext } from '../contexts/AppContext';
 import { usePlayerQuery } from '../hooks/usePlayerQuery';
 import { useSuggestions } from '../hooks/useSuggestions';
@@ -23,7 +22,6 @@ const Names = () => {
   });
 
   const { context } = useAppContext();
-  const [confirm, setConfirm] = useState(false);
   const entryRef = useRef<HTMLInputElement>(null);
 
   const { playerQuery, setPlayerSubmitted } = usePlayerQuery();
@@ -40,13 +38,9 @@ const Names = () => {
     onSuccess: () => {
       entryRef.current!.value = '';
       nextSuggestion();
-      setConfirm(false);
       setPlayerSubmitted();
     },
-    onError: (err: unknown) => {
-      setConfirm(false);
-      alertError('Error saving entry', err);
-    }
+    onError: (err: unknown) => alertError('Error saving entry', err)
   });
 
   const updateGameMutation = useUpdateGameMutation();
@@ -61,17 +55,20 @@ const Names = () => {
       if (postNameMutation.isPending) {
         return;
       }
-      if (!entryRef.current!.value && !confirm) {
-        setConfirm(true);
-        showToast({
-          message: 'Press again to use the placeholder.',
-          header: 'Confirm',
-          type: 'warning'
+      if (!entryRef.current?.value) {
+        showModal({
+          title: 'Use Placeholder',
+          body: `You haven't entered anything. Do you want to use the placeholder "${suggestion}"?`,
+          onConfirm: () =>
+            postNameMutation.mutateAsync({
+              name: suggestion
+            }),
+          confirmVariant: 'warning'
         });
         return;
       }
 
-      postNameMutation.mutate({ name: entryRef.current!.value || suggestion });
+      postNameMutation.mutate({ name: entryRef.current.value });
     };
 
     return (
@@ -92,31 +89,20 @@ const Names = () => {
           spellCheck="false"
           autoCorrect="off"
           maxLength={nameEntryMaxLength}
-          onChange={(e) => {
-            e.preventDefault();
-            if (confirm) setConfirm(false);
-          }}
         />
         <div className="container-fluid mt-4">
           <div className="row gap-2">
             <button
-              className={`btn col-9 btn-${confirm ? 'warning' : 'success'}`}
+              className="btn col-9 btn-success"
               disabled={postNameMutation.isPending}
             >
-              {confirm ? (
-                <>
-                  Use Placeholder <Spinner />
-                </>
-              ) : (
-                <>Submit</>
-              )}
+              Submit
             </button>
             <button
               className="btn btn-outline-secondary col"
               onClick={(e) => {
                 e.preventDefault();
                 nextSuggestion();
-                if (confirm) setConfirm(false);
               }}
             >
               <i className="bi bi-arrow-clockwise"></i>
@@ -131,17 +117,12 @@ const Names = () => {
     });
 
     const hideNames = () => {
-      if (!confirm) {
-        setConfirm(true);
-        showToast({
-          message: 'Press again to confirm hiding names.',
-          header: 'Confirm',
-          type: 'danger'
-        });
-        return;
-      }
-      updateGameMutation.mutate({ phase: END });
-      setConfirm(false);
+      showModal({
+        title: 'Hide Names',
+        body: 'Are you sure you want to hide the names? This will start the next phase of the game.',
+        onConfirm: () => updateGameMutation.mutateAsync({ phase: END }),
+        confirmVariant: 'danger'
+      });
     };
 
     return (
@@ -159,7 +140,7 @@ const Names = () => {
             }}
             disabled={updateGameMutation.isPending}
           >
-            Hide Names <Spinner hide={!confirm} />
+            Hide Names
           </button>
         )}
       </div>

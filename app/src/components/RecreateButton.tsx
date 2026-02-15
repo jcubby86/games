@@ -1,9 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
-import { useState } from 'react';
 import { useNavigate } from 'react-router';
 
-import Spinner from './Spinner';
-import { showToast } from './ToastPortal';
+import { showModal } from './ModalPortal';
 import { useAppContext } from '../contexts/AppContext';
 import { useSocketContext } from '../contexts/SocketContext';
 import { postGame, postPlayer } from '../utils/apiClient';
@@ -20,7 +18,6 @@ const RecreateButton = ({
   const { context, dispatchContext } = useAppContext();
   const socket = useSocketContext();
   const navigate = useNavigate();
-  const [confirm, setConfirm] = useState(false);
 
   const createGameMutation = useMutation({
     mutationFn: () => postGame(context.game!.type),
@@ -33,8 +30,6 @@ const RecreateButton = ({
     onSuccess: async (playerResponse, { game }) => {
       socket.emit('game.recreated', { data: game });
 
-      setConfirm(false);
-
       dispatchContext({
         type: 'save',
         game: playerResponse.data.game!,
@@ -46,28 +41,22 @@ const RecreateButton = ({
         await navigate(to);
       }
     },
-    onError: (err: unknown) => {
-      setConfirm(false);
-      alertError('Unable to create player', err);
-    }
+    onError: (err: unknown) => alertError('Unable to create player', err)
   });
 
-  const recreateGameHandler = async () => {
+  const recreateGameHandler = () => {
     if (!formEnabled) {
       return;
     }
-    if (!confirm) {
-      setConfirm(true);
-      showToast({
-        message: 'Press again to confirm recreating the game.',
-        header: 'Confirm',
-        type: 'success'
-      });
-      return;
-    }
-
-    const gameResponse = await createGameMutation.mutateAsync();
-    createPlayerMutation.mutate({ game: gameResponse.data });
+    showModal({
+      title: 'Recreate Game',
+      body: 'Are you sure you are ready to start a new game?',
+      onConfirm: async () => {
+        const gameResponse = await createGameMutation.mutateAsync();
+        await createPlayerMutation.mutateAsync({ game: gameResponse.data });
+      },
+      confirmVariant: 'success'
+    });
   };
 
   const formEnabled =
@@ -79,11 +68,11 @@ const RecreateButton = ({
         className={className}
         onClick={(e) => {
           e.preventDefault();
-          void recreateGameHandler();
+          recreateGameHandler();
         }}
         disabled={!formEnabled}
       >
-        Play Again <Spinner hide={!confirm} />
+        Play Again
       </button>
     );
   } else {

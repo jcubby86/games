@@ -9,6 +9,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import { FloatingMessagePortal } from './components/FloatingMessagePortal';
 import Loading from './components/Loading';
+import { ModalPortal } from './components/ModalPortal';
 import { ToastPortal } from './components/ToastPortal';
 import { AppContextProvider } from './contexts/AppContext';
 import { SocketContextProvider } from './contexts/SocketContext';
@@ -68,6 +69,7 @@ function App() {
                 </AppContextProvider>
                 <FloatingMessagePortal />
                 <ToastPortal />
+                <ModalPortal />
               </BrowserRouter>
             </ErrorBoundary>
           )}

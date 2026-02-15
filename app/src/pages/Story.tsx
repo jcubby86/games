@@ -1,13 +1,12 @@
 import { useMutation } from '@tanstack/react-query';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 
+import { showModal } from '../components/ModalPortal';
 import PlayerList from '../components/PlayerList';
 import RecreateButton from '../components/RecreateButton';
 import ShareButton from '../components/ShareButton';
-import Spinner from '../components/Spinner';
 import StartGame from '../components/StartGame';
-import { showToast } from '../components/ToastPortal';
 import { useAppContext } from '../contexts/AppContext';
 import { usePlayerQuery } from '../hooks/usePlayerQuery';
 import { useSuggestions } from '../hooks/useSuggestions';
@@ -32,7 +31,6 @@ const Story = () => {
   });
 
   const { context } = useAppContext();
-  const [confirm, setConfirm] = useState(false);
   const entryRef = useRef<HTMLTextAreaElement>(null);
 
   const { playerQuery, setPlayerSubmitted } = usePlayerQuery();
@@ -49,13 +47,9 @@ const Story = () => {
     onSuccess: (data) => {
       entryRef.current!.value = '';
       updateCategory(data.hint?.category);
-      setConfirm(false);
       setPlayerSubmitted();
     },
-    onError: (err: unknown) => {
-      setConfirm(false);
-      alertError('Error saving entry', err);
-    }
+    onError: (err: unknown) => alertError('Error saving entry', err)
   });
 
   const player = playerQuery.data;
@@ -68,18 +62,21 @@ const Story = () => {
       if (postStoryMutation.isPending) {
         return;
       }
-      if (!entryRef.current!.value && !confirm) {
-        setConfirm(true);
-        showToast({
-          message: 'Press again to use the placeholder.',
-          header: 'Confirm',
-          type: 'warning'
+      if (!entryRef.current?.value) {
+        showModal({
+          title: 'Use Placeholder',
+          body: `You haven't entered anything. Do you want to use the placeholder "${suggestion}"?`,
+          onConfirm: () =>
+            postStoryMutation.mutateAsync({
+              value: suggestion
+            }),
+          confirmVariant: 'warning'
         });
         return;
       }
 
       postStoryMutation.mutate({
-        value: entryRef.current!.value || suggestion
+        value: entryRef.current.value
       });
     };
 
@@ -101,31 +98,20 @@ const Story = () => {
           spellCheck="false"
           autoCorrect="off"
           maxLength={player.entry?.hint?.limit ?? storyEntryMaxLength}
-          onChange={(e) => {
-            e.preventDefault();
-            if (confirm) setConfirm(false);
-          }}
         />
         <div className="container-fluid mt-4">
           <div className="row gap-2">
             <button
-              className={`btn col-9 btn-${confirm ? 'warning' : 'success'}`}
+              className="btn col-9 btn-success"
               disabled={postStoryMutation.isPending}
             >
-              {confirm ? (
-                <>
-                  Use Placeholder <Spinner hide={!confirm} />
-                </>
-              ) : (
-                <>Submit</>
-              )}
+              Submit
             </button>
             <button
               className="btn btn-outline-secondary col"
               onClick={(e) => {
                 e.preventDefault();
                 nextSuggestion();
-                if (confirm) setConfirm(false);
               }}
             >
               <i className="bi bi-arrow-clockwise"></i>

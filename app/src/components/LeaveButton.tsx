@@ -1,8 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { showToast } from './ToastPortal';
+import { showModal } from './ModalPortal';
 import { useAppContext } from '../contexts/AppContext';
 import { deletePlayer } from '../utils/apiClient';
 import { logError } from '../utils/errorHandler';
@@ -10,7 +9,6 @@ import { logError } from '../utils/errorHandler';
 const LeaveButton = () => {
   const navigate = useNavigate();
   const { context, dispatchContext } = useAppContext();
-  const [confirm, setConfirm] = useState(false);
 
   const leaveGameMutation = useMutation({
     mutationFn: () => deletePlayer(context.token!, context.player!.uuid),
@@ -25,25 +23,18 @@ const LeaveButton = () => {
     if (!context.player || !context.token || leaveGameMutation.isPending) {
       return;
     }
-    if (!confirm) {
-      setConfirm(true);
-      showToast({
-        message: 'Press again to leave the current game.',
-        header: 'Confirm',
-        type: 'danger'
-      });
-
-      setTimeout(() => setConfirm(false), 3500);
-      return;
-    }
-
-    leaveGameMutation.mutate();
+    showModal({
+      title: 'Leave Game',
+      body: 'Are you sure you want to leave the game?',
+      onConfirm: () => leaveGameMutation.mutateAsync(),
+      confirmVariant: 'danger'
+    });
   };
 
   if (context.player && context.token) {
     return (
       <button
-        className={`btn btn-sm btn-outline-danger ${confirm ? 'bg-danger-subtle' : ''}`}
+        className="btn btn-sm btn-outline-danger"
         onClick={(e) => {
           e.preventDefault();
           void leavePreviousGame();
