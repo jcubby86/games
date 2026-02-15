@@ -5,8 +5,8 @@ import { createPortal } from 'react-dom';
 
 type Message = {
   id: number;
-  message: string;
   header: string;
+  message: string;
   type: Variant;
 };
 
@@ -21,40 +21,41 @@ export function showToast(opts: Omit<Message, 'id'>) {
 }
 
 export function ToastPortal() {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [message, setMessage] = useState<Message | null>(null);
+  const [show, setShow] = useState(false);
+
+  const close = () => setShow(false);
 
   useEffect(() => {
-    const listener = (m: Message) => setMessages((prev) => [...prev, m]);
+    const listener = (m: Message) => {
+      setMessage(m);
+      setShow(true);
+    };
     listeners.push(listener);
     return () => {
       listeners.splice(listeners.indexOf(listener), 1);
     };
   }, []);
 
-  const remove = (id: number) =>
-    setMessages((prev) => prev.filter((m) => m.id !== id));
-
   if (typeof document === 'undefined') return null;
 
   return createPortal(
     <div aria-live="polite" aria-atomic="true" className="position-relative">
       <ToastContainer position="bottom-center" className="pb-5">
-        {messages.map((m) => (
-          <Toast
-            key={`toast-${m.id}`}
-            onClose={() => remove(m.id)}
-            bg={m.type}
-            className={`text-bg-${m.type}`}
-            delay={5000}
-            autohide
-            animation={false}
-          >
-            <Toast.Header>
-              <strong className="me-auto">{m.header}</strong>
-            </Toast.Header>
-            <Toast.Body>{m.message}</Toast.Body>
-          </Toast>
-        ))}
+        <Toast
+          key={`toast-${message?.id}`}
+          onClose={close}
+          bg={message?.type}
+          className={`text-bg-${message?.type}`}
+          delay={5000}
+          autohide
+          show={show}
+        >
+          <Toast.Header>
+            <strong className="me-auto">{message?.header}</strong>
+          </Toast.Header>
+          <Toast.Body>{message?.message}</Toast.Body>
+        </Toast>
       </ToastContainer>
     </div>,
     document.body
