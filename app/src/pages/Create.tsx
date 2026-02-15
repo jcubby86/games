@@ -103,10 +103,15 @@ const Create = () => {
             autoComplete="off"
             spellCheck="false"
             autoCorrect="off"
+            autoCapitalize="off"
             placeholder="Nickname"
             maxLength={nicknameMaxLength}
             defaultValue={context.player?.nickname}
             ref={nicknameInputRef}
+            autoFocus
+            data-form-type="other"
+            data-lpignore="true"
+            data-1p-ignore="true"
           />
           <label htmlFor="nicknameInput" className="form-label">
             Nickname

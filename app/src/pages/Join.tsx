@@ -18,15 +18,9 @@ import { GameDto } from '../utils/types';
 const Join = () => {
   const { context, dispatchContext } = useAppContext();
   const [code, setCode] = useState<string>(context.game?.code || '');
-  const [prevContextCode, setPrevContextCode] = useState(context.game?.code);
   const nicknameInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
-
-  // Sync code state with context changes during render
-  if (context.game?.code !== prevContextCode) {
-    setCode(context.game?.code || '');
-    setPrevContextCode(context.game?.code);
-  }
+  const shouldFocusNickname = code.length === gameCodeLength;
 
   const gameQuery = useQuery({
     queryKey: ['games', { code }],
@@ -146,6 +140,7 @@ const Join = () => {
             placeholder="Game Code (abxy)"
             maxLength={gameCodeLength}
             value={code}
+            autoFocus={!shouldFocusNickname}
             onChange={(e) => {
               e.preventDefault();
               setCode(e.target.value.toUpperCase());
@@ -164,10 +159,15 @@ const Join = () => {
             autoComplete="off"
             spellCheck="false"
             autoCorrect="off"
+            autoCapitalize="off"
             placeholder="Nickname"
             maxLength={nicknameMaxLength}
             defaultValue={context.player?.nickname}
             ref={nicknameInputRef}
+            autoFocus={shouldFocusNickname}
+            data-form-type="other"
+            data-lpignore="true"
+            data-1p-ignore="true"
           />
           <label htmlFor="nicknameInput" className="form-label">
             Nickname

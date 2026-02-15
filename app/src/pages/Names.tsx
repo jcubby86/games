@@ -87,10 +87,8 @@ const Names = () => {
           placeholder={suggestion}
           ref={entryRef}
           className="form-control"
-          autoComplete="off"
-          spellCheck="false"
-          autoCorrect="off"
           maxLength={nameEntryMaxLength}
+          autoFocus
         />
         <div className="container-fluid mt-4">
           <div className="row gap-2">

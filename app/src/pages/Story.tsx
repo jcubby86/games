@@ -96,10 +96,8 @@ const Story = () => {
           ref={entryRef}
           className="form-control"
           style={{ minHeight: '100px' }}
-          autoComplete="off"
-          spellCheck="false"
-          autoCorrect="off"
           maxLength={player.entry?.hint?.limit ?? storyEntryMaxLength}
+          autoFocus
         />
         <div className="container-fluid mt-4">
           <div className="row gap-2">
