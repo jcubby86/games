@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Button, Modal } from 'react-bootstrap';
-import { Variant } from 'react-bootstrap/esm/types';
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
+import { ButtonVariant } from 'react-bootstrap/types';
 import { createPortal } from 'react-dom';
 
 import { SpinnerButton } from './SpinnerButton';
@@ -9,7 +10,7 @@ type Message = {
   title: string;
   body: string;
   onConfirm: () => Promise<any>;
-  confirmVariant?: Variant;
+  confirmVariant?: ButtonVariant;
 };
 
 const listeners: Array<(m: Message) => void> = [];

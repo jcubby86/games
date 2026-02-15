@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { Variant } from 'react-bootstrap/esm/types';
+import { ButtonVariant } from 'react-bootstrap/types';
 import { useNavigate } from 'react-router';
 
 import { showModal } from './ModalPortal';
@@ -11,7 +11,7 @@ import { alertError } from '../utils/errorHandler';
 import { GameDto } from '../utils/types';
 
 type RecreateButtonProps = {
-  variant?: Variant;
+  variant?: ButtonVariant;
   className?: string;
   to?: string;
 };

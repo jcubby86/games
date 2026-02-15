@@ -1,11 +1,12 @@
-import { Button, Spinner } from 'react-bootstrap';
-import { Variant } from 'react-bootstrap/esm/types';
+import Button from 'react-bootstrap/Button';
+import Spinner from 'react-bootstrap/Spinner';
+import { ButtonVariant } from 'react-bootstrap/types';
 
 type SpinnerButtonProps = {
   children: React.ReactNode;
   disabled?: boolean;
   spinner?: boolean;
-  variant?: Variant;
+  variant?: ButtonVariant;
   size?: 'sm' | 'lg';
   className?: string;
   type?: 'reset' | 'button' | 'submit' | undefined;

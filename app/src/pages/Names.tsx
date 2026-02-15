@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { useRef } from 'react';
-import { Button } from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
 
 import List from '../components/List';
 import { showModal } from '../components/ModalPortal';
