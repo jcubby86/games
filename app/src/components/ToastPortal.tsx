@@ -32,10 +32,7 @@ export function ToastPortal() {
   }, []);
 
   const remove = (id: number) =>
-    setTimeout(
-      () => setMessages((prev) => prev.filter((m) => m.id !== id)),
-      1500
-    );
+    setMessages((prev) => prev.filter((m) => m.id !== id));
 
   if (typeof document === 'undefined') return null;
 
@@ -47,8 +44,10 @@ export function ToastPortal() {
             key={`toast-${m.id}`}
             onClose={() => remove(m.id)}
             bg={m.type}
-            delay={4000}
+            className={`text-bg-${m.type}`}
+            delay={5000}
             autohide
+            animation={false}
           >
             <Toast.Header>
               <strong className="me-auto">{m.header}</strong>
