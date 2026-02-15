@@ -40,7 +40,13 @@ export function ModalPortal() {
   if (typeof document === 'undefined') return null;
 
   return createPortal(
-    <Modal show={show} onHide={cancel} backdrop="static" keyboard={false}>
+    <Modal
+      show={show}
+      onHide={cancel}
+      backdrop="static"
+      keyboard={false}
+      className="my-5"
+    >
       <Modal.Header closeButton>
         <Modal.Title>{message?.title}</Modal.Title>
       </Modal.Header>
