@@ -60,13 +60,13 @@ function App() {
               )}
             >
               <BrowserRouter>
-                <AppContextProvider>
-                  <SocketContextProvider>
-                    <Suspense fallback={<Loading />}>
+                <Suspense fallback={<Loading />}>
+                  <AppContextProvider>
+                    <SocketContextProvider>
                       <AppRoutes />
-                    </Suspense>
-                  </SocketContextProvider>
-                </AppContextProvider>
+                    </SocketContextProvider>
+                  </AppContextProvider>
+                </Suspense>
                 <FloatingMessagePortal />
                 <ToastPortal />
                 <ModalPortal />

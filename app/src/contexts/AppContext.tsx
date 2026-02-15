@@ -1,10 +1,4 @@
-import {
-  Dispatch,
-  createContext,
-  useContext,
-  useEffect,
-  useReducer
-} from 'react';
+import { Dispatch, createContext, useContext, useReducer } from 'react';
 
 import { GameDto, PlayerDto } from '../utils/types';
 
@@ -98,15 +92,7 @@ export const AppContextProvider = ({
 }: {
   children: React.ReactElement;
 }) => {
-  const [context, dispatchContext] = useReducer(reducer, {});
-
-  useEffect(() => {
-    const storedState = loadFromStorage();
-
-    if (storedState.player || storedState.game || storedState.token) {
-      dispatchContext({ type: 'load', state: storedState });
-    }
-  }, []);
+  const [context, dispatchContext] = useReducer(reducer, null, loadFromStorage);
 
   return (
     <AppContext.Provider value={{ context, dispatchContext }}>
