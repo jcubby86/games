@@ -39,7 +39,7 @@ const LeaveButton = () => {
         size="sm"
         onClick={(e) => {
           e.preventDefault();
-          void leavePreviousGame();
+          leavePreviousGame();
         }}
         disabled={leaveGameMutation.isPending}
       >

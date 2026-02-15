@@ -42,7 +42,7 @@ const StartGame = ({ title, players }: StartGameProps) => {
           className="row gap-2 mb-4"
           onSubmit={(e) => {
             e.preventDefault();
-            void startGame();
+            startGame();
           }}
         >
           <div className="form-floating mb-3 col p-0">
