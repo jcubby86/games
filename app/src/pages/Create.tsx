@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { SpinnerButton } from '../components/SpinnerButton';
 import { useAppContext } from '../contexts/AppContext';
 import { deletePlayer, postGame, postPlayer } from '../utils/apiClient';
 import { nicknameMaxLength } from '../utils/constants';
@@ -21,13 +22,6 @@ const Create = () => {
     onSettled: () => dispatchContext({ type: 'clear' })
   });
 
-  const leavePreviousGame = async () => {
-    if (!context.player || !context.token) {
-      return;
-    }
-    await leaveGameMutation.mutateAsync();
-  };
-
   const createGameMutation = useMutation({
     mutationFn: async ({ type }: { type: string }) => postGame(type),
     onError: (err: unknown) => alertError('Unable to create game', err)
@@ -45,6 +39,19 @@ const Create = () => {
       }),
     onError: (err: unknown) => alertError('Unable to create player', err)
   });
+
+  const mutations = [
+    leaveGameMutation,
+    createGameMutation,
+    createPlayerMutation
+  ];
+
+  const leavePreviousGame = async () => {
+    if (!context.player || !context.token) {
+      return;
+    }
+    await leaveGameMutation.mutateAsync();
+  };
 
   const submit = async () => {
     if (!formEnabled) {
@@ -78,10 +85,7 @@ const Create = () => {
     void navigate('/' + gameType);
   };
 
-  const formEnabled =
-    gameType !== '' &&
-    !createGameMutation.isPending &&
-    !createPlayerMutation.isPending;
+  const formEnabled = gameType !== '' && mutations.every((m) => !m.isPending);
 
   return (
     <div className="w-100">
@@ -137,12 +141,15 @@ const Create = () => {
             );
           })}
         </ul>
-        <input
-          type="submit"
-          value="Create Game"
-          className="form-control btn btn-success"
+        <SpinnerButton
+          variant="success"
+          className="form-control"
           disabled={!formEnabled}
-        />
+          spinner={mutations.some((m) => m.isPending)}
+          type="submit"
+        >
+          Create Game
+        </SpinnerButton>
       </form>
       {gameType && (
         <p className="p-3 text-wrap">

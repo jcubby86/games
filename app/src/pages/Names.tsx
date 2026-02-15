@@ -1,10 +1,12 @@
 import { useMutation } from '@tanstack/react-query';
 import { useRef } from 'react';
+import { Button } from 'react-bootstrap';
 
 import List from '../components/List';
 import { showModal } from '../components/ModalPortal';
 import PlayerList from '../components/PlayerList';
 import RecreateButton from '../components/RecreateButton';
+import { SpinnerButton } from '../components/SpinnerButton';
 import StartGame from '../components/StartGame';
 import { useAppContext } from '../contexts/AppContext';
 import { usePlayerQuery } from '../hooks/usePlayerQuery';
@@ -92,21 +94,25 @@ const Names = () => {
         />
         <div className="container-fluid mt-4">
           <div className="row gap-2">
-            <button
-              className="btn col-9 btn-success"
+            <SpinnerButton
+              variant="success"
+              className="col-9"
               disabled={postNameMutation.isPending}
+              type="submit"
             >
               Submit
-            </button>
-            <button
-              className="btn btn-outline-secondary col"
+            </SpinnerButton>
+            <Button
+              variant="outline-secondary"
+              className="col"
               onClick={(e) => {
                 e.preventDefault();
                 nextSuggestion();
               }}
+              disabled={postNameMutation.isPending}
             >
               <i className="bi bi-arrow-clockwise"></i>
-            </button>
+            </Button>
           </div>
         </div>
       </form>
@@ -132,8 +138,9 @@ const Names = () => {
           <List items={sortedEntries.map((e) => e.name ?? '')} />
         </div>
         {player?.roles?.includes('host') && (
-          <button
-            className={'btn btn-danger mt-4'}
+          <SpinnerButton
+            variant="danger"
+            className={'mt-4'}
             onClick={(e) => {
               e.preventDefault();
               hideNames();
@@ -141,7 +148,7 @@ const Names = () => {
             disabled={updateGameMutation.isPending}
           >
             Hide Names
-          </button>
+          </SpinnerButton>
         )}
       </div>
     );
@@ -149,7 +156,7 @@ const Names = () => {
     return (
       <div className="w-100 d-flex flex-column">
         <h4 className="w-100 text-center pb-3">Enjoy the game!</h4>
-        <RecreateButton className="btn btn-success" />
+        <RecreateButton />
       </div>
     );
   } else {

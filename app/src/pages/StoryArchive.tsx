@@ -57,7 +57,8 @@ export default function StoryArchive() {
       <div className="container-fluid">
         <div className="row gap-2">
           <RecreateButton
-            className="btn btn-outline-success bg-success-subtle col"
+            variant="outline-success"
+            className="bg-success-subtle col"
             to="/story"
           />
           <ShareButton

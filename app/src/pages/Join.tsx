@@ -2,6 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { SpinnerButton } from '../components/SpinnerButton';
 import { useAppContext } from '../contexts/AppContext';
 import {
   deletePlayer,
@@ -74,6 +75,12 @@ const Join = () => {
     }
   });
 
+  const mutations = [
+    leaveGameMutation,
+    updatePlayerMutation,
+    createPlayerMutation
+  ];
+
   const leavePreviousGame = async () => {
     if (!context.player || !context.token) {
       return;
@@ -117,9 +124,7 @@ const Join = () => {
   };
 
   const formEnabled =
-    gameQuery.isSuccess &&
-    !updatePlayerMutation.isPending &&
-    !createPlayerMutation.isPending;
+    gameQuery.isSuccess && mutations.every((m) => !m.isPending);
 
   return (
     <div>
@@ -169,16 +174,17 @@ const Join = () => {
           </label>
         </div>
 
-        <input
+        <SpinnerButton
+          variant="success"
           disabled={!formEnabled}
+          spinner={mutations.some((m) => m.isPending)}
+          className="form-control col-12 mt-3"
           type="submit"
-          className="form-control btn btn-success col-12 mt-3"
-          value={
-            gameQuery.isSuccess && context.game?.code === gameQuery.data.code
-              ? 'Return to Game'
-              : 'Join Game'
-          }
-        />
+        >
+          {gameQuery.isSuccess && context.game?.code === gameQuery.data.code
+            ? 'Return to Game'
+            : 'Join Game'}
+        </SpinnerButton>
         {gameQuery.isSuccess && (
           <div className="w-100 text-center text-muted">
             {

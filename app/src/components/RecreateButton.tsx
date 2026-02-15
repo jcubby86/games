@@ -1,20 +1,22 @@
 import { useMutation } from '@tanstack/react-query';
+import { Variant } from 'react-bootstrap/esm/types';
 import { useNavigate } from 'react-router';
 
 import { showModal } from './ModalPortal';
+import { SpinnerButton } from './SpinnerButton';
 import { useAppContext } from '../contexts/AppContext';
 import { useSocketContext } from '../contexts/SocketContext';
 import { postGame, postPlayer } from '../utils/apiClient';
 import { alertError } from '../utils/errorHandler';
 import { GameDto } from '../utils/types';
 
-const RecreateButton = ({
-  className,
-  to
-}: {
+type RecreateButtonProps = {
+  variant?: Variant;
   className?: string;
   to?: string;
-}) => {
+};
+
+const RecreateButton = ({ className, to, variant }: RecreateButtonProps) => {
   const { context, dispatchContext } = useAppContext();
   const socket = useSocketContext();
   const navigate = useNavigate();
@@ -64,7 +66,8 @@ const RecreateButton = ({
 
   if (context.game && context.player?.roles?.includes('host')) {
     return (
-      <button
+      <SpinnerButton
+        variant={variant || 'success'}
         className={className}
         onClick={(e) => {
           e.preventDefault();
@@ -73,7 +76,7 @@ const RecreateButton = ({
         disabled={!formEnabled}
       >
         Play Again
-      </button>
+      </SpinnerButton>
     );
   } else {
     return <></>;

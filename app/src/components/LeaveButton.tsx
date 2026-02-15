@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
 import { showModal } from './ModalPortal';
+import { SpinnerButton } from './SpinnerButton';
 import { useAppContext } from '../contexts/AppContext';
 import { deletePlayer } from '../utils/apiClient';
 import { logError } from '../utils/errorHandler';
@@ -33,8 +34,9 @@ const LeaveButton = () => {
 
   if (context.player && context.token) {
     return (
-      <button
-        className="btn btn-sm btn-outline-danger"
+      <SpinnerButton
+        variant="outline-danger"
+        size="sm"
         onClick={(e) => {
           e.preventDefault();
           void leavePreviousGame();
@@ -43,7 +45,7 @@ const LeaveButton = () => {
       >
         <i className="bi bi-person-x mx-1"></i>
         Leave Game
-      </button>
+      </SpinnerButton>
     );
   } else {
     return <></>;

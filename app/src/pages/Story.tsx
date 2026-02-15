@@ -1,11 +1,13 @@
 import { useMutation } from '@tanstack/react-query';
 import { useRef } from 'react';
+import { Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 import { showModal } from '../components/ModalPortal';
 import PlayerList from '../components/PlayerList';
 import RecreateButton from '../components/RecreateButton';
 import ShareButton from '../components/ShareButton';
+import { SpinnerButton } from '../components/SpinnerButton';
 import StartGame from '../components/StartGame';
 import { useAppContext } from '../contexts/AppContext';
 import { usePlayerQuery } from '../hooks/usePlayerQuery';
@@ -101,21 +103,25 @@ const Story = () => {
         />
         <div className="container-fluid mt-4">
           <div className="row gap-2">
-            <button
-              className="btn col-9 btn-success"
+            <SpinnerButton
+              variant="success"
+              className="col-9"
               disabled={postStoryMutation.isPending}
+              type="submit"
             >
               Submit
-            </button>
-            <button
-              className="btn btn-outline-secondary col"
+            </SpinnerButton>
+            <Button
+              variant="outline-secondary"
+              className="col"
               onClick={(e) => {
                 e.preventDefault();
                 nextSuggestion();
               }}
+              disabled={postStoryMutation.isPending}
             >
               <i className="bi bi-arrow-clockwise"></i>
-            </button>
+            </Button>
           </div>
         </div>
       </form>
@@ -128,7 +134,7 @@ const Story = () => {
         </p>
         <div className="container-fluid">
           <div className="row gap-2">
-            <RecreateButton className="col btn btn-success" />
+            <RecreateButton className="col" />
             <Link
               to={`/story/${game.uuid}`}
               className="col btn btn-outline-success bg-success-subtle"

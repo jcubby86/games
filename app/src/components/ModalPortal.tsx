@@ -3,6 +3,8 @@ import { Button, Modal } from 'react-bootstrap';
 import { Variant } from 'react-bootstrap/esm/types';
 import { createPortal } from 'react-dom';
 
+import { SpinnerButton } from './SpinnerButton';
+
 type Message = {
   title: string;
   body: string;
@@ -19,10 +21,16 @@ export function showModal(msg: Message) {
 export function ModalPortal() {
   const [message, setMessage] = useState<Message | null>(null);
   const [show, setShow] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const confirm = async () => {
-    await message?.onConfirm();
-    setShow(false);
+    setLoading(true);
+    try {
+      await message?.onConfirm();
+      setShow(false);
+    } finally {
+      setLoading(false);
+    }
   };
   const cancel = () => setShow(false);
 
@@ -52,15 +60,16 @@ export function ModalPortal() {
       </Modal.Header>
       <Modal.Body>{message?.body}</Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={cancel}>
+        <Button variant="secondary" onClick={cancel} disabled={loading}>
           Cancel
         </Button>
-        <Button
+        <SpinnerButton
           variant={message?.confirmVariant || 'primary'}
           onClick={() => void confirm()}
+          disabled={loading}
         >
           Confirm
-        </Button>
+        </SpinnerButton>
       </Modal.Footer>
     </Modal>,
     document.body

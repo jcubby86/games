@@ -3,6 +3,7 @@ import { useRef } from 'react';
 import Glitch from './Glitch';
 import { showModal } from './ModalPortal';
 import PlayerList from './PlayerList';
+import { SpinnerButton } from './SpinnerButton';
 import { useAppContext } from '../contexts/AppContext';
 import { useUpdateGameMutation } from '../hooks/useUpdateGameMutation';
 import { PLAY } from '../utils/constants';
@@ -79,12 +80,14 @@ const StartGame = ({ title, players }: StartGameProps) => {
             </label>
           </div>
           {context.player?.roles?.includes('host') && (
-            <button
-              className="form-control btn btn-success col-12"
+            <SpinnerButton
+              variant="success"
+              className="form-control col-12"
               disabled={updateGameMutation.isPending}
+              type="submit"
             >
               Start Game
-            </button>
+            </SpinnerButton>
           )}
         </form>
         <PlayerList players={players} />

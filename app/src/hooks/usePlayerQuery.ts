@@ -44,7 +44,10 @@ export const usePlayerQuery = () => {
 
   const setPlayerQueryData = (updater: (oldData: PlayerDto) => PlayerDto) => {
     if (!playerQuery.isFetching) {
-      queryClient.setQueryData(queryKey, updater);
+      queryClient.setQueryData(queryKey, (oldData: PlayerDto | undefined) => {
+        if (!oldData) return undefined;
+        return updater(oldData);
+      });
     }
   };
 
