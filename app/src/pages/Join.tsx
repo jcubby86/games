@@ -215,6 +215,7 @@ const Join = () => {
                   e.stopPropagation();
                   setNickname(e.target.value.toLowerCase());
                 }}
+                className="text-overflow-ellipsis"
                 isInvalid={nickname === ''}
               />
             </FloatingLabel>

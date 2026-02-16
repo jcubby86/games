@@ -64,6 +64,14 @@ footer i {
   transition: background-color 0.1s;
 }
 
+.min-width-max-content {
+  min-width: max-content;
+}
+
+.text-overflow-ellipsis {
+  text-overflow: ellipsis;
+}
+
 $navbar-padding-y: 0.2rem;
 
 // Import all of Bootstrap's SCSS

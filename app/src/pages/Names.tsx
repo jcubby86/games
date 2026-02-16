@@ -92,9 +92,9 @@ const Names = () => {
                 type="search"
                 placeholder={suggestion}
                 ref={entryRef}
-                className="form-control"
                 maxLength={nameEntryMaxLength}
                 autoFocus
+                className="text-overflow-ellipsis"
               />
             </Col>
           </Row>

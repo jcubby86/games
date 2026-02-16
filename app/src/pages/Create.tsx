@@ -106,7 +106,7 @@ const Create = () => {
           </Col>
         </Row>
         <Row className="gap-2 mt-3">
-          <Col className="p-0">
+          <Col className="p-0 min-width-max-content">
             <FloatingLabel label="Game Variant" controlId="gameVariantInput">
               <Form.Select
                 aria-label="select"
@@ -146,6 +146,7 @@ const Create = () => {
                   e.stopPropagation();
                   setNickname(e.target.value.toLowerCase());
                 }}
+                className="text-overflow-ellipsis"
                 isInvalid={nickname === ''}
               />
             </FloatingLabel>

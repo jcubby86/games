@@ -68,6 +68,7 @@ const StartGame = ({ title, players }: StartGameProps) => {
                 value={String(players?.length ?? 0)}
                 readOnly
                 placeholder="Player Count"
+                className="text-overflow-ellipsis"
               />
             </FloatingLabel>
           </Col>
