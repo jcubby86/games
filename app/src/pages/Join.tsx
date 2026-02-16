@@ -155,6 +155,7 @@ const Join = () => {
   return (
     <Container fluid>
       <Form
+        noValidate
         onSubmit={(e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -210,14 +211,14 @@ const Join = () => {
           </Col>
         </Row>
 
-        <Row className="gap-2">
+        <Row className="gap-2 mt-3">
           <SpinnerButton
             variant="success"
             disabled={!formEnabled}
             loading={
               createPlayerMutation.isPending || updatePlayerMutation.isPending
             }
-            className="form-control col mt-3"
+            className="col"
             type="submit"
           >
             {buttonLabel}
@@ -232,7 +233,7 @@ const Join = () => {
               }}
               disabled={!formEnabled}
               loading={leaveGameMutation.isPending}
-              className="form-control col mt-3 bg-danger-subtle"
+              className="col bg-danger-subtle"
             >
               Leave Current Game
             </SpinnerButton>
@@ -240,7 +241,7 @@ const Join = () => {
         </Row>
         <Row className="mt-3">
           {gameQuery.isSuccess && (
-            <div className="text-center text-muted">
+            <div className="text-center text-muted col">
               {
                 gameVariants.find(
                   (v) => v.type === gameQuery.data.type.toLowerCase()
@@ -249,7 +250,7 @@ const Join = () => {
             </div>
           )}
           {gameQuery.isError && (
-            <div className="text-center text-danger">Game not found</div>
+            <div className="text-center text-danger col">Game not found</div>
           )}
         </Row>
       </Form>

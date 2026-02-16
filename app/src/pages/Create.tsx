@@ -1,7 +1,9 @@
 import { useMutation } from '@tanstack/react-query';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
+import { Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
+import { showModal } from '../components/ModalPortal';
 import { SpinnerButton } from '../components/SpinnerButton';
 import { useAppContext } from '../contexts/AppContext';
 import { deletePlayer, postGame, postPlayer } from '../utils/apiClient';
@@ -12,8 +14,8 @@ import { GameDto } from '../utils/types';
 
 const Create = () => {
   const { context, dispatchContext } = useAppContext();
-  const [gameType, setGameType] = useState('');
-  const nicknameInputRef = useRef<HTMLInputElement>(null);
+  const [gameType, setGameType] = useState<string | null>(null);
+  const [nickname, setNickname] = useState(context.player?.nickname || null);
   const navigate = useNavigate();
 
   const leaveGameMutation = useMutation({
@@ -24,7 +26,7 @@ const Create = () => {
 
   const createGameMutation = useMutation({
     mutationFn: async ({ type }: { type: string }) => postGame(type),
-    onError: (err: unknown) => alertError('Unable to create game', err)
+    onError: (err: unknown) => alertError('Error creating game', err)
   });
 
   const createPlayerMutation = useMutation({
@@ -37,7 +39,7 @@ const Create = () => {
         game: playerResponse.data.game!,
         token: playerResponse.headers['x-auth-token'] as string
       }),
-    onError: (err: unknown) => alertError('Unable to create player', err)
+    onError: (err: unknown) => alertError('Error creating player', err)
   });
 
   const mutations = [
@@ -45,13 +47,6 @@ const Create = () => {
     createGameMutation,
     createPlayerMutation
   ];
-
-  const leavePreviousGame = async () => {
-    if (!context.player || !context.token) {
-      return;
-    }
-    await leaveGameMutation.mutateAsync();
-  };
 
   const submit = async () => {
     if (!formEnabled) {
@@ -61,108 +56,115 @@ const Create = () => {
       alertError('Please select a game type', {});
       return;
     }
-    if (!nicknameInputRef.current?.value) {
-      alertError('Please enter a nickname', undefined);
-      nicknameInputRef.current?.focus();
-      nicknameInputRef.current?.classList.add('is-invalid');
-      return;
+
+    if (context.game && context.player && context.token) {
+      showModal({
+        title: 'Create Game',
+        body: 'Are you sure you want to create a new game? You will leave your current game.',
+        onConfirm: async () => {
+          const gameResponse = await createGameMutation.mutateAsync({
+            type: gameType.toUpperCase()
+          });
+          await leaveGameMutation.mutateAsync();
+          await createPlayerMutation.mutateAsync({
+            game: gameResponse.data,
+            nickname
+          });
+          await navigate(`/${gameType}`);
+        },
+        confirmVariant: 'success'
+      });
+    } else {
+      const gameResponse = await createGameMutation.mutateAsync({
+        type: gameType.toUpperCase()
+      });
+      await createPlayerMutation.mutateAsync({
+        game: gameResponse.data,
+        nickname
+      });
+      await navigate(`/${gameType}`);
     }
-
-    const nickname = nicknameInputRef.current.value;
-
-    const gameResponse = await createGameMutation.mutateAsync({
-      type: gameType.toUpperCase()
-    });
-
-    await leavePreviousGame();
-
-    await createPlayerMutation.mutateAsync({
-      game: gameResponse.data,
-      nickname
-    });
-
-    nicknameInputRef.current?.classList.remove('is-invalid');
-    void navigate('/' + gameType);
   };
 
-  const formEnabled = gameType !== '' && mutations.every((m) => !m.isPending);
+  const formEnabled =
+    gameType && nickname && mutations.every((m) => !m.isPending);
 
   return (
-    <div className="w-100">
-      <form
+    <Container fluid>
+      <Form
+        noValidate
         onSubmit={(e) => {
           e.preventDefault();
           e.stopPropagation();
           void submit();
         }}
       >
-        <div className="form-floating mb-3">
-          <input
-            id="nicknameInput"
-            className="form-control"
-            type="search"
-            autoComplete="off"
-            spellCheck="false"
-            autoCorrect="off"
-            autoCapitalize="off"
-            placeholder="Nickname"
-            maxLength={nicknameMaxLength}
-            defaultValue={context.player?.nickname}
-            ref={nicknameInputRef}
-            autoFocus
-            data-form-type="other"
-            data-lpignore="true"
-            data-1p-ignore="true"
-          />
-          <label htmlFor="nicknameInput" className="form-label">
-            Nickname
-          </label>
-        </div>
-        <ul className="list-group my-4">
-          {gameVariants.map((variant) => {
-            return (
-              <li
-                className="list-group-item"
-                key={variant.type}
-                aria-pressed={gameType === variant.type}
+        <Row className="gap-2">
+          <Col className="p-0">
+            <FloatingLabel label="Game Variant" controlId="gameVariantInput">
+              <Form.Select
+                aria-label="select"
+                onChange={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setGameType(e.currentTarget.value);
+                }}
+                isInvalid={gameType === ''}
               >
-                <input
-                  className="form-check-input me-2"
-                  type="radio"
-                  name="listGroupRadio"
-                  value={variant.type}
-                  id={`radio-${variant.type}`}
-                  checked={gameType === variant.type}
-                  onChange={(e) => {
-                    setGameType(e.target.value);
-                  }}
-                />
-                <label
-                  className="form-check-label stretched-link"
-                  htmlFor={`radio-${variant.type}`}
-                >
-                  {variant.title}
-                </label>
-              </li>
-            );
-          })}
-        </ul>
-        <SpinnerButton
-          variant="success"
-          className="form-control"
-          disabled={!formEnabled}
-          loading={mutations.some((m) => m.isPending)}
-          type="submit"
-        >
-          Create Game
-        </SpinnerButton>
-      </form>
-      {gameType && (
-        <p className="p-3 text-wrap">
-          {gameVariants.find((v) => v.type === gameType)?.description}
-        </p>
-      )}
-    </div>
+                <option value="">...</option>
+                {gameVariants.map((variant) => (
+                  <option key={variant.type} value={variant.type}>
+                    {variant.title}
+                  </option>
+                ))}
+              </Form.Select>
+            </FloatingLabel>
+          </Col>
+
+          <Col className="p-0">
+            <FloatingLabel label="Nickname" controlId="nicknameInput">
+              <Form.Control
+                type="search"
+                autoComplete="off"
+                spellCheck="false"
+                autoCorrect="off"
+                autoCapitalize="off"
+                placeholder="Nickname"
+                maxLength={nicknameMaxLength}
+                value={nickname ?? ''}
+                data-form-type="other"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                onChange={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setNickname(e.target.value.toLowerCase());
+                }}
+                isInvalid={nickname === ''}
+              />
+            </FloatingLabel>
+          </Col>
+        </Row>
+        <Row className="gap-2 mt-3">
+          <SpinnerButton
+            variant="success"
+            className="form-control col"
+            disabled={!formEnabled}
+            loading={mutations.some((m) => m.isPending)}
+            type="submit"
+          >
+            Create Game
+          </SpinnerButton>
+        </Row>
+      </Form>
+      <Row className="mt-3">
+        {gameType && (
+          <div className="text-wrap text-muted col">
+            {gameVariants.find((v) => v.type === gameType)?.description}
+          </div>
+        )}
+      </Row>
+    </Container>
   );
 };
 

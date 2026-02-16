@@ -47,7 +47,7 @@ const StartGame = ({ title, players }: StartGameProps) => {
             <input
               className="form-control"
               type="text"
-              value={context.game?.code}
+              value={context.game?.code.toLowerCase()}
               aria-label="game code"
               readOnly
               id="gameCode"
