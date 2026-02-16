@@ -11,7 +11,7 @@ const Home = () => {
     <>
       <Container fluid className="m-0">
         <Row className="gap-2">
-          <Col xs={12}>
+          <Col xs={12} className="p-0">
             <Glitch text="Games" />
           </Col>
           {context.game && (

@@ -40,10 +40,12 @@ const StartGame = ({ title, players }: StartGameProps) => {
           startGame();
         }}
       >
-        <Form.Text as="div" className="text-center mb-3">
-          <Glitch text={title} className="glitch-small" />
-        </Form.Text>
-        <Row className="gap-2">
+        <Row>
+          <Col className="p-0">
+            <Glitch text={title} className="glitch-small" />
+          </Col>
+        </Row>
+        <Row className="gap-2 mt-3">
           <Col className="p-0">
             <FloatingLabel label="Game Code" controlId="gameCode">
               <Form.Control

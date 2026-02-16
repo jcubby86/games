@@ -1,9 +1,13 @@
+import { Button } from 'react-bootstrap';
+import { Variant } from 'react-bootstrap/types';
+
 import { logError } from '../utils/errorHandler';
 
 interface ShareProps {
   path: string;
   title?: string;
   text?: string;
+  variant: Variant;
   className?: string;
 }
 
@@ -30,7 +34,7 @@ const ShareButton = ({ className, path, title, text }: ShareProps) => {
 
   if (navigator['share']) {
     return (
-      <button
+      <Button
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -39,7 +43,7 @@ const ShareButton = ({ className, path, title, text }: ShareProps) => {
         className={className}
       >
         <i className="bi bi-share-fill"></i>
-      </button>
+      </Button>
     );
   } else {
     return <></>;

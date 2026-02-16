@@ -13,10 +13,10 @@ import { GameDto } from '../utils/types';
 type RecreateButtonProps = {
   variant?: ButtonVariant;
   className?: string;
-  to?: string;
+  path?: string;
 };
 
-const RecreateButton = ({ className, to, variant }: RecreateButtonProps) => {
+const RecreateButton = ({ className, path, variant }: RecreateButtonProps) => {
   const { context, dispatchContext } = useAppContext();
   const socket = useSocketContext();
   const navigate = useNavigate();
@@ -39,8 +39,8 @@ const RecreateButton = ({ className, to, variant }: RecreateButtonProps) => {
         token: playerResponse.headers['x-auth-token'] as string
       });
 
-      if (to) {
-        await navigate(to);
+      if (path) {
+        await navigate(path);
       }
     },
     onError: (err: unknown) => alertError('Unable to create player', err)

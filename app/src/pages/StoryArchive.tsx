@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { Col, Container, ListGroup, Row } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 
 import Glitch from '../components/Glitch';
@@ -6,7 +7,6 @@ import RecreateButton from '../components/RecreateButton';
 import ShareButton from '../components/ShareButton';
 import { getStoryEntries } from '../utils/apiClient';
 import { StoryVariant } from '../utils/gameVariants';
-import { StoryArchiveDto } from '../utils/types';
 
 export default function StoryArchive() {
   const { gameUuid } = useParams();
@@ -22,53 +22,40 @@ export default function StoryArchive() {
 
   const stories = storyQuery.data;
 
-  const Items = () => {
-    return (
-      <>
-        {stories?.map((item) => {
-          return <ListItem key={item.player.uuid} item={item} />;
-        })}
-      </>
-    );
-  };
-
-  const ListItem = ({ item }: { item: StoryArchiveDto }) => {
-    return (
-      <li id={item.player.uuid} className="list-group-item text-break">
-        <div className="ms-2 me-auto">
-          <p className="fw-bold mb-1 text-decoration-underline">
-            {item.player.nickname}
-          </p>
-          <p>{item.story}</p>
-        </div>
-      </li>
-    );
-  };
-
   return (
-    <div className="d-flex flex-column w-100">
-      <div className="text-center">
-        <Glitch text={StoryVariant.title} className="mb-0 glitch-small" />
-      </div>
+    <Container fluid>
+      <Row>
+        <Col className="p-0">
+          <Glitch text={StoryVariant.title} className="glitch-small" />
+        </Col>
+      </Row>
+      <Row className="mt-3">
+        <ListGroup>
+          {stories?.map((item) => (
+            <ListGroup.Item key={item.player.uuid} className="text-break px-3">
+              <h5 className="fw-bold mb-1 text-decoration-underline fs-6">
+                {item.player.nickname}
+              </h5>
+              <p>{item.story}</p>
+            </ListGroup.Item>
+          ))}
+        </ListGroup>
+      </Row>
 
-      <ul className="list-group my-3 w-100">
-        <Items />
-      </ul>
-      <div className="container-fluid">
-        <div className="row gap-2">
-          <RecreateButton
-            variant="outline-success"
-            className="bg-success-subtle col"
-            to="/story"
-          />
-          <ShareButton
-            className="btn col-2 btn-outline-secondary bg-secondary-subtle"
-            path={`/story/${gameUuid}`}
-            title={'Games: ' + StoryVariant.title}
-            text="Read my hilarious story!"
-          />
-        </div>
-      </div>
-    </div>
+      <Row className="gap-2 mt-3">
+        <RecreateButton
+          variant="outline-success"
+          className="bg-success-subtle col"
+          path="/story"
+        />
+        <ShareButton
+          variant="outline-secondary"
+          className="col-2 bg-secondary-subtle"
+          path={`/story/${gameUuid}`}
+          title={'Games: ' + StoryVariant.title}
+          text="Read my hilarious story!"
+        />
+      </Row>
+    </Container>
   );
 }

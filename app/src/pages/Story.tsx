@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { useRef } from 'react';
+import { Col, Container, Form, Row } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 import { Link } from 'react-router-dom';
 
@@ -83,25 +84,28 @@ const Story = () => {
     };
 
     return (
-      <form
-        className="w-100"
-        onSubmit={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          submitEntry();
-        }}
-      >
-        <h4 className="text-center w-100">{player.entry?.hint?.prompt}</h4>
-        <textarea
-          placeholder={suggestion}
-          ref={entryRef}
-          className="form-control"
-          style={{ minHeight: '100px' }}
-          maxLength={player.entry?.hint?.limit ?? storyEntryMaxLength}
-          autoFocus
-        />
-        <div className="container-fluid mt-4">
-          <div className="row gap-2">
+      <Container fluid>
+        <Form
+          onSubmit={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            submitEntry();
+          }}
+        >
+          <h4 className="text-center fw-bold">{player.entry?.hint?.prompt}</h4>
+          <Row>
+            <Col className="p-0">
+              <Form.Control
+                as="textarea"
+                placeholder={suggestion}
+                ref={entryRef}
+                style={{ minHeight: '100px' }}
+                maxLength={player.entry?.hint?.limit ?? storyEntryMaxLength}
+                autoFocus
+              />
+            </Col>
+          </Row>
+          <Row className="mt-3 gap-2">
             <SpinnerButton
               variant="success"
               className="col-9"
@@ -122,41 +126,47 @@ const Story = () => {
             >
               <i className="bi bi-arrow-clockwise"></i>
             </Button>
-          </div>
-        </div>
-      </form>
+          </Row>
+        </Form>
+      </Container>
     );
   } else if (game?.phase === READ) {
     return (
-      <div className="w-100">
-        <p className="border rounded bg-white lh-lg fs-6 px-3 py-1 w-100 text-break">
-          {player?.entry?.story}
-        </p>
-        <div className="container-fluid">
-          <div className="row gap-2">
-            <RecreateButton className="col" />
-            <Link
-              to={`/story/${game.uuid}`}
-              className="col btn btn-outline-success bg-success-subtle"
-            >
-              See all
-            </Link>
-            <ShareButton
-              className="btn col-2 btn-outline-secondary bg-secondary-subtle"
-              path={`/story/${game.uuid}`}
-              title={'Games: ' + StoryVariant.title}
-              text="Read my hilarious story!"
-            />
-          </div>
-        </div>
-      </div>
+      <Container fluid>
+        <Row>
+          <p className="col border rounded bg-white lh-lg fs-6 px-3 py-1 text-break">
+            {player?.entry?.story}
+          </p>
+        </Row>
+        <Row className="gap-2">
+          <RecreateButton className="col" />
+          <Link
+            to={`/story/${game.uuid}`}
+            className="col btn btn-outline-success bg-success-subtle"
+          >
+            See all
+          </Link>
+          <ShareButton
+            variant="outline-secondary"
+            className="col-2 bg-secondary-subtle"
+            path={`/story/${game.uuid}`}
+            title={'Games: ' + StoryVariant.title}
+            text="Read my hilarious story!"
+          />
+        </Row>
+      </Container>
     );
   } else {
     return (
-      <div className="w-100">
-        <h4 className="text-center w-100">Waiting for other players...</h4>
-        <PlayerList players={game?.players?.filter((p) => p.canSubmit)} />
-      </div>
+      <Container fluid>
+        <h4 className="text-center">Waiting for other players...</h4>
+        <Row>
+          <PlayerList
+            players={game?.players?.filter((p) => p.canSubmit)}
+            className="col"
+          />
+        </Row>
+      </Container>
     );
   }
 };
