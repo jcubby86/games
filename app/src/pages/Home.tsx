@@ -2,6 +2,7 @@ import { Col, Container, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 import Glitch from '../components/Glitch';
+import Icon from '../components/Icon';
 import { useAppContext } from '../contexts/AppContext';
 
 const Home = () => {
@@ -20,7 +21,7 @@ const Home = () => {
               to={context.game.type.toLowerCase()}
               className="btn btn-lg btn-success d-flex flex-column fw-bold px-5 col-12"
             >
-              <i className="bi bi-joystick"></i>
+              <Icon icon="joystick"></Icon>
               Return to Game
             </Link>
           )}
@@ -34,7 +35,7 @@ const Home = () => {
                 : 'btn-success')
             }
           >
-            <i className="bi bi-person-fill-up"></i>
+            <Icon icon="person-fill-up"></Icon>
             Join Game
           </Link>
           <Link
@@ -47,7 +48,7 @@ const Home = () => {
                 : 'btn-success')
             }
           >
-            <i className="bi bi-person-fill-add"></i>
+            <Icon icon="person-fill-add"></Icon>
             Create Game
           </Link>
         </Row>

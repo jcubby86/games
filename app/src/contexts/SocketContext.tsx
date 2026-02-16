@@ -12,6 +12,7 @@ import { Socket, io } from 'socket.io-client';
 
 import { useAppContext } from './AppContext';
 import { showFloatingMessage } from '../components/FloatingMessagePortal';
+import Icon from '../components/Icon';
 import { usePlayerQuery } from '../hooks/usePlayerQuery';
 import { postPlayer } from '../utils/apiClient';
 import { GameDto, Message, PokeMessageData } from '../utils/types';
@@ -85,7 +86,7 @@ export const SocketContextProvider = ({
     showFloatingMessage({
       children: (
         <>
-          {nickname} <i className="bi bi-hand-index-thumb"></i>
+          {nickname} <Icon icon="hand-index-thumb" />
         </>
       )
     });

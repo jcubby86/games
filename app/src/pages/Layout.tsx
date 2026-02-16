@@ -1,5 +1,7 @@
+import { Container, Navbar } from 'react-bootstrap';
 import { Link, Outlet } from 'react-router-dom';
 
+import Icon from '../components/Icon';
 import { useAppContext } from '../contexts/AppContext';
 
 const Layout = () => {
@@ -8,24 +10,24 @@ const Layout = () => {
   return (
     <>
       <header>
-        <nav className="navbar bg-dark" data-bs-theme="dark">
-          <div className="container-fluid">
+        <Navbar className="bg-dark" data-bs-theme="dark">
+          <Container fluid>
             <Link className="navbar-brand" to=".">
-              <i className="bi bi-house"></i>
+              <Icon icon="house" />
             </Link>
             {context.player && (
               <Link className="navbar-brand me-0 text-danger" to="/join">
-                <i className="bi bi-gear"></i>
+                <Icon icon="gear" />
               </Link>
             )}
-          </div>
-        </nav>
+          </Container>
+        </Navbar>
       </header>
 
       <main className="flex-grow-1 my-2">
-        <div className="container d-flex p-4" style={{ maxWidth: '30rem' }}>
+        <Container className="p-4" style={{ maxWidth: '30rem' }}>
           <Outlet />
-        </div>
+        </Container>
       </main>
 
       <footer className="footer py-2 px-4 d-flex gap-3">
@@ -35,7 +37,7 @@ const Layout = () => {
           target="_blank"
           rel="noreferrer"
         >
-          <i className="bi bi-github fs-2"></i>
+          <Icon icon="github" className="fs-2" />
         </a>
         <a
           href="https://www.linkedin.com/in/jacob-bastian-643033206/"
@@ -43,7 +45,7 @@ const Layout = () => {
           target="_blank"
           rel="noreferrer"
         >
-          <i className="bi bi-linkedin fs-2"></i>
+          <Icon icon="linkedin" className="fs-2" />
         </a>
         <a
           href="mailto:games@muffinjr.com?&subject=Hello!&body=I'm reaching out about"
@@ -51,14 +53,14 @@ const Layout = () => {
           target="_blank"
           rel="noreferrer"
         >
-          <i className="bi bi-envelope-fill fs-2"></i>
+          <Icon icon="envelope-fill" className="fs-2" />
         </a>
         <Link
           to="/privacy"
           className="text-dark text-decoration-none link-primary"
           title="Privacy Policy"
         >
-          <i className="bi bi-shield-fill-check fs-2"></i>
+          <Icon icon="shield-fill-check" className="fs-2" />
         </Link>
       </footer>
     </>

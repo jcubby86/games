@@ -3,6 +3,7 @@ import { useRef } from 'react';
 import { Col, Container, Form, Row } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 
+import Icon from '../components/Icon';
 import List from '../components/List';
 import { showModal } from '../components/ModalPortal';
 import PlayerList from '../components/PlayerList';
@@ -116,7 +117,7 @@ const Names = () => {
               }}
               disabled={postNameMutation.isPending}
             >
-              <i className="bi bi-arrow-clockwise"></i>
+              <Icon icon="arrow-clockwise" />
             </Button>
           </Row>
         </Form>

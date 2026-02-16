@@ -5,7 +5,7 @@ type ListProps = {
   className?: string;
 };
 
-const List = ({ items, className }: ListProps) => {
+const List = ({ items, className = '' }: ListProps) => {
   if (!items || items.length === 0) {
     return <></>;
   }

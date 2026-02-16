@@ -4,6 +4,7 @@ import { Col, Container, Form, Row } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 import { Link } from 'react-router-dom';
 
+import Icon from '../components/Icon';
 import { showModal } from '../components/ModalPortal';
 import PlayerList from '../components/PlayerList';
 import RecreateButton from '../components/RecreateButton';
@@ -124,7 +125,7 @@ const Story = () => {
               }}
               disabled={postStoryMutation.isPending}
             >
-              <i className="bi bi-arrow-clockwise"></i>
+              <Icon icon="arrow-clockwise" />
             </Button>
           </Row>
         </Form>

@@ -10,7 +10,7 @@ interface PlayerListProps {
   className?: string;
 }
 
-const PlayerList = ({ players, className }: PlayerListProps) => {
+const PlayerList = ({ players, className = '' }: PlayerListProps) => {
   const { context } = useAppContext();
   const socket = useSocketContext();
   const [pokeCounts, setPokeCounts] = useState<{ [key: string]: number }>({});

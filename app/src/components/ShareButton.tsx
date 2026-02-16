@@ -1,6 +1,7 @@
 import { Button } from 'react-bootstrap';
 import { Variant } from 'react-bootstrap/types';
 
+import Icon from './Icon';
 import { logError } from '../utils/errorHandler';
 
 interface ShareProps {
@@ -42,7 +43,7 @@ const ShareButton = ({ className, path, title, text }: ShareProps) => {
         }}
         className={className}
       >
-        <i className="bi bi-share-fill"></i>
+        <Icon icon="share-fill" />
       </Button>
     );
   } else {
