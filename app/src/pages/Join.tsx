@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
+import Glitch from '../components/Glitch';
 import { showModal } from '../components/ModalPortal';
 import { SpinnerButton } from '../components/SpinnerButton';
 import { useAppContext } from '../contexts/AppContext';
@@ -136,6 +137,10 @@ const Join = () => {
 
   const formEnabled =
     gameQuery.isSuccess && nickname && mutations.every((m) => !m.isPending);
+  const gameVariant = gameVariants.find(
+    (v) => v.type === gameQuery.data?.type.toLowerCase()
+  );
+  const title = gameVariant ? gameVariant.title : 'Join Game';
 
   let buttonLabel = 'Join Game';
   if (
@@ -162,7 +167,12 @@ const Join = () => {
           void submit();
         }}
       >
-        <Row className="gap-2">
+        <Row>
+          <Col className="p-0">
+            <Glitch text={title} className="glitch-small" />
+          </Col>
+        </Row>
+        <Row className="gap-2 mt-3">
           <Col className="p-0">
             <FloatingLabel label="Game Code" controlId="codeInput">
               <Form.Control
@@ -234,22 +244,13 @@ const Join = () => {
               loading={leaveGameMutation.isPending}
               className="col bg-danger-subtle"
             >
-              Leave Current Game
+              Leave Game
             </SpinnerButton>
           )}
         </Row>
         <Row className="mt-3">
-          {gameQuery.isSuccess && (
-            <Form.Text muted as="h5" className="text-center col fs-6">
-              {
-                gameVariants.find(
-                  (v) => v.type === gameQuery.data.type.toLowerCase()
-                )?.title
-              }
-            </Form.Text>
-          )}
           {gameQuery.isError && (
-            <Form.Text as="h5" className="text-center text-danger col fs-6">
+            <Form.Text className="text-center text-danger col fs-6">
               Game not found
             </Form.Text>
           )}

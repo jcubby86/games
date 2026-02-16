@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
+import Glitch from '../components/Glitch';
 import { showModal } from '../components/ModalPortal';
 import { SpinnerButton } from '../components/SpinnerButton';
 import { useAppContext } from '../contexts/AppContext';
@@ -99,7 +100,12 @@ const Create = () => {
           void submit();
         }}
       >
-        <Row className="gap-2">
+        <Row>
+          <Col className="p-0">
+            <Glitch text="Create Game" className="glitch-small" />
+          </Col>
+        </Row>
+        <Row className="gap-2 mt-3">
           <Col className="p-0">
             <FloatingLabel label="Game Variant" controlId="gameVariantInput">
               <Form.Select
@@ -158,7 +164,7 @@ const Create = () => {
         </Row>
         <Row className="mt-3">
           {gameType && (
-            <Form.Text muted as="div" className="text-wrap col fs-6">
+            <Form.Text muted className="text-wrap col fs-6">
               {gameVariants.find((v) => v.type === gameType)?.description}
             </Form.Text>
           )}
