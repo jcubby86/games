@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
+import { Button, Modal } from 'react-bootstrap';
 import { ButtonVariant } from 'react-bootstrap/types';
 import { createPortal } from 'react-dom';
 
@@ -67,7 +66,7 @@ export function ModalPortal() {
         <SpinnerButton
           variant={message?.confirmVariant || 'primary'}
           onClick={() => void confirm()}
-          disabled={loading}
+          loading={loading}
         >
           Confirm
         </SpinnerButton>

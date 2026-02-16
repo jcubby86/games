@@ -92,6 +92,7 @@ const Create = () => {
       <form
         onSubmit={(e) => {
           e.preventDefault();
+          e.stopPropagation();
           void submit();
         }}
       >
@@ -150,7 +151,7 @@ const Create = () => {
           variant="success"
           className="form-control"
           disabled={!formEnabled}
-          spinner={mutations.some((m) => m.isPending)}
+          loading={mutations.some((m) => m.isPending)}
           type="submit"
         >
           Create Game

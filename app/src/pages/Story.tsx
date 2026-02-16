@@ -87,6 +87,7 @@ const Story = () => {
         className="w-100"
         onSubmit={(e) => {
           e.preventDefault();
+          e.stopPropagation();
           submitEntry();
         }}
       >
@@ -104,7 +105,7 @@ const Story = () => {
             <SpinnerButton
               variant="success"
               className="col-9"
-              disabled={postStoryMutation.isPending}
+              loading={postStoryMutation.isPending}
               type="submit"
             >
               Submit
@@ -114,6 +115,7 @@ const Story = () => {
               className="col"
               onClick={(e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 nextSuggestion();
               }}
               disabled={postStoryMutation.isPending}

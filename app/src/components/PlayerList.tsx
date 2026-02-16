@@ -65,6 +65,7 @@ const PlayerList = ({ players }: PlayerListProps) => {
               aria-disabled={isCurrentPlayer}
               onClick={(e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 sendPoke(p);
               }}
             >

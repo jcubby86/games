@@ -1,11 +1,10 @@
-import Button from 'react-bootstrap/Button';
-import Spinner from 'react-bootstrap/Spinner';
+import { Button, Spinner } from 'react-bootstrap';
 import { ButtonVariant } from 'react-bootstrap/types';
 
 type SpinnerButtonProps = {
   children: React.ReactNode;
   disabled?: boolean;
-  spinner?: boolean;
+  loading?: boolean;
   variant?: ButtonVariant;
   size?: 'sm' | 'lg';
   className?: string;
@@ -16,7 +15,7 @@ type SpinnerButtonProps = {
 export const SpinnerButton = ({
   children,
   disabled = false,
-  spinner = true,
+  loading = false,
   variant,
   size,
   className,
@@ -25,7 +24,7 @@ export const SpinnerButton = ({
 }: SpinnerButtonProps) => {
   return (
     <Button
-      disabled={disabled}
+      disabled={disabled || loading}
       variant={variant}
       size={size}
       className={className}
@@ -33,7 +32,7 @@ export const SpinnerButton = ({
       type={type}
     >
       {children}{' '}
-      {disabled && spinner && (
+      {loading && (
         <Spinner
           animation="border"
           size="sm"

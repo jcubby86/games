@@ -1,5 +1,3 @@
-import { useRef } from 'react';
-
 import Glitch from './Glitch';
 import { showModal } from './ModalPortal';
 import PlayerList from './PlayerList';
@@ -16,7 +14,6 @@ interface StartGameProps {
 
 const StartGame = ({ title, players }: StartGameProps) => {
   const { context } = useAppContext();
-  const codeRef = useRef<HTMLInputElement>(null);
 
   const updateGameMutation = useUpdateGameMutation();
 
@@ -42,6 +39,7 @@ const StartGame = ({ title, players }: StartGameProps) => {
           className="row gap-2 mb-4"
           onSubmit={(e) => {
             e.preventDefault();
+            e.stopPropagation();
             startGame();
           }}
         >
@@ -54,10 +52,10 @@ const StartGame = ({ title, players }: StartGameProps) => {
               readOnly
               id="gameCode"
               style={{ minWidth: '100px' }}
-              ref={codeRef}
               onClick={(e) => {
                 e.preventDefault();
-                codeRef.current?.select();
+                e.stopPropagation();
+                e.currentTarget.select();
               }}
               placeholder="Game Code"
             />
@@ -83,7 +81,7 @@ const StartGame = ({ title, players }: StartGameProps) => {
             <SpinnerButton
               variant="success"
               className="form-control col-12"
-              disabled={updateGameMutation.isPending}
+              loading={updateGameMutation.isPending}
               type="submit"
             >
               Start Game

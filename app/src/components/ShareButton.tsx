@@ -33,6 +33,7 @@ const ShareButton = ({ className, path, title, text }: ShareProps) => {
       <button
         onClick={(e) => {
           e.preventDefault();
+          e.stopPropagation();
           void share();
         }}
         className={className}

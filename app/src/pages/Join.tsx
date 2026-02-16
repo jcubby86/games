@@ -1,7 +1,9 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
+import { Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
+import { showModal } from '../components/ModalPortal';
 import { SpinnerButton } from '../components/SpinnerButton';
 import { useAppContext } from '../contexts/AppContext';
 import {
@@ -17,18 +19,18 @@ import { GameDto } from '../utils/types';
 
 const Join = () => {
   const { context, dispatchContext } = useAppContext();
-  const [code, setCode] = useState<string>(context.game?.code || '');
-  const nicknameInputRef = useRef<HTMLInputElement>(null);
+  const [code, setCode] = useState(context.game?.code.toLowerCase() || null);
+  const [nickname, setNickname] = useState(context.player?.nickname || null);
   const navigate = useNavigate();
-  const shouldFocusNickname = code.length === gameCodeLength;
+  const shouldFocusNickname = code?.length === gameCodeLength;
 
   const gameQuery = useQuery({
     queryKey: ['games', { code }],
     queryFn: async () => {
-      const res = await getGameByCode(code);
+      const res = await getGameByCode(code!.toUpperCase());
       return res.data;
     },
-    enabled: code.length === 4,
+    enabled: code?.length === 4,
     retry: false,
     staleTime: 300000 // 5 minutes
   });
@@ -75,130 +77,183 @@ const Join = () => {
     createPlayerMutation
   ];
 
-  const leavePreviousGame = async () => {
+  const leaveGame = () => {
     if (!context.player || !context.token) {
       return;
     }
-    await leaveGameMutation.mutateAsync();
+    showModal({
+      title: 'Leave Game',
+      body: 'Are you sure you want to leave this game?',
+      onConfirm: async () => {
+        await leaveGameMutation.mutateAsync();
+        setCode(null);
+      },
+      confirmVariant: 'danger'
+    });
   };
 
   const submit = async () => {
     if (!formEnabled) {
       return;
     }
-    if (!nicknameInputRef.current?.value) {
-      alertError('Please enter a nickname', undefined);
-      nicknameInputRef.current?.focus();
-      nicknameInputRef.current?.classList.add('is-invalid');
-      return;
-    }
-    const nickname = nicknameInputRef.current.value;
+
+    const gameType = gameQuery.data?.type.toLowerCase();
 
     if (
       gameQuery.data.uuid === context.game?.uuid &&
       nickname === context.player?.nickname
     ) {
-      // noop
+      await navigate(`/${gameType}`);
     } else if (
       gameQuery.data.uuid === context.game?.uuid &&
       context.player &&
       context.token
     ) {
       await updatePlayerMutation.mutateAsync({ nickname });
+      await navigate(`/${gameType}`);
+    } else if (context.player && context.token) {
+      showModal({
+        title: 'Join Game',
+        body: 'Are you sure you want to join this game? You will leave your current game.',
+        onConfirm: async () => {
+          await leaveGameMutation.mutateAsync();
+          await createPlayerMutation.mutateAsync({
+            game: gameQuery.data,
+            nickname
+          });
+          await navigate(`/${gameType}`);
+        },
+        confirmVariant: 'success'
+      });
     } else {
-      await leavePreviousGame();
       await createPlayerMutation.mutateAsync({
         game: gameQuery.data,
         nickname
       });
+      await navigate(`/${gameType}`);
     }
-
-    nicknameInputRef.current?.classList.remove('is-invalid');
-    void navigate('/' + gameQuery.data.type.toLowerCase());
   };
 
   const formEnabled =
-    gameQuery.isSuccess && mutations.every((m) => !m.isPending);
+    gameQuery.isSuccess && nickname && mutations.every((m) => !m.isPending);
+
+  let buttonLabel = 'Join Game';
+  if (
+    gameQuery.isSuccess &&
+    context.game?.code === gameQuery.data.code &&
+    context.player?.nickname === nickname
+  ) {
+    buttonLabel = 'Return to Game';
+  } else if (
+    gameQuery.isSuccess &&
+    context.game?.code === gameQuery.data.code &&
+    nickname
+  ) {
+    buttonLabel = 'Change Nickname';
+  }
 
   return (
-    <div>
-      <form
-        className="row gap-2"
+    <Container fluid>
+      <Form
         onSubmit={(e) => {
           e.preventDefault();
+          e.stopPropagation();
           void submit();
         }}
       >
-        <div className="form-floating col p-0">
-          <input
-            id="codeInput"
-            className={`form-control ${gameQuery.isError ? 'is-invalid' : ''}`}
-            type="search"
-            autoComplete="off"
-            spellCheck="false"
-            autoCorrect="off"
-            placeholder="Game Code (abxy)"
-            maxLength={gameCodeLength}
-            value={code}
-            autoFocus={!shouldFocusNickname}
-            onChange={(e) => {
-              e.preventDefault();
-              setCode(e.target.value.toUpperCase());
-            }}
-          />
-          <label htmlFor="codeInput" className="form-label">
-            Game Code
-          </label>
-        </div>
+        <Row className="gap-2">
+          <Col className="p-0">
+            <FloatingLabel label="Game Code" controlId="codeInput">
+              <Form.Control
+                type="search"
+                autoComplete="off"
+                spellCheck="false"
+                autoCorrect="off"
+                autoCapitalize="off"
+                placeholder="Game Code"
+                maxLength={gameCodeLength}
+                value={code ?? ''}
+                autoFocus={!shouldFocusNickname}
+                onChange={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setCode(e.target.value.toLowerCase());
+                }}
+                isInvalid={gameQuery.isError}
+              />
+            </FloatingLabel>
+          </Col>
 
-        <div className="form-floating col p-0">
-          <input
-            id="nicknameInput"
-            className="form-control"
-            type="search"
-            autoComplete="off"
-            spellCheck="false"
-            autoCorrect="off"
-            autoCapitalize="off"
-            placeholder="Nickname"
-            maxLength={nicknameMaxLength}
-            defaultValue={context.player?.nickname}
-            ref={nicknameInputRef}
-            autoFocus={shouldFocusNickname}
-            data-form-type="other"
-            data-lpignore="true"
-            data-1p-ignore="true"
-          />
-          <label htmlFor="nicknameInput" className="form-label">
-            Nickname
-          </label>
-        </div>
+          <Col className="p-0">
+            <FloatingLabel label="Nickname" controlId="nicknameInput">
+              <Form.Control
+                type="search"
+                autoComplete="off"
+                spellCheck="false"
+                autoCorrect="off"
+                autoCapitalize="off"
+                placeholder="Nickname"
+                maxLength={nicknameMaxLength}
+                value={nickname ?? ''}
+                autoFocus={shouldFocusNickname}
+                data-form-type="other"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                onChange={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setNickname(e.target.value.toLowerCase());
+                }}
+                isInvalid={nickname === ''}
+              />
+            </FloatingLabel>
+          </Col>
+        </Row>
 
-        <SpinnerButton
-          variant="success"
-          disabled={!formEnabled}
-          spinner={mutations.some((m) => m.isPending)}
-          className="form-control col-12 mt-3"
-          type="submit"
-        >
-          {gameQuery.isSuccess && context.game?.code === gameQuery.data.code
-            ? 'Return to Game'
-            : 'Join Game'}
-        </SpinnerButton>
-        {gameQuery.isSuccess && (
-          <div className="w-100 text-center text-muted">
-            {
-              gameVariants.find(
-                (v) => v.type === gameQuery.data.type.toLowerCase()
-              )?.title
+        <Row className="gap-2">
+          <SpinnerButton
+            variant="success"
+            disabled={!formEnabled}
+            loading={
+              createPlayerMutation.isPending || updatePlayerMutation.isPending
             }
-          </div>
-        )}
-        {gameQuery.isError && (
-          <div className="w-100 text-center text-danger">Game not found</div>
-        )}
-      </form>
-    </div>
+            className="form-control col mt-3"
+            type="submit"
+          >
+            {buttonLabel}
+          </SpinnerButton>
+          {context.game && context.player && context.token && (
+            <SpinnerButton
+              variant="outline-danger"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                leaveGame();
+              }}
+              disabled={!formEnabled}
+              loading={leaveGameMutation.isPending}
+              className="form-control col mt-3 bg-danger-subtle"
+            >
+              Leave Current Game
+            </SpinnerButton>
+          )}
+        </Row>
+        <Row className="mt-3">
+          {gameQuery.isSuccess && (
+            <div className="text-center text-muted">
+              {
+                gameVariants.find(
+                  (v) => v.type === gameQuery.data.type.toLowerCase()
+                )?.title
+              }
+            </div>
+          )}
+          {gameQuery.isError && (
+            <div className="text-center text-danger">Game not found</div>
+          )}
+        </Row>
+      </Form>
+    </Container>
   );
 };
 

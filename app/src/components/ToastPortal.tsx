@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import Toast from 'react-bootstrap/Toast';
-import ToastContainer from 'react-bootstrap/ToastContainer';
+import { Toast, ToastContainer } from 'react-bootstrap';
 import { Variant } from 'react-bootstrap/types';
 import { createPortal } from 'react-dom';
 

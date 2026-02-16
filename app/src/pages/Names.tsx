@@ -78,6 +78,7 @@ const Names = () => {
         className="w-100"
         onSubmit={(e) => {
           e.preventDefault();
+          e.stopPropagation();
           submitEntry();
         }}
       >
@@ -95,7 +96,7 @@ const Names = () => {
             <SpinnerButton
               variant="success"
               className="col-9"
-              disabled={postNameMutation.isPending}
+              loading={postNameMutation.isPending}
               type="submit"
             >
               Submit
@@ -105,6 +106,7 @@ const Names = () => {
               className="col"
               onClick={(e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 nextSuggestion();
               }}
               disabled={postNameMutation.isPending}
@@ -141,9 +143,10 @@ const Names = () => {
             className={'mt-4'}
             onClick={(e) => {
               e.preventDefault();
+              e.stopPropagation();
               hideNames();
             }}
-            disabled={updateGameMutation.isPending}
+            loading={updateGameMutation.isPending}
           >
             Hide Names
           </SpinnerButton>

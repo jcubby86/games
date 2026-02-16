@@ -1,17 +1,23 @@
 import { Link, Outlet } from 'react-router-dom';
 
-import LeaveButton from '../components/LeaveButton';
+import { useAppContext } from '../contexts/AppContext';
 
 const Layout = () => {
+  const { context } = useAppContext();
+
   return (
     <>
       <header>
         <nav className="navbar bg-dark" data-bs-theme="dark">
           <div className="container-fluid">
             <Link className="navbar-brand" to=".">
-              <i className="bi bi-house mx-1"></i>
+              <i className="bi bi-house"></i>
             </Link>
-            <LeaveButton />
+            {context.player && (
+              <Link className="navbar-brand me-0 text-danger" to="/join">
+                <i className="bi bi-gear"></i>
+              </Link>
+            )}
           </div>
         </nav>
       </header>

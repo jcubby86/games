@@ -71,9 +71,10 @@ const RecreateButton = ({ className, to, variant }: RecreateButtonProps) => {
         className={className}
         onClick={(e) => {
           e.preventDefault();
+          e.stopPropagation();
           recreateGameHandler();
         }}
-        disabled={!formEnabled}
+        loading={!formEnabled}
       >
         Play Again
       </SpinnerButton>
