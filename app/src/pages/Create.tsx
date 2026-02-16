@@ -145,6 +145,13 @@ const Create = () => {
             </FloatingLabel>
           </Col>
         </Row>
+        <Row className="mt-3">
+          {gameType && (
+            <Form.Text muted as="div" className="text-wrap col fs-6">
+              {gameVariants.find((v) => v.type === gameType)?.description}
+            </Form.Text>
+          )}
+        </Row>
         <Row className="gap-2 mt-3">
           <SpinnerButton
             variant="success"
@@ -157,11 +164,6 @@ const Create = () => {
           </SpinnerButton>
         </Row>
       </Form>
-      {gameType && (
-        <Form.Text muted as="div" className="text-wrap col mt-3">
-          {gameVariants.find((v) => v.type === gameType)?.description}
-        </Form.Text>
-      )}
     </Container>
   );
 };
