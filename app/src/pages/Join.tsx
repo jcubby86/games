@@ -210,23 +210,6 @@ const Join = () => {
             </FloatingLabel>
           </Col>
         </Row>
-
-        <Row className="mt-3">
-          {gameQuery.isSuccess && (
-            <Form.Text muted as="h5" className="text-center col fs-6">
-              {
-                gameVariants.find(
-                  (v) => v.type === gameQuery.data.type.toLowerCase()
-                )?.title
-              }
-            </Form.Text>
-          )}
-          {gameQuery.isError && (
-            <Form.Text as="h5" className="text-center text-danger col fs-6">
-              Game not found
-            </Form.Text>
-          )}
-        </Row>
         <Row className="gap-2 mt-3">
           <SpinnerButton
             variant="success"
@@ -253,6 +236,22 @@ const Join = () => {
             >
               Leave Current Game
             </SpinnerButton>
+          )}
+        </Row>
+        <Row className="mt-3">
+          {gameQuery.isSuccess && (
+            <Form.Text muted as="h5" className="text-center col fs-6">
+              {
+                gameVariants.find(
+                  (v) => v.type === gameQuery.data.type.toLowerCase()
+                )?.title
+              }
+            </Form.Text>
+          )}
+          {gameQuery.isError && (
+            <Form.Text as="h5" className="text-center text-danger col fs-6">
+              Game not found
+            </Form.Text>
           )}
         </Row>
       </Form>
