@@ -1,4 +1,5 @@
 import { useEffect, useEffectEvent, useState } from 'react';
+import { Badge, Container, ListGroup } from 'react-bootstrap';
 
 import { useAppContext } from '../contexts/AppContext';
 import { useSocketContext } from '../contexts/SocketContext';
@@ -52,15 +53,16 @@ const PlayerList = ({ players }: PlayerListProps) => {
   }
 
   return (
-    <div>
-      <div className="list-group mt-3" id="player-list">
+    <Container fluid className="p-0">
+      <ListGroup className="my-3" id="player-list">
         {players.map((p: PlayerDto) => {
           const isCurrentPlayer = p.uuid === context.player?.uuid;
           const pokeCount = pokeCounts[p.uuid] ?? 0;
           return (
-            <button
+            <ListGroup.Item
+              action
               key={p.uuid}
-              className={`list-group-item list-group-item-action border d-flex justify-content-between align-items-center no-select ${isCurrentPlayer ? 'fw-bold' : ''}`}
+              className={`border d-flex justify-content-between align-items-center no-select ${isCurrentPlayer ? 'fw-bold' : ''}`}
               disabled={isCurrentPlayer}
               aria-disabled={isCurrentPlayer}
               onClick={(e) => {
@@ -71,20 +73,20 @@ const PlayerList = ({ players }: PlayerListProps) => {
             >
               {p.nickname} {isCurrentPlayer && '(You)'}
               {pokeCount > 0 && (
-                <span className="badge bg-danger rounded-pill">
+                <Badge bg="danger" pill>
                   {pokeCount >= 99 ? '99+' : pokeCount}
-                </span>
+                </Badge>
               )}
-            </button>
+            </ListGroup.Item>
           );
         })}
-      </div>
+      </ListGroup>
       {players.length > 1 && (
-        <p className="w-100 text-center mt-3 text-muted">
+        <p className="w-100 text-center my-3 text-muted">
           Try poking other players by clicking their names!
         </p>
       )}
-    </div>
+    </Container>
   );
 };
 

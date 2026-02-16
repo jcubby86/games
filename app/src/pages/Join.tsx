@@ -241,16 +241,18 @@ const Join = () => {
         </Row>
         <Row className="mt-3">
           {gameQuery.isSuccess && (
-            <div className="text-center text-muted col">
+            <Form.Text muted as="div" className="text-center col">
               {
                 gameVariants.find(
                   (v) => v.type === gameQuery.data.type.toLowerCase()
                 )?.title
               }
-            </div>
+            </Form.Text>
           )}
           {gameQuery.isError && (
-            <div className="text-center text-danger col">Game not found</div>
+            <Form.Text as="div" className="text-center text-danger col">
+              Game not found
+            </Form.Text>
           )}
         </Row>
       </Form>

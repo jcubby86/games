@@ -148,7 +148,7 @@ const Create = () => {
         <Row className="gap-2 mt-3">
           <SpinnerButton
             variant="success"
-            className="form-control col"
+            className="col"
             disabled={!formEnabled}
             loading={mutations.some((m) => m.isPending)}
             type="submit"
@@ -157,13 +157,11 @@ const Create = () => {
           </SpinnerButton>
         </Row>
       </Form>
-      <Row className="mt-3">
-        {gameType && (
-          <div className="text-wrap text-muted col">
-            {gameVariants.find((v) => v.type === gameType)?.description}
-          </div>
-        )}
-      </Row>
+      {gameType && (
+        <Form.Text muted as="div" className="text-wrap col mt-3">
+          {gameVariants.find((v) => v.type === gameType)?.description}
+        </Form.Text>
+      )}
     </Container>
   );
 };
