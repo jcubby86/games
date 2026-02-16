@@ -71,9 +71,7 @@ const StartGame = ({ title, players }: StartGameProps) => {
           </Col>
         </Row>
         <Row>
-          <Col className="p-0">
-            <PlayerList players={players} />
-          </Col>
+          <PlayerList players={players} className="col" />
         </Row>
         {context.player?.roles?.includes('host') && (
           <Row className="mt-3">

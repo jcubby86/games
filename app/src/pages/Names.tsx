@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { useRef } from 'react';
+import { Col, Container, Form, Row } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 
 import List from '../components/List';
@@ -74,25 +75,29 @@ const Names = () => {
     };
 
     return (
-      <form
-        className="w-100"
-        onSubmit={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          submitEntry();
-        }}
-      >
-        <h4 className="text-center w-100">Enter a name:</h4>
-        <input
-          type="search"
-          placeholder={suggestion}
-          ref={entryRef}
-          className="form-control"
-          maxLength={nameEntryMaxLength}
-          autoFocus
-        />
-        <div className="container-fluid mt-4">
-          <div className="row gap-2">
+      <Container fluid>
+        <Form
+          onSubmit={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            submitEntry();
+          }}
+        >
+          <h2 className="text-center fw-bold">Enter a name:</h2>
+          <Row className="mt-3">
+            <Col className="p-0">
+              <Form.Control
+                size="lg"
+                type="search"
+                placeholder={suggestion}
+                ref={entryRef}
+                className="form-control"
+                maxLength={nameEntryMaxLength}
+                autoFocus
+              />
+            </Col>
+          </Row>
+          <Row className="mt-3 gap-2">
             <SpinnerButton
               variant="success"
               className="col-9"
@@ -113,9 +118,9 @@ const Names = () => {
             >
               <i className="bi bi-arrow-clockwise"></i>
             </Button>
-          </div>
-        </div>
-      </form>
+          </Row>
+        </Form>
+      </Container>
     );
   } else if (game?.phase === READ) {
     const sortedEntries = [...player!.entries!].sort((a, b) => {
@@ -132,40 +137,52 @@ const Names = () => {
     };
 
     return (
-      <div className="w-100 d-flex flex-column">
-        <div className="w-100">
-          <h4 className="text-center w-100">Names:</h4>
-          <List items={sortedEntries.map((e) => e.name ?? '')} />
-        </div>
+      <Container fluid>
+        <h4 className="text-center">Names:</h4>
+        <Row>
+          <List
+            items={sortedEntries.map((e) => e.name ?? '')}
+            className="col"
+          />
+        </Row>
         {player?.roles?.includes('host') && (
-          <SpinnerButton
-            variant="danger"
-            className={'mt-4'}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              hideNames();
-            }}
-            loading={updateGameMutation.isPending}
-          >
-            Hide Names
-          </SpinnerButton>
+          <Row className="mt-3">
+            <SpinnerButton
+              variant="danger"
+              className="col"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                hideNames();
+              }}
+              loading={updateGameMutation.isPending}
+            >
+              Hide Names
+            </SpinnerButton>
+          </Row>
         )}
-      </div>
+      </Container>
     );
   } else if (game?.phase === END) {
     return (
-      <div className="w-100 d-flex flex-column">
-        <h4 className="w-100 text-center pb-3">Enjoy the game!</h4>
-        <RecreateButton />
-      </div>
+      <Container fluid>
+        <h4 className="text-center pb-3">Enjoy the game!</h4>
+        <Row>
+          <RecreateButton className="col" />
+        </Row>
+      </Container>
     );
   } else {
     return (
-      <div className="w-100">
-        <h4 className="text-center w-100">Waiting for other players...</h4>
-        <PlayerList players={game?.players?.filter((p) => p.canSubmit)} />
-      </div>
+      <Container fluid>
+        <h4 className="text-center">Waiting for other players...</h4>
+        <Row>
+          <PlayerList
+            players={game?.players?.filter((p) => p.canSubmit)}
+            className="col"
+          />
+        </Row>
+      </Container>
     );
   }
 };

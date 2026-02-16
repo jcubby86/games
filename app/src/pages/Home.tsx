@@ -9,10 +9,10 @@ const Home = () => {
 
   return (
     <>
-      <Container fluid className="w-100 m-0">
+      <Container fluid className="m-0">
         <Row className="gap-2">
           <Col xs={12}>
-            <Glitch text="Games" className="w-100 text-center" />
+            <Glitch text="Games" />
           </Col>
           {context.game && (
             <Link

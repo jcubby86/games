@@ -7,9 +7,10 @@ import { Message, PlayerDto, PokeMessageData } from '../utils/types';
 
 interface PlayerListProps {
   players?: PlayerDto[];
+  className?: string;
 }
 
-const PlayerList = ({ players }: PlayerListProps) => {
+const PlayerList = ({ players, className }: PlayerListProps) => {
   const { context } = useAppContext();
   const socket = useSocketContext();
   const [pokeCounts, setPokeCounts] = useState<{ [key: string]: number }>({});
@@ -53,7 +54,7 @@ const PlayerList = ({ players }: PlayerListProps) => {
   }
 
   return (
-    <Container fluid className="p-0">
+    <Container fluid className={`p-0 ${className}`}>
       <ListGroup className="my-3" id="player-list">
         {players.map((p: PlayerDto) => {
           const isCurrentPlayer = p.uuid === context.player?.uuid;
@@ -82,7 +83,7 @@ const PlayerList = ({ players }: PlayerListProps) => {
         })}
       </ListGroup>
       {players.length > 1 && (
-        <p className="w-100 text-center my-3 text-muted">
+        <p className="text-center my-3 text-muted">
           Try poking other players by clicking their names!
         </p>
       )}
