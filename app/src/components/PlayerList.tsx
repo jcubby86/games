@@ -63,7 +63,7 @@ const PlayerList = ({ players, className = '' }: PlayerListProps) => {
             <ListGroup.Item
               action
               key={p.uuid}
-              className={`border d-flex justify-content-between align-items-center no-select ${isCurrentPlayer ? 'fw-bold' : ''}`}
+              className="border d-flex justify-content-between no-select"
               disabled={isCurrentPlayer}
               aria-disabled={isCurrentPlayer}
               onClick={(e) => {
@@ -72,7 +72,12 @@ const PlayerList = ({ players, className = '' }: PlayerListProps) => {
                 sendPoke(p);
               }}
             >
-              {p.nickname} {isCurrentPlayer && '(You)'}
+              {p.nickname}
+              {isCurrentPlayer && (
+                <Badge bg="secondary" pill>
+                  You
+                </Badge>
+              )}
               {pokeCount > 0 && (
                 <Badge bg="danger" pill>
                   {pokeCount >= 99 ? '99+' : pokeCount}

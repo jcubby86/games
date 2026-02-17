@@ -68,13 +68,10 @@ const StartGame = ({ title, players }: StartGameProps) => {
                 value={String(players?.length ?? 0)}
                 readOnly
                 placeholder="Player Count"
-                className="text-overflow-ellipsis"
+                className="no-select"
               />
             </FloatingLabel>
           </Col>
-        </Row>
-        <Row>
-          <PlayerList players={players} className="col" />
         </Row>
         {context.player?.roles?.includes('host') && (
           <Row className="mt-3">
@@ -88,6 +85,9 @@ const StartGame = ({ title, players }: StartGameProps) => {
             </SpinnerButton>
           </Row>
         )}
+        <Row>
+          <PlayerList players={players} className="col" />
+        </Row>
       </Form>
     </Container>
   );
