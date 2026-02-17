@@ -109,7 +109,7 @@ const Story = () => {
           <Row className="mt-3 gap-2">
             <SpinnerButton
               variant="success"
-              className="col-9"
+              className="col-10"
               loading={postStoryMutation.isPending}
               type="submit"
             >
@@ -144,7 +144,7 @@ const Story = () => {
           <LinkButton
             to={`/story/${game.uuid}`}
             variant="outline-success"
-            className="col bg-success-subtle"
+            className="col bg-success-subtle center-content"
           >
             See all
           </LinkButton>

@@ -59,6 +59,12 @@ footer i {
   text-overflow: ellipsis;
 }
 
+.center-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 $navbar-padding-y: 0.2rem;
 
 // Import all of Bootstrap's SCSS

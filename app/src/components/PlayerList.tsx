@@ -74,20 +74,12 @@ const PlayerList = ({ players, className = '' }: PlayerListProps) => {
             >
               {p.nickname}
               {isCurrentPlayer && (
-                <Badge
-                  bg="secondary"
-                  pill
-                  className="d-flex align-items-center me-0"
-                >
+                <Badge bg="secondary" pill className="center-content">
                   You
                 </Badge>
               )}
               {pokeCount > 0 && (
-                <Badge
-                  bg="danger"
-                  pill
-                  className="d-flex align-items-center me-0"
-                >
+                <Badge bg="danger" pill className="center-content">
                   {pokeCount >= 99 ? '99+' : pokeCount}
                 </Badge>
               )}

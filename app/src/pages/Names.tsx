@@ -102,7 +102,7 @@ const Names = () => {
           <Row className="mt-3 gap-2">
             <SpinnerButton
               variant="success"
-              className="col-9"
+              className="col-10"
               loading={postNameMutation.isPending}
               type="submit"
             >

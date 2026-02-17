@@ -30,7 +30,7 @@ export default function StoryArchive() {
         </Col>
       </Row>
       <Row className="mt-3">
-        <ListGroup>
+        <ListGroup className="col p-0">
           {stories?.map((item) => (
             <ListGroup.Item key={item.player.uuid} className="text-break px-3">
               <h5 className="fw-bold mb-1 text-decoration-underline fs-6">
