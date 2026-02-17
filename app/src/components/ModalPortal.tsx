@@ -67,6 +67,7 @@ export function ModalPortal() {
           variant={message?.confirmVariant || 'primary'}
           onClick={() => void confirm()}
           loading={loading}
+          autofocus
         >
           Confirm
         </SpinnerButton>

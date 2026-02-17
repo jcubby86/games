@@ -10,6 +10,7 @@ type SpinnerButtonProps = {
   className?: string;
   type?: 'reset' | 'button' | 'submit' | undefined;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  autofocus?: boolean;
 };
 
 export const SpinnerButton = ({
@@ -20,7 +21,8 @@ export const SpinnerButton = ({
   size,
   className,
   type,
-  onClick
+  onClick,
+  autofocus
 }: SpinnerButtonProps) => {
   return (
     <Button
@@ -30,6 +32,7 @@ export const SpinnerButton = ({
       className={className}
       onClick={onClick}
       type={type}
+      autoFocus={autofocus}
     >
       {children}{' '}
       {loading && (
