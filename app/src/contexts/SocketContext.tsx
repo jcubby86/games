@@ -62,7 +62,6 @@ export const SocketContextProvider = ({
 
     if (err.message === 'jwt expired') {
       dispatchContext({ type: 'clear' });
-      void navigate('/', { replace: true });
     }
 
     return console.log('Connection error: ', err.message);

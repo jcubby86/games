@@ -3,6 +3,7 @@ import { Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
 import Glitch from './Glitch';
 import { showModal } from './ModalPortal';
 import PlayerList from './PlayerList';
+import ShareButton from './ShareButton';
 import { SpinnerButton } from './SpinnerButton';
 import { useAppContext } from '../contexts/AppContext';
 import { useUpdateGameMutation } from '../hooks/useUpdateGameMutation';
@@ -30,6 +31,8 @@ const StartGame = ({ title, players }: StartGameProps) => {
       confirmVariant: 'success'
     });
   };
+
+  const isHost = context.player?.roles?.includes('host') ?? false;
 
   return (
     <Container fluid>
@@ -73,8 +76,8 @@ const StartGame = ({ title, players }: StartGameProps) => {
             </FloatingLabel>
           </Col>
         </Row>
-        {context.player?.roles?.includes('host') && (
-          <Row className="mt-3">
+        {isHost && (
+          <Row className="mt-3 gap-2">
             <SpinnerButton
               variant="success"
               className="col"
@@ -83,6 +86,11 @@ const StartGame = ({ title, players }: StartGameProps) => {
             >
               Start Game
             </SpinnerButton>
+            <ShareButton
+              className="col"
+              path={`/join?code=${context.game?.code.toLowerCase()}`}
+              title="Join my game!"
+            />
           </Row>
         )}
         <Row>

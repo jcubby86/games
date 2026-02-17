@@ -1,5 +1,4 @@
 import { useMutation } from '@tanstack/react-query';
-import { ButtonVariant } from 'react-bootstrap/types';
 import { useNavigate } from 'react-router';
 
 import { showModal } from './ModalPortal';
@@ -11,12 +10,11 @@ import { alertError } from '../utils/errorHandler';
 import { GameDto } from '../utils/types';
 
 type RecreateButtonProps = {
-  variant?: ButtonVariant;
   className?: string;
-  path?: string;
+  to?: string;
 };
 
-const RecreateButton = ({ className, path, variant }: RecreateButtonProps) => {
+const RecreateButton = ({ className, to }: RecreateButtonProps) => {
   const { context, dispatchContext } = useAppContext();
   const socket = useSocketContext();
   const navigate = useNavigate();
@@ -39,8 +37,8 @@ const RecreateButton = ({ className, path, variant }: RecreateButtonProps) => {
         token: playerResponse.headers['x-auth-token'] as string
       });
 
-      if (path) {
-        await navigate(path);
+      if (to) {
+        await navigate(to);
       }
     },
     onError: (err: unknown) => alertError('Unable to create player', err)
@@ -61,13 +59,14 @@ const RecreateButton = ({ className, path, variant }: RecreateButtonProps) => {
     });
   };
 
+  const isHost = context.player?.roles?.includes('host') ?? false;
   const formEnabled =
     !createGameMutation.isPending && !createPlayerMutation.isPending;
 
-  if (context.game && context.player?.roles?.includes('host')) {
+  if (isHost) {
     return (
       <SpinnerButton
-        variant={variant || 'success'}
+        variant="success"
         className={className}
         onClick={(e) => {
           e.preventDefault();

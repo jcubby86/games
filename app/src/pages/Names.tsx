@@ -51,6 +51,7 @@ const Names = () => {
 
   const player = playerQuery.data;
   const game = player?.game;
+  const isHost = player?.roles?.includes('host') ?? false;
 
   if (game?.phase === JOIN) {
     return <StartGame title={NameVariant.title} players={game.players} />;
@@ -146,7 +147,7 @@ const Names = () => {
             className="col"
           />
         </Row>
-        {player?.roles?.includes('host') && (
+        {isHost && (
           <Row className="mt-3">
             <SpinnerButton
               variant="danger"

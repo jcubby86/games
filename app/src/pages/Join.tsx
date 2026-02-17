@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import Glitch from '../components/Glitch';
 import { showModal } from '../components/ModalPortal';
@@ -20,7 +20,12 @@ import { GameDto } from '../utils/types';
 
 const Join = () => {
   const { context, dispatchContext } = useAppContext();
-  const [code, setCode] = useState(context.game?.code.toLowerCase() || null);
+  const [searchParams] = useSearchParams();
+
+  const codeQueryParam = searchParams.get('code')?.toLowerCase();
+  const contextGameCode = context.game?.code.toLowerCase();
+
+  const [code, setCode] = useState(codeQueryParam || contextGameCode || null);
   const [nickname, setNickname] = useState(context.player?.nickname || null);
   const navigate = useNavigate();
   const shouldFocusNickname = code?.length === gameCodeLength;

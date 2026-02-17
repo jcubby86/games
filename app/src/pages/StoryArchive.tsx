@@ -43,16 +43,11 @@ export default function StoryArchive() {
       </Row>
 
       <Row className="gap-2 mt-3">
-        <RecreateButton
-          variant="outline-success"
-          className="bg-success-subtle col"
-          path="/story"
-        />
+        <RecreateButton className="col" to="/story" />
         <ShareButton
-          variant="outline-secondary"
-          className="col-2 bg-secondary-subtle"
+          className="col"
           path={`/story/${gameUuid}`}
-          title={'Games: ' + StoryVariant.title}
+          title={StoryVariant.title}
           text="Read my hilarious story!"
         />
       </Row>

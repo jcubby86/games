@@ -1,5 +1,4 @@
 import { Button } from 'react-bootstrap';
-import { Variant } from 'react-bootstrap/types';
 
 import Icon from './Icon';
 import { logError } from '../utils/errorHandler';
@@ -8,7 +7,6 @@ interface ShareProps {
   path: string;
   title?: string;
   text?: string;
-  variant: Variant;
   className?: string;
 }
 
@@ -36,12 +34,13 @@ const ShareButton = ({ className, path, title, text }: ShareProps) => {
   if (navigator['share']) {
     return (
       <Button
+        variant="outline-info"
+        className={`${className} bg-info-subtle text-info`}
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
           void share();
         }}
-        className={className}
       >
         <Icon icon="share-fill" />
       </Button>
