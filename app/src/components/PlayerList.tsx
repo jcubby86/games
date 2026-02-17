@@ -55,7 +55,7 @@ const PlayerList = ({ players, className = '' }: PlayerListProps) => {
 
   return (
     <Container fluid className={`p-0 ${className}`}>
-      <ListGroup className="my-3" id="player-list">
+      <ListGroup id="player-list">
         {players.map((p: PlayerDto) => {
           const isCurrentPlayer = p.uuid === context.player?.uuid;
           const pokeCount = pokeCounts[p.uuid] ?? 0;
@@ -63,7 +63,7 @@ const PlayerList = ({ players, className = '' }: PlayerListProps) => {
             <ListGroup.Item
               action
               key={p.uuid}
-              className="border d-flex justify-content-between no-select"
+              className="border d-flex justify-content-between align-items-center no-select"
               disabled={isCurrentPlayer}
               aria-disabled={isCurrentPlayer}
               onClick={(e) => {
@@ -74,12 +74,20 @@ const PlayerList = ({ players, className = '' }: PlayerListProps) => {
             >
               {p.nickname}
               {isCurrentPlayer && (
-                <Badge bg="secondary" pill>
+                <Badge
+                  bg="secondary"
+                  pill
+                  className="d-flex align-items-center me-0"
+                >
                   You
                 </Badge>
               )}
               {pokeCount > 0 && (
-                <Badge bg="danger" pill>
+                <Badge
+                  bg="danger"
+                  pill
+                  className="d-flex align-items-center me-0"
+                >
                   {pokeCount >= 99 ? '99+' : pokeCount}
                 </Badge>
               )}

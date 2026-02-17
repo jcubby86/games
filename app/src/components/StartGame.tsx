@@ -93,6 +93,7 @@ const StartGame = ({ title, players }: StartGameProps) => {
             />
           </Row>
         )}
+        <hr />
         <Row>
           <PlayerList players={players} className="col" />
         </Row>

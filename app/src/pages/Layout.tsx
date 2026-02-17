@@ -24,8 +24,8 @@ const Layout = () => {
         </Navbar>
       </header>
 
-      <main className="flex-grow-1 my-2">
-        <Container className="p-4" style={{ maxWidth: '30rem' }}>
+      <main className="flex-grow-1">
+        <Container className="p-3" style={{ maxWidth: '30rem' }}>
           <Outlet />
         </Container>
       </main>

@@ -1,7 +1,7 @@
 const Privacy = () => {
   return (
     <div className="privacy-policy">
-      <h2 className="mb-4">Privacy Policy</h2>
+      <h2 className="mb-3">Privacy Policy</h2>
 
       <div className="mb-3">
         <h5>Data Storage</h5>

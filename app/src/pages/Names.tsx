@@ -144,7 +144,7 @@ const Names = () => {
         <Row>
           <List
             items={sortedEntries.map((e) => e.name ?? '')}
-            className="col"
+            className="col p-0"
           />
         </Row>
         {isHost && (
