@@ -2,9 +2,9 @@ import { useMutation } from '@tanstack/react-query';
 import { useRef } from 'react';
 import { Col, Container, Form, Row } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
-import { Link } from 'react-router-dom';
 
 import Icon from '../components/Icon';
+import { LinkButton } from '../components/LinkButton';
 import { showModal } from '../components/ModalPortal';
 import PlayerList from '../components/PlayerList';
 import RecreateButton from '../components/RecreateButton';
@@ -141,12 +141,13 @@ const Story = () => {
         </Row>
         <Row className="gap-2">
           <RecreateButton className="col" />
-          <Link
+          <LinkButton
             to={`/story/${game.uuid}`}
-            className="col btn btn-outline-success bg-success-subtle"
+            variant="outline-success"
+            className="col bg-success-subtle"
           >
             See all
-          </Link>
+          </LinkButton>
           <ShareButton
             className="col"
             path={`/story/${game.uuid}`}

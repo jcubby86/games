@@ -1,8 +1,8 @@
 import { Col, Container, Row } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
 
 import Glitch from '../components/Glitch';
 import Icon from '../components/Icon';
+import { LinkButton } from '../components/LinkButton';
 import { useAppContext } from '../contexts/AppContext';
 
 const Home = () => {
@@ -16,41 +16,34 @@ const Home = () => {
             <Glitch text="Games" />
           </Col>
           {context.game && (
-            <Link
-              role="button"
+            <LinkButton
               to={context.game.type.toLowerCase()}
-              className="btn btn-lg btn-success d-flex flex-column fw-bold px-5 col-12"
+              size="lg"
+              variant="success"
+              className="d-flex flex-column fw-bold px-5 col-12"
             >
               <Icon icon="joystick"></Icon>
               Return to Game
-            </Link>
+            </LinkButton>
           )}
-          <Link
-            role="button"
+          <LinkButton
             to="/join"
-            className={
-              'btn btn-lg d-flex flex-column fw-bold col ' +
-              (context.game
-                ? 'btn-outline-success bg-success-subtle'
-                : 'btn-success')
-            }
+            size="lg"
+            variant={context.game ? 'outline-success' : 'success'}
+            className={`d-flex flex-column fw-bold col ${context.game ? 'bg-success-subtle' : ''}`}
           >
             <Icon icon="person-fill-up"></Icon>
             Join Game
-          </Link>
-          <Link
-            role="button"
+          </LinkButton>
+          <LinkButton
             to="/create"
-            className={
-              'btn btn-lg d-flex flex-column fw-bold col ' +
-              (context.game
-                ? 'btn-outline-success bg-success-subtle'
-                : 'btn-success')
-            }
+            size="lg"
+            variant={context.game ? 'outline-success' : 'success'}
+            className={`d-flex flex-column fw-bold col ${context.game ? 'bg-success-subtle' : ''}`}
           >
             <Icon icon="person-fill-add"></Icon>
             Create Game
-          </Link>
+          </LinkButton>
         </Row>
       </Container>
     </>
