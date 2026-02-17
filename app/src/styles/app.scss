@@ -21,27 +21,15 @@ i.bi {
   font-size: 1.2em;
 }
 
-.btn-lg span.icon {
-  font-size: 3em;
-}
-
-.btn span.icon,
-.btn span.icon i {
-  transition: initial;
-}
-.nf-mdi-account_check {
-  translate: 10% 0;
-}
-
 footer * {
   transition: initial;
 }
+
 footer i {
   font-size: 1.7em;
   transition: all 0.15s ease-in-out !important;
 }
 
-/* Utility: prevent text selection */
 .no-select,
 .no-select * {
   -webkit-user-select: none;
@@ -50,7 +38,6 @@ footer i {
   user-select: none;
 }
 
-/* Optional: make it clear text isn't selectable */
 .no-select {
   cursor: default;
 }

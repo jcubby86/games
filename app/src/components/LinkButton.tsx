@@ -31,6 +31,7 @@ export const LinkButton = ({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       as={Link as any}
       to={to}
+      role="button"
     >
       {children}
     </Button>

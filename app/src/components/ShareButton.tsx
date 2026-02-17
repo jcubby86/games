@@ -11,9 +11,13 @@ interface ShareProps {
 }
 
 const ShareButton = ({ className, path, title, text }: ShareProps) => {
+  const getUrl = (): string => {
+    return `${window.location.origin}${path}`;
+  };
+
   const share = async () => {
     try {
-      if (navigator.share) {
+      if (navigator['share']) {
         await navigator.share({
           title: title,
           text: text,
@@ -23,12 +27,6 @@ const ShareButton = ({ className, path, title, text }: ShareProps) => {
     } catch (err: unknown) {
       logError('There was an error sharing', err);
     }
-  };
-
-  const getUrl = (): string => {
-    const url =
-      document.querySelector<HTMLAnchorElement>('.navbar-brand')?.href + path;
-    return url.replace(/([^:]\/)\/+/g, '$1');
   };
 
   if (navigator['share']) {
@@ -41,6 +39,7 @@ const ShareButton = ({ className, path, title, text }: ShareProps) => {
           e.stopPropagation();
           void share();
         }}
+        aria-label={title ? `Share ${title}` : 'Share this page'}
       >
         <Icon icon="share-fill" />
       </Button>
