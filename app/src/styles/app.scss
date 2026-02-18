@@ -69,9 +69,7 @@ $navbar-padding-y: 0.2rem;
 
 // Import all of Bootstrap's SCSS
 $bootstrap-icons-font-dir: 'bootstrap-icons/font/fonts';
-// @import "bootswatch/dist/lux/variables";
 @import 'bootstrap/scss/bootstrap';
 @import 'bootstrap-icons/font/bootstrap-icons';
-// @import "bootswatch/dist/lux/bootswatch";
 @import 'float';
 @import 'glitch';
