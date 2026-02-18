@@ -1,0 +1,19 @@
+meta {
+  name: Get Player
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseUrl}}/api/players/:uuid
+  body: none
+  auth: bearer
+}
+
+params:path {
+  uuid: {{playerUuid}}
+}
+
+auth:bearer {
+  token: {{token}}
+}

@@ -1,0 +1,15 @@
+meta {
+  name: Get Game by Code
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/games?code=LTUN
+  body: none
+  auth: none
+}
+
+params:query {
+  code: LTUN
+}

@@ -1,0 +1,15 @@
+meta {
+  name: Get Game
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/games/:uuid
+  body: none
+  auth: none
+}
+
+params:path {
+  uuid: {{gameUuid}}
+}

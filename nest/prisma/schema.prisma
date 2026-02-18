@@ -1,0 +1,113 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Game {
+  id        Int       @id @default(autoincrement())
+  uuid      String    @unique @default(uuid())
+  code      String    @unique
+  type      GameType
+  phase     GamePhase @default(JOIN)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  nameEntries  NameEntry[]
+  storyEntries StoryEntry[]
+  players      Player[]
+
+  @@index([code])
+  @@index([uuid])
+}
+
+model Player {
+  id        Int      @id @default(autoincrement())
+  uuid      String   @unique @default(uuid())
+  nickname  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  gameId    Int?
+
+  game         Game?        @relation(fields: [gameId], references: [id])
+  nameEntries  NameEntry[]
+  storyEntries StoryEntry[]
+
+  @@unique([gameId, nickname])
+  @@index([uuid])
+  @@index([gameId])
+}
+
+model NameEntry {
+  id         Int    @id @default(autoincrement())
+  order      Int    @default(0)
+  name       String
+  normalized String
+  gameId     Int
+  playerId   Int
+
+  game   Game   @relation(fields: [gameId], references: [id])
+  player Player @relation(fields: [playerId], references: [id])
+
+  @@unique([gameId, normalized])
+  @@unique([gameId, playerId])
+  @@index([gameId])
+  @@index([playerId])
+}
+
+model StoryEntry {
+  id       Int      @id @default(autoincrement())
+  values   String[]
+  story    String?
+  gameId   Int
+  playerId Int
+
+  game   Game   @relation(fields: [gameId], references: [id])
+  player Player @relation(fields: [playerId], references: [id])
+
+  @@unique([gameId, playerId])
+  @@index([gameId])
+  @@index([playerId])
+}
+
+model Suggestion {
+  id        Int      @id @default(autoincrement())
+  uuid      String   @unique @default(uuid())
+  category  Category
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([category, value])
+  @@index([category])
+}
+
+enum GamePhase {
+  JOIN
+  PLAY
+  READ
+  END
+}
+
+enum GameType {
+  STORY
+  NAME
+}
+
+enum Category {
+  FEMALE_NAME
+  MALE_NAME
+  PAST_ACTION
+  PRESENT_ACTION
+  STATEMENT
+}

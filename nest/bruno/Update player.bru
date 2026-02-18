@@ -1,0 +1,25 @@
+meta {
+  name: Update player
+  type: http
+  seq: 9
+}
+
+patch {
+  url: {{baseUrl}}/api/players/:uuid
+  body: json
+  auth: bearer
+}
+
+params:path {
+  uuid: {{playerUuid}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "nickname": "Howdy"
+  }
+}

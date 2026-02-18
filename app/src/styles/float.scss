@@ -1,0 +1,91 @@
+/* Float-up + fade-out animation (smooth) with separate horizontal motion
+   Implementation notes:
+   - Horizontal motion runs on the outer wrapper `.float-up-fade`.
+   - Vertical translation and opacity run on the inner element `.float-up-fade__inner`.
+   This keeps `transform` animations from fighting each other and removes jitter.
+
+   Usage (HTML):
+     <span class="float-up-fade" style="--float-x: 18px; --float-duration: 3s;">
+       <span class="float-up-fade__inner">Saved!</span>
+     </span>
+
+   Usage (React/JSX):
+     <span className="float-up-fade" style={{ '--float-x': '18px', '--float-duration': '3s' } as React.CSSProperties}>
+       <span className="float-up-fade__inner">Saved!</span>
+     </span>
+*/
+
+@keyframes floatSide {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(calc(-1 * var(--float-x, 12px)));
+  }
+  50% {
+    transform: translateX(calc(1 * var(--float-x, 12px)));
+  }
+  75% {
+    transform: translateX(calc(-0.4 * var(--float-x, 12px)));
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes floatUpFadeY {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  80% {
+    transform: translateY(var(--float-distance, -200px));
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(var(--float-distance, -200px));
+    opacity: 0;
+  }
+}
+
+.float-up-fade {
+  display: inline-block;
+  pointer-events: none;
+  will-change: transform;
+  /* horizontal motion */
+  animation: floatSide var(--float-duration, 5s) ease-in-out forwards;
+}
+
+.float-up-fade__inner {
+  display: inline-block;
+  will-change: transform, opacity;
+  /* vertical + fade */
+  animation: floatUpFadeY var(--float-duration, 5s)
+    var(--float-easing, cubic-bezier(0.2, 0.9, 0.3, 1)) forwards;
+}
+
+/* Root wrapper that places the floating element just below the viewport bottom.
+   - Place this at the page-level (fixed) so messages appear from off-screen.
+   - Set `--float-start` to control how far below the bottom they begin (e.g. '40px').
+*/
+.float-root {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+/* Each message is absolutely positioned inside .float-root so messages overlap
+   instead of flowing side-by-side and shifting each other. The wrapper is
+   centered with translateX(-50%), and individual horizontal sway runs on the
+   inner `.float-up-fade` element. */
+.float-root .float-item {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%) translateY(var(--float-start, 40px));
+  pointer-events: none;
+  width: max-content;
+}

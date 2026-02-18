@@ -1,0 +1,16 @@
+meta {
+  name: Get Suggestion
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/api/suggestions?category=STATEMENT
+  body: none
+  auth: none
+}
+
+params:query {
+  category: STATEMENT
+  ~quantity: 5
+}

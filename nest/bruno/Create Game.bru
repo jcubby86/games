@@ -1,0 +1,21 @@
+meta {
+  name: Create Game
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/games
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "type": "STORY"
+  }
+}
+
+script:post-response {
+  bru.setEnvVar('gameUuid', res.body.uuid)
+}

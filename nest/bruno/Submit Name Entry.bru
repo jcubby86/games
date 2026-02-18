@@ -1,0 +1,25 @@
+meta {
+  name: Submit Name Entry
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/players/:uuid/name-entries
+  body: json
+  auth: bearer
+}
+
+params:path {
+  uuid: {{playerUuid}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "test"
+  }
+}

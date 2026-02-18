@@ -1,0 +1,25 @@
+meta {
+  name: Update game
+  type: http
+  seq: 1
+}
+
+patch {
+  url: {{baseUrl}}/api/games/:uuid
+  body: json
+  auth: bearer
+}
+
+params:path {
+  uuid: {{gameUuid}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "phase": "PLAY"
+  }
+}
