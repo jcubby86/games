@@ -95,7 +95,7 @@ const Story = () => {
         >
           <h4 className="text-center fw-bold">{player.entry?.hint?.prompt}</h4>
           <Row>
-            <Col className="p-0">
+            <Col>
               <Form.Control
                 as="textarea"
                 placeholder={suggestion}
@@ -106,7 +106,7 @@ const Story = () => {
               />
             </Col>
           </Row>
-          <Row className="mt-3 gap-2">
+          <Row>
             <SpinnerButton
               variant="success"
               className="col-10"
@@ -134,12 +134,13 @@ const Story = () => {
   } else if (game?.phase === READ) {
     return (
       <Container fluid>
+        <h4 className="text-center fw-bold">Your Story:</h4>
         <Row>
           <p className="col border rounded bg-white lh-lg fs-6 px-3 py-1 text-break">
             {player?.entry?.story}
           </p>
         </Row>
-        <Row className="gap-2">
+        <Row>
           <RecreateButton className="col" />
           <LinkButton
             to={`/story/${game.uuid}`}
@@ -162,10 +163,9 @@ const Story = () => {
       <Container fluid>
         <h4 className="text-center">Waiting for other players...</h4>
         <Row>
-          <PlayerList
-            players={game?.players?.filter((p) => p.canSubmit)}
-            className="col p-0"
-          />
+          <Col>
+            <PlayerList players={game?.players?.filter((p) => p.canSubmit)} />
+          </Col>
         </Row>
       </Container>
     );

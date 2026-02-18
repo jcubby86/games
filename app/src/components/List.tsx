@@ -2,16 +2,15 @@ import { ListGroup } from 'react-bootstrap';
 
 type ListProps = {
   items?: string[];
-  className?: string;
 };
 
-const List = ({ items, className = '' }: ListProps) => {
+const List = ({ items }: ListProps) => {
   if (!items || items.length === 0) {
     return <></>;
   }
 
   return (
-    <ListGroup className={className}>
+    <ListGroup>
       {items.map((item: string, index: number) => (
         <ListGroup.Item key={index} className="text-break no-select">
           {item}

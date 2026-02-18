@@ -25,24 +25,29 @@ export default function StoryArchive() {
   return (
     <Container fluid>
       <Row>
-        <Col className="p-0">
+        <Col>
           <Glitch size="sm" text={StoryVariant.title} className="my-3" />
         </Col>
       </Row>
-      <Row className="mt-3">
-        <ListGroup className="col p-0">
-          {stories?.map((item) => (
-            <ListGroup.Item key={item.player.uuid} className="text-break px-3">
-              <h5 className="fw-bold mb-1 text-decoration-underline fs-6">
-                {item.player.nickname}
-              </h5>
-              <p>{item.story}</p>
-            </ListGroup.Item>
-          ))}
-        </ListGroup>
+      <Row>
+        <Col>
+          <ListGroup>
+            {stories?.map((item) => (
+              <ListGroup.Item
+                key={item.player.uuid}
+                className="text-break px-3"
+              >
+                <h5 className="fw-bold mb-1 text-decoration-underline fs-6">
+                  {item.player.nickname}
+                </h5>
+                <p>{item.story}</p>
+              </ListGroup.Item>
+            ))}
+          </ListGroup>
+        </Col>
       </Row>
 
-      <Row className="gap-2 mt-3">
+      <Row>
         <RecreateButton className="col" to="/story" />
         <ShareButton
           className="col"

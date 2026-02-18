@@ -173,12 +173,12 @@ const Join = () => {
         }}
       >
         <Row>
-          <Col className="p-0">
+          <Col>
             <Glitch size="sm" text={title} className="my-3" />
           </Col>
         </Row>
-        <Row className="gap-2 mt-3">
-          <Col className="p-0">
+        <Row>
+          <Col>
             <FloatingLabel label="Game Code" controlId="codeInput">
               <Form.Control
                 type="search"
@@ -200,7 +200,7 @@ const Join = () => {
             </FloatingLabel>
           </Col>
 
-          <Col className="p-0">
+          <Col>
             <FloatingLabel label="Nickname" controlId="nicknameInput">
               <Form.Control
                 type="search"
@@ -226,7 +226,7 @@ const Join = () => {
             </FloatingLabel>
           </Col>
         </Row>
-        <Row className="gap-2 mt-3">
+        <Row>
           <SpinnerButton
             variant="success"
             disabled={!formEnabled}
@@ -254,13 +254,13 @@ const Join = () => {
             </SpinnerButton>
           )}
         </Row>
-        <Row className="mt-3">
-          {gameQuery.isError && (
+        {gameQuery.isError && (
+          <Row>
             <Form.Text className="text-center text-danger col fs-6">
               Game not found
             </Form.Text>
-          )}
-        </Row>
+          </Row>
+        )}
       </Form>
     </Container>
   );

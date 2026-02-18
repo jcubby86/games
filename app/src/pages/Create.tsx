@@ -101,12 +101,12 @@ const Create = () => {
         }}
       >
         <Row>
-          <Col className="p-0">
+          <Col>
             <Glitch size="sm" text="Create Game" className="my-3" />
           </Col>
         </Row>
-        <Row className="gap-2 mt-3">
-          <Col className="p-0 min-width-max-content">
+        <Row>
+          <Col className="min-width-max-content">
             <FloatingLabel label="Game Variant" controlId="gameVariantInput">
               <Form.Select
                 aria-label="select"
@@ -127,7 +127,7 @@ const Create = () => {
             </FloatingLabel>
           </Col>
 
-          <Col className="p-0">
+          <Col>
             <FloatingLabel label="Nickname" controlId="nicknameInput">
               <Form.Control
                 type="search"
@@ -152,7 +152,7 @@ const Create = () => {
             </FloatingLabel>
           </Col>
         </Row>
-        <Row className="gap-2 mt-3">
+        <Row>
           <SpinnerButton
             variant="success"
             className="col"
@@ -163,13 +163,13 @@ const Create = () => {
             Create Game
           </SpinnerButton>
         </Row>
-        <Row className="mt-3">
-          {gameType && (
+        {gameType && (
+          <Row>
             <Form.Text muted className="text-wrap col fs-6">
               {gameVariants.find((v) => v.type === gameType)?.description}
             </Form.Text>
-          )}
-        </Row>
+          </Row>
+        )}
       </Form>
     </Container>
   );

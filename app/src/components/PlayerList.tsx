@@ -7,10 +7,9 @@ import { Message, PlayerDto, PokeMessageData } from '../utils/types';
 
 interface PlayerListProps {
   players?: PlayerDto[];
-  className?: string;
 }
 
-const PlayerList = ({ players, className = '' }: PlayerListProps) => {
+const PlayerList = ({ players }: PlayerListProps) => {
   const { context } = useAppContext();
   const socket = useSocketContext();
   const [pokeCounts, setPokeCounts] = useState<{ [key: string]: number }>({});
@@ -54,7 +53,7 @@ const PlayerList = ({ players, className = '' }: PlayerListProps) => {
   }
 
   return (
-    <Container fluid className={className}>
+    <Container fluid>
       <ListGroup id="player-list">
         {players.map((p: PlayerDto) => {
           const isCurrentPlayer = p.uuid === context.player?.uuid;

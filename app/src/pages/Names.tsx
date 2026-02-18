@@ -86,8 +86,8 @@ const Names = () => {
           }}
         >
           <h2 className="text-center fw-bold">Enter a name:</h2>
-          <Row className="mt-3">
-            <Col className="p-0">
+          <Row>
+            <Col>
               <Form.Control
                 size="lg"
                 type="search"
@@ -99,7 +99,7 @@ const Names = () => {
               />
             </Col>
           </Row>
-          <Row className="mt-3 gap-2">
+          <Row>
             <SpinnerButton
               variant="success"
               className="col-10"
@@ -140,15 +140,14 @@ const Names = () => {
 
     return (
       <Container fluid>
-        <h4 className="text-center">Names:</h4>
-        <Row className="mt-3">
-          <List
-            items={sortedEntries.map((e) => e.name ?? '')}
-            className="col p-0"
-          />
+        <h4 className="text-center fw-bold">Names:</h4>
+        <Row>
+          <Col>
+            <List items={sortedEntries.map((e) => e.name ?? '')} />
+          </Col>
         </Row>
         {isHost && (
-          <Row className="mt-3">
+          <Row>
             <SpinnerButton
               variant="danger"
               className="col"
@@ -168,7 +167,7 @@ const Names = () => {
   } else if (game?.phase === END) {
     return (
       <Container fluid>
-        <h4 className="text-center pb-3">Enjoy the game!</h4>
+        <h4 className="text-center fw-bold">Enjoy the game!</h4>
         <Row>
           <RecreateButton className="col" />
         </Row>
@@ -179,10 +178,9 @@ const Names = () => {
       <Container fluid>
         <h4 className="text-center">Waiting for other players...</h4>
         <Row>
-          <PlayerList
-            players={game?.players?.filter((p) => p.canSubmit)}
-            className="col p-0"
-          />
+          <Col>
+            <PlayerList players={game?.players?.filter((p) => p.canSubmit)} />
+          </Col>
         </Row>
       </Container>
     );

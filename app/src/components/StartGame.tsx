@@ -44,12 +44,12 @@ const StartGame = ({ title, players }: StartGameProps) => {
         }}
       >
         <Row>
-          <Col className="p-0">
+          <Col>
             <Glitch size="sm" text={title} className="my-3" />
           </Col>
         </Row>
-        <Row className="gap-2 mt-3">
-          <Col className="p-0">
+        <Row>
+          <Col>
             <FloatingLabel label="Game Code" controlId="gameCode">
               <Form.Control
                 type="text"
@@ -64,7 +64,7 @@ const StartGame = ({ title, players }: StartGameProps) => {
               />
             </FloatingLabel>
           </Col>
-          <Col className="p-0">
+          <Col>
             <FloatingLabel label="Player Count" controlId="playerCount">
               <Form.Control
                 type="text"
@@ -77,7 +77,7 @@ const StartGame = ({ title, players }: StartGameProps) => {
           </Col>
         </Row>
         {isHost && (
-          <Row className="mt-3 gap-2">
+          <Row>
             <SpinnerButton
               variant="success"
               className="col"
@@ -95,7 +95,9 @@ const StartGame = ({ title, players }: StartGameProps) => {
         )}
         <hr />
         <Row>
-          <PlayerList players={players} className="col p-0" />
+          <Col>
+            <PlayerList players={players} />
+          </Col>
         </Row>
       </Form>
     </Container>

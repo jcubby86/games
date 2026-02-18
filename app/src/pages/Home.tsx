@@ -11,9 +11,9 @@ const Home = () => {
 
   return (
     <>
-      <Container fluid className="m-0">
-        <Row className="gap-2">
-          <Col xs={12} className="p-0">
+      <Container fluid>
+        <Row>
+          <Col xs={12}>
             <Glitch text="Games" className="my-3" />
           </Col>
           {context.game && (

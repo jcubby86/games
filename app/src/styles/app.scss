@@ -65,6 +65,20 @@ footer i {
   align-items: center;
 }
 
+.row {
+  margin-top: 1rem !important;
+  margin-bottom: 1rem !important;
+  gap: 0.5rem;
+
+  > .col:not(.btn, .form-text) {
+    padding: 0;
+  }
+
+  .container-fluid {
+    padding: 0;
+  }
+}
+
 $navbar-padding-y: 0.2rem;
 
 // Import all of Bootstrap's SCSS
