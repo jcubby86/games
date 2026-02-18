@@ -24,40 +24,22 @@ h1.glitch::after {
 
 h1.glitch::before {
   left: 2px;
-  text-shadow: -1px 0 red;
-  animation-name: glitch-animation-1;
-  animation-duration: 3s;
-  animation-timing-function: linear;
-  animation-delay: 0s;
-  animation-iteration-count: infinite;
-  animation-direction: reverse-alternate;
+  text-shadow: -2px 0 red;
+  animation: glitch-animation 3s linear 0s infinite alternate;
 }
 
 h1.glitch::after {
   left: -2px;
-  text-shadow: -1px 0 blue;
-  animation-name: glitch-animation-2;
-  animation-duration: 3s;
-  animation-timing-function: linear;
-  animation-delay: 0s;
-  animation-iteration-count: infinite;
-  animation-direction: reverse-alternate;
+  text-shadow: 2px 0 blue;
+  animation: glitch-animation 3s linear 0s infinite alternate-reverse;
 }
 
-@keyframes glitch-animation-1 {
+@keyframes glitch-animation {
   $steps: 20;
   @for $i from 0 through $steps {
-    #{percentage($i*(1/$steps))} {
-      clip: rect(random(150) + px, 400px, random(150) + px, 30px);
+    #{percentage($i/$steps)} {
+      clip: rect(calc(random(150) * 1px), 400px, calc(random(150) * 1px), 30px);
     }
   }
 }
 
-@keyframes glitch-animation-2 {
-  $steps: 20;
-  @for $i from 0 through $steps {
-    #{percentage($i*(1/$steps))} {
-      clip: rect(random(150) + px, 400px, random(150) + px, 30px);
-    }
-  }
-}
