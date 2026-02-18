@@ -26,7 +26,7 @@ export default function StoryArchive() {
     <Container fluid>
       <Row>
         <Col className="p-0">
-          <Glitch text={StoryVariant.title} className="glitch-small" />
+          <Glitch size="sm" text={StoryVariant.title} className="my-3" />
         </Col>
       </Row>
       <Row className="mt-3">

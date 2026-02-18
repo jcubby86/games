@@ -141,7 +141,7 @@ const Names = () => {
     return (
       <Container fluid>
         <h4 className="text-center">Names:</h4>
-        <Row>
+        <Row className="mt-3">
           <List
             items={sortedEntries.map((e) => e.name ?? '')}
             className="col p-0"
@@ -181,7 +181,7 @@ const Names = () => {
         <Row>
           <PlayerList
             players={game?.players?.filter((p) => p.canSubmit)}
-            className="col"
+            className="col p-0"
           />
         </Row>
       </Container>

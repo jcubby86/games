@@ -1,3 +1,4 @@
+import { clsx } from 'clsx';
 import { Button } from 'react-bootstrap';
 
 import Icon from './Icon';
@@ -33,7 +34,7 @@ const ShareButton = ({ className, path, title, text }: ShareProps) => {
     return (
       <Button
         variant="outline-info"
-        className={`${className} bg-info-subtle text-info`}
+        className={clsx(className, 'bg-info-subtle', 'text-info')}
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();

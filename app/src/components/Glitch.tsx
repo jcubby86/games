@@ -1,12 +1,20 @@
+import { clsx } from 'clsx';
+
 type GlitchProps = {
   text: string;
+  size?: 'sm';
   className?: string;
 };
 
-const Glitch = ({ text, className = '' }: GlitchProps) => {
+const Glitch = ({ text, size, className = '' }: GlitchProps) => {
   return (
     <h1
-      className={`glitch text-center ${className}`}
+      className={clsx(
+        'glitch',
+        size && `glitch-${size}`,
+        'text-center',
+        className
+      )}
       style={{ '--glitch-text': `"${text}"` } as React.CSSProperties}
     >
       {text}

@@ -164,7 +164,7 @@ const Story = () => {
         <Row>
           <PlayerList
             players={game?.players?.filter((p) => p.canSubmit)}
-            className="col"
+            className="col p-0"
           />
         </Row>
       </Container>

@@ -102,7 +102,7 @@ const Create = () => {
       >
         <Row>
           <Col className="p-0">
-            <Glitch text="Create Game" className="glitch-small" />
+            <Glitch size="sm" text="Create Game" className="my-3" />
           </Col>
         </Row>
         <Row className="gap-2 mt-3">

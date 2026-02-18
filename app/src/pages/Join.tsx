@@ -174,7 +174,7 @@ const Join = () => {
       >
         <Row>
           <Col className="p-0">
-            <Glitch text={title} className="glitch-small" />
+            <Glitch size="sm" text={title} className="my-3" />
           </Col>
         </Row>
         <Row className="gap-2 mt-3">

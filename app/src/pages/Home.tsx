@@ -1,3 +1,4 @@
+import { clsx } from 'clsx';
 import { Col, Container, Row } from 'react-bootstrap';
 
 import Glitch from '../components/Glitch';
@@ -13,7 +14,7 @@ const Home = () => {
       <Container fluid className="m-0">
         <Row className="gap-2">
           <Col xs={12} className="p-0">
-            <Glitch text="Games" />
+            <Glitch text="Games" className="my-3" />
           </Col>
           {context.game && (
             <LinkButton
@@ -30,7 +31,10 @@ const Home = () => {
             to="/join"
             size="lg"
             variant={context.game ? 'outline-success' : 'success'}
-            className={`d-flex flex-column fw-bold col ${context.game ? 'bg-success-subtle' : ''}`}
+            className={clsx(
+              'd-flex flex-column fw-bold col',
+              context.game && 'bg-success-subtle'
+            )}
           >
             <Icon icon="person-fill-up"></Icon>
             Join Game
@@ -39,7 +43,10 @@ const Home = () => {
             to="/create"
             size="lg"
             variant={context.game ? 'outline-success' : 'success'}
-            className={`d-flex flex-column fw-bold col ${context.game ? 'bg-success-subtle' : ''}`}
+            className={clsx(
+              'd-flex flex-column fw-bold col',
+              context.game && 'bg-success-subtle'
+            )}
           >
             <Icon icon="person-fill-add"></Icon>
             Create Game

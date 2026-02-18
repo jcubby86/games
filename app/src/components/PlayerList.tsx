@@ -54,7 +54,7 @@ const PlayerList = ({ players, className = '' }: PlayerListProps) => {
   }
 
   return (
-    <Container fluid className={`p-0 ${className}`}>
+    <Container fluid className={className}>
       <ListGroup id="player-list">
         {players.map((p: PlayerDto) => {
           const isCurrentPlayer = p.uuid === context.player?.uuid;

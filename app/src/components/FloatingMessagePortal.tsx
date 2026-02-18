@@ -1,3 +1,4 @@
+import { clsx } from 'clsx';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -57,7 +58,7 @@ function FloatingMessage({
   if (!visible) return null;
 
   return (
-    <span ref={ref} className={`float-up-fade ${className}`}>
+    <span ref={ref} className={clsx('float-up-fade', className)}>
       <span className="float-up-fade__inner no-select border px-1 border-danger-subtle rounded-pill bg-danger-subtle">
         {children}
       </span>
