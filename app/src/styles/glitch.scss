@@ -4,7 +4,6 @@ h1.glitch {
   font-style: normal;
   position: relative;
   font-size: 60px;
-  padding: 10px;
 }
 
 h1.glitch.glitch-small {
@@ -19,27 +18,34 @@ h1.glitch::after {
   height: 100%;
   overflow: hidden;
   top: 0;
-  padding: inherit;
 }
 
 h1.glitch::before {
-  left: 2px;
-  text-shadow: -2px 0 red;
-  animation: glitch-animation 3s linear 0s infinite alternate;
+  left: 0.03em;
+  text-shadow: -0.03em 0 red;
+  animation: glitch-animation-1 3s linear 0s infinite alternate;
 }
 
 h1.glitch::after {
-  left: -2px;
-  text-shadow: 2px 0 blue;
-  animation: glitch-animation 3s linear 0s infinite alternate-reverse;
+  left: -0.03em;
+  text-shadow: 0.03em 0 blue;
+  animation: glitch-animation-2 3s linear 0s infinite alternate;
 }
 
-@keyframes glitch-animation {
+@keyframes glitch-animation-1 {
   $steps: 20;
   @for $i from 0 through $steps {
     #{percentage($i/$steps)} {
-      clip: rect(calc(random(150) * 1px), 400px, calc(random(150) * 1px), 30px);
+      clip: rect(random(150) + px, 400px, random(150) + px, 0);
     }
   }
 }
 
+@keyframes glitch-animation-2 {
+  $steps: 20;
+  @for $i from 0 through $steps {
+    #{percentage($i/$steps)} {
+      clip: rect(random(150) + px, 400px, random(150) + px, 0);
+    }
+  }
+}
