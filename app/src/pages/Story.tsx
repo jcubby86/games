@@ -152,7 +152,6 @@ const Story = () => {
           <ShareButton
             className="col"
             path={`/story/${game.uuid}`}
-            title={StoryVariant.title}
             text="Read my hilarious story!"
           />
         </Row>

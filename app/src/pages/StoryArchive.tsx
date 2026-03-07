@@ -52,7 +52,6 @@ export default function StoryArchive() {
         <ShareButton
           className="col"
           path={`/story/${gameUuid}`}
-          title={StoryVariant.title}
           text="Read my hilarious story!"
         />
       </Row>
