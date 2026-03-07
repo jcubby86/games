@@ -164,7 +164,10 @@ const Story = () => {
         <h4 className="text-center">Waiting for other players...</h4>
         <Row>
           <Col>
-            <PlayerList players={game?.players?.filter((p) => p.canSubmit)} />
+            <PlayerList
+              players={game?.players?.filter((p) => p.canSubmit)}
+              showText
+            />
           </Col>
         </Row>
       </Container>
