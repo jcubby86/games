@@ -6,12 +6,11 @@ import { logError } from '../utils/errorHandler';
 
 interface ShareProps {
   path: string;
-  title?: string;
   text?: string;
   className?: string;
 }
 
-const ShareButton = ({ className, path, title, text }: ShareProps) => {
+const ShareButton = ({ className, path, text }: ShareProps) => {
   const getUrl = (): string => {
     return `${window.location.origin}${path}`;
   };
@@ -20,7 +19,7 @@ const ShareButton = ({ className, path, title, text }: ShareProps) => {
     try {
       if (navigator['share']) {
         await navigator.share({
-          title: title,
+          title: document.title,
           text: text,
           url: getUrl()
         });
@@ -40,7 +39,7 @@ const ShareButton = ({ className, path, title, text }: ShareProps) => {
           e.stopPropagation();
           void share();
         }}
-        aria-label={title ? `Share ${title}` : 'Share this page'}
+        aria-label={`Share ${document.title}`}
       >
         <Icon icon="share-fill" />
       </Button>

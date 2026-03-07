@@ -10,7 +10,7 @@ import PlayerList from '../components/PlayerList';
 import RecreateButton from '../components/RecreateButton';
 import { SpinnerButton } from '../components/SpinnerButton';
 import StartGame from '../components/StartGame';
-import { useAppContext } from '../contexts/AppContext';
+import { useAppContext, useDocumentTitle } from '../contexts/AppContext';
 import { usePlayerQuery } from '../hooks/usePlayerQuery';
 import { useSuggestions } from '../hooks/useSuggestions';
 import { useUpdateGameMutation } from '../hooks/useUpdateGameMutation';
@@ -20,6 +20,7 @@ import { alertError } from '../utils/errorHandler';
 import { NameVariant } from '../utils/gameVariants';
 
 const Names = () => {
+  useDocumentTitle(NameVariant.title);
   const { suggestion, nextSuggestion } = useSuggestions({
     initialCategory: 'MALE_NAME,FEMALE_NAME',
     quantity: 10
@@ -179,7 +180,10 @@ const Names = () => {
         <h4 className="text-center">Waiting for other players...</h4>
         <Row>
           <Col>
-            <PlayerList players={game?.players?.filter((p) => p.canSubmit)} />
+            <PlayerList
+              players={game?.players?.filter((p) => p.canSubmit)}
+              showText
+            />
           </Col>
         </Row>
       </Container>

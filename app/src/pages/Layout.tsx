@@ -5,10 +5,14 @@ import Icon from '../components/Icon';
 import { useAppContext } from '../contexts/AppContext';
 
 const Layout = () => {
-  const { context } = useAppContext();
+  const { context, title } = useAppContext();
 
   return (
     <>
+      <title>{title}</title>
+      <meta property="og:title" content={title} />
+      <meta property="og:type" content="website" />
+      <meta property="og:url" content={window.location.href} />
       <header>
         <Navbar className="bg-dark" data-bs-theme="dark">
           <Container fluid>

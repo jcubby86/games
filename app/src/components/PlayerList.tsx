@@ -7,9 +7,10 @@ import { Message, PlayerDto, PokeMessageData } from '../utils/types';
 
 interface PlayerListProps {
   players?: PlayerDto[];
+  showText?: boolean;
 }
 
-const PlayerList = ({ players }: PlayerListProps) => {
+const PlayerList = ({ players, showText }: PlayerListProps) => {
   const { context } = useAppContext();
   const socket = useSocketContext();
   const [pokeCounts, setPokeCounts] = useState<{ [key: string]: number }>({});
@@ -86,7 +87,7 @@ const PlayerList = ({ players }: PlayerListProps) => {
           );
         })}
       </ListGroup>
-      {players.length > 1 && (
+      {(players.length > 1 || showText) && (
         <p className="text-center my-3 text-muted">
           Try poking other players by clicking their names!
         </p>

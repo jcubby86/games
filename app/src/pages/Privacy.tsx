@@ -1,4 +1,7 @@
+import { useDocumentTitle } from '../contexts/AppContext';
+
 const Privacy = () => {
+  useDocumentTitle('Games');
   return (
     <div className="privacy-policy">
       <h2 className="mb-3">Privacy Policy</h2>

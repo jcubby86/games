@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import Glitch from '../components/Glitch';
 import { showModal } from '../components/ModalPortal';
 import { SpinnerButton } from '../components/SpinnerButton';
-import { useAppContext } from '../contexts/AppContext';
+import { useAppContext, useDocumentTitle } from '../contexts/AppContext';
 import { deletePlayer, postGame, postPlayer } from '../utils/apiClient';
 import { nicknameMaxLength } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
@@ -14,6 +14,7 @@ import { gameVariants } from '../utils/gameVariants';
 import { GameDto } from '../utils/types';
 
 const Create = () => {
+  useDocumentTitle('Create Game');
   const { context, dispatchContext } = useAppContext();
   const [gameType, setGameType] = useState<string | null>(null);
   const [nickname, setNickname] = useState(context.player?.nickname || null);

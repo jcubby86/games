@@ -4,9 +4,10 @@ import { Col, Container, Row } from 'react-bootstrap';
 import Glitch from '../components/Glitch';
 import Icon from '../components/Icon';
 import { LinkButton } from '../components/LinkButton';
-import { useAppContext } from '../contexts/AppContext';
+import { useAppContext, useDocumentTitle } from '../contexts/AppContext';
 
 const Home = () => {
+  useDocumentTitle('Games');
   const { context } = useAppContext();
 
   return (

@@ -5,10 +5,12 @@ import { useParams } from 'react-router-dom';
 import Glitch from '../components/Glitch';
 import RecreateButton from '../components/RecreateButton';
 import ShareButton from '../components/ShareButton';
+import { useDocumentTitle } from '../contexts/AppContext';
 import { getStoryEntries } from '../utils/apiClient';
 import { StoryVariant } from '../utils/gameVariants';
 
 export default function StoryArchive() {
+  useDocumentTitle(StoryVariant.title);
   const { gameUuid } = useParams();
   const storyQuery = useQuery({
     queryKey: ['games', { uuid: gameUuid }, 'story-entries'],
@@ -52,7 +54,6 @@ export default function StoryArchive() {
         <ShareButton
           className="col"
           path={`/story/${gameUuid}`}
-          title={StoryVariant.title}
           text="Read my hilarious story!"
         />
       </Row>

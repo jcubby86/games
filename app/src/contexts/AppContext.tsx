@@ -3,7 +3,8 @@ import {
   createContext,
   useContext,
   useEffect,
-  useReducer
+  useReducer,
+  useState
 } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -16,6 +17,8 @@ export interface AppState {
 }
 
 interface AppContextType {
+  title: string;
+  setTitle: (title: string) => void;
   context: AppState;
   dispatchContext: Dispatch<Action>;
 }
@@ -100,9 +103,10 @@ export const AppContextProvider = ({
   children: React.ReactElement;
 }) => {
   const [context, dispatchContext] = useReducer(reducer, null, loadFromStorage);
+  const [title, setTitle] = useState('Games');
 
   return (
-    <AppContext.Provider value={{ context, dispatchContext }}>
+    <AppContext.Provider value={{ context, dispatchContext, title, setTitle }}>
       {children}
     </AppContext.Provider>
   );
@@ -123,6 +127,17 @@ export const useAppContext = (required = false) => {
       void navigate('/', { replace: true });
     }
   }, [required, player, game, token, navigate]);
-
   return appContext;
+};
+
+export const useDocumentTitle = (title: string) => {
+  const { title: previousTitle, setTitle } = useAppContext();
+
+  useEffect(() => {
+    setTitle(title);
+
+    return () => {
+      setTitle(previousTitle);
+    };
+  }, [title, setTitle, previousTitle]);
 };

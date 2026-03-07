@@ -11,7 +11,7 @@ import RecreateButton from '../components/RecreateButton';
 import ShareButton from '../components/ShareButton';
 import { SpinnerButton } from '../components/SpinnerButton';
 import StartGame from '../components/StartGame';
-import { useAppContext } from '../contexts/AppContext';
+import { useAppContext, useDocumentTitle } from '../contexts/AppContext';
 import { usePlayerQuery } from '../hooks/usePlayerQuery';
 import { useSuggestions } from '../hooks/useSuggestions';
 import { postStoryEntry } from '../utils/apiClient';
@@ -28,6 +28,7 @@ const categories = [
 ];
 
 const Story = () => {
+  useDocumentTitle(StoryVariant.title);
   const { suggestion, updateCategory, nextSuggestion } = useSuggestions({
     initialCategory: categories[0],
     quantity: 5,
@@ -152,7 +153,6 @@ const Story = () => {
           <ShareButton
             className="col"
             path={`/story/${game.uuid}`}
-            title={StoryVariant.title}
             text="Read my hilarious story!"
           />
         </Row>
@@ -164,7 +164,10 @@ const Story = () => {
         <h4 className="text-center">Waiting for other players...</h4>
         <Row>
           <Col>
-            <PlayerList players={game?.players?.filter((p) => p.canSubmit)} />
+            <PlayerList
+              players={game?.players?.filter((p) => p.canSubmit)}
+              showText
+            />
           </Col>
         </Row>
       </Container>
