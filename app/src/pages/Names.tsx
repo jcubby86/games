@@ -11,6 +11,7 @@ import RecreateButton from '../components/RecreateButton';
 import { SpinnerButton } from '../components/SpinnerButton';
 import StartGame from '../components/StartGame';
 import { useAppContext } from '../contexts/AppContext';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { usePlayerQuery } from '../hooks/usePlayerQuery';
 import { useSuggestions } from '../hooks/useSuggestions';
 import { useUpdateGameMutation } from '../hooks/useUpdateGameMutation';
@@ -20,6 +21,8 @@ import { alertError } from '../utils/errorHandler';
 import { NameVariant } from '../utils/gameVariants';
 
 const Names = () => {
+  useDocumentTitle(NameVariant.title);
+
   const { suggestion, nextSuggestion } = useSuggestions({
     initialCategory: 'MALE_NAME,FEMALE_NAME',
     quantity: 10
