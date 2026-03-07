@@ -6,7 +6,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import Glitch from '../components/Glitch';
 import { showModal } from '../components/ModalPortal';
 import { SpinnerButton } from '../components/SpinnerButton';
-import { useAppContext } from '../contexts/AppContext';
+import { useAppContext, useDocumentTitle } from '../contexts/AppContext';
 import {
   deletePlayer,
   getGameByCode,
@@ -19,6 +19,7 @@ import { gameVariants } from '../utils/gameVariants';
 import { GameDto } from '../utils/types';
 
 const Join = () => {
+  useDocumentTitle('Join Game');
   const { context, dispatchContext } = useAppContext();
   const [searchParams] = useSearchParams();
 

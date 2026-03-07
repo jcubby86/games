@@ -5,10 +5,11 @@ import Icon from '../components/Icon';
 import { useAppContext } from '../contexts/AppContext';
 
 const Layout = () => {
-  const { context } = useAppContext();
+  const { context, title } = useAppContext();
 
   return (
     <>
+      <title>{title}</title>
       <header>
         <Navbar className="bg-dark" data-bs-theme="dark">
           <Container fluid>

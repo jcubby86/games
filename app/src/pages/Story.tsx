@@ -11,7 +11,7 @@ import RecreateButton from '../components/RecreateButton';
 import ShareButton from '../components/ShareButton';
 import { SpinnerButton } from '../components/SpinnerButton';
 import StartGame from '../components/StartGame';
-import { useAppContext } from '../contexts/AppContext';
+import { useAppContext, useDocumentTitle } from '../contexts/AppContext';
 import { usePlayerQuery } from '../hooks/usePlayerQuery';
 import { useSuggestions } from '../hooks/useSuggestions';
 import { postStoryEntry } from '../utils/apiClient';
@@ -28,6 +28,7 @@ const categories = [
 ];
 
 const Story = () => {
+  useDocumentTitle(StoryVariant.title);
   const { suggestion, updateCategory, nextSuggestion } = useSuggestions({
     initialCategory: categories[0],
     quantity: 5,
