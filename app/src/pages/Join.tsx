@@ -7,7 +7,6 @@ import Glitch from '../components/Glitch';
 import { showModal } from '../components/ModalPortal';
 import { SpinnerButton } from '../components/SpinnerButton';
 import { useAppContext } from '../contexts/AppContext';
-import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import {
   deletePlayer,
   getGameByCode,
@@ -20,8 +19,6 @@ import { gameVariants } from '../utils/gameVariants';
 import { GameDto } from '../utils/types';
 
 const Join = () => {
-  useDocumentTitle('Join a Game');
-
   const { context, dispatchContext } = useAppContext();
   const [searchParams] = useSearchParams();
 

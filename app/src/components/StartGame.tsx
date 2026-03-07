@@ -89,6 +89,7 @@ const StartGame = ({ title, players }: StartGameProps) => {
             <ShareButton
               className="col"
               path={`/join?code=${context.game?.code.toLowerCase()}`}
+              title="Join my game!"
             />
           </Row>
         )}

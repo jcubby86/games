@@ -12,7 +12,6 @@ import ShareButton from '../components/ShareButton';
 import { SpinnerButton } from '../components/SpinnerButton';
 import StartGame from '../components/StartGame';
 import { useAppContext } from '../contexts/AppContext';
-import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { usePlayerQuery } from '../hooks/usePlayerQuery';
 import { useSuggestions } from '../hooks/useSuggestions';
 import { postStoryEntry } from '../utils/apiClient';
@@ -29,8 +28,6 @@ const categories = [
 ];
 
 const Story = () => {
-  useDocumentTitle(StoryVariant.title);
-
   const { suggestion, updateCategory, nextSuggestion } = useSuggestions({
     initialCategory: categories[0],
     quantity: 5,
@@ -155,6 +152,7 @@ const Story = () => {
           <ShareButton
             className="col"
             path={`/story/${game.uuid}`}
+            title={StoryVariant.title}
             text="Read my hilarious story!"
           />
         </Row>
