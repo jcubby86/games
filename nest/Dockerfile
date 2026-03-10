@@ -1,5 +1,5 @@
 # Builder stage: install dev deps, generate Prisma client, build app
-FROM node:lts AS builder
+FROM node:lts-slim AS builder
 WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm ci
@@ -8,7 +8,7 @@ RUN npx prisma generate
 RUN npm run build
 
 # Runtime stage: smaller image with only production dependencies
-FROM node:lts AS runner
+FROM node:lts-slim AS runner
 WORKDIR /usr/src/app
 ENV NODE_ENV=production
 COPY package*.json ./
