@@ -5,7 +5,7 @@ import {
 } from '@tanstack/react-query';
 import { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 
 import { FloatingMessagePortal } from './components/FloatingMessagePortal';
 import Loading from './components/Loading';

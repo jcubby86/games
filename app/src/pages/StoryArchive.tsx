@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Col, Container, ListGroup, Row } from 'react-bootstrap';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 
 import Glitch from '../components/Glitch';
 import RecreateButton from '../components/RecreateButton';
