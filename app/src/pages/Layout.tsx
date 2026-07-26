@@ -1,5 +1,5 @@
 import { Container, Navbar } from 'react-bootstrap';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet } from 'react-router';
 
 import Icon from '../components/Icon';
 import { useAppContext } from '../contexts/AppContext';

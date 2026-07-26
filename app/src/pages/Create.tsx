@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import Glitch from '../components/Glitch';
 import { showModal } from '../components/ModalPortal';
