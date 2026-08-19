@@ -5,7 +5,7 @@ import { SuggestionDto } from 'src/game/game.types';
 import { Category } from 'src/generated/prisma/client';
 import { OpenAIService } from 'src/openai/openai.service';
 
-export const SUGGESTION_PROVIDERS = 'SuggestionProviders';
+export const SUGGESTION_PROVIDER = 'SuggestionProvider';
 
 export interface SuggestionProvider {
   getSuggestions(
@@ -15,15 +15,13 @@ export interface SuggestionProvider {
   enabled(): boolean;
 }
 
-export const suggestionProviderFactory: FactoryProvider<SuggestionProvider[]> =
-  {
-    provide: SUGGESTION_PROVIDERS,
-    useFactory: (
-      suggestionRepository: SuggestionRepository,
-      openAIService: OpenAIService,
-    ) => {
-      const providers = [suggestionRepository, openAIService];
-      return providers.filter((p) => p.enabled());
-    },
-    inject: [SuggestionRepository, OpenAIService],
-  };
+export const suggestionProviderFactory: FactoryProvider<SuggestionProvider> = {
+  provide: SUGGESTION_PROVIDER,
+  useFactory: (
+    suggestionRepository: SuggestionRepository,
+    openAIService: OpenAIService,
+  ): SuggestionProvider =>
+    // OpenAI supersedes the static repository whenever it's configured.
+    openAIService.enabled() ? openAIService : suggestionRepository,
+  inject: [SuggestionRepository, OpenAIService],
+};
