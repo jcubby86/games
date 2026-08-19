@@ -11,6 +11,7 @@ import { LoggerMiddleware } from './middleware/logger.middleware';
 import { NameService } from './name/name.service';
 import { PrismaService } from './prisma.service';
 import { StoryService } from './story/story.service';
+import { SuggestionCacheService } from './suggestion/suggestion-cache.service';
 import { SuggestionController } from './suggestion/suggestion.controller';
 import { suggestionProviderFactory } from './suggestion/suggestion.factory';
 import { SuggestionRepository } from './suggestion/suggestion.repository';
@@ -35,6 +36,7 @@ import { OpenAIService } from 'src/openai/openai.service';
     NameService,
     SuggestionService,
     SuggestionRepository,
+    SuggestionCacheService,
     suggestionProviderFactory,
     EventGateway,
     OpenAIService,
