@@ -93,9 +93,14 @@ export function postStoryEntry(
   );
 }
 
-export function getSuggestions(category: string, quantity: number) {
+export function getSuggestions(
+  category: string,
+  quantity: number,
+  noAi?: boolean
+) {
+  const noAiParam = noAi ? '&no_ai=true' : '';
   return axios.get<SuggestionDto[]>(
-    `/api/suggestions?category=${category}&quantity=${quantity}`
+    `/api/suggestions?category=${category}&quantity=${quantity}${noAiParam}`
   );
 }
 

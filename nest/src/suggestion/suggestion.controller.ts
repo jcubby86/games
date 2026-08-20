@@ -11,8 +11,13 @@ export class SuggestionController {
   async getSuggestion(
     @Query('category') category: string,
     @Query('quantity') quantity?: number,
+    @Query('no_ai') noAi?: string,
   ): Promise<SuggestionDto[]> {
     const categories = category.split(',');
-    return this.suggestionService.getSuggestions(categories, quantity);
+    return this.suggestionService.getSuggestions(
+      categories,
+      quantity,
+      noAi === 'true',
+    );
   }
 }

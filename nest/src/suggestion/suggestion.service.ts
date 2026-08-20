@@ -27,11 +27,13 @@ export class SuggestionService {
   async getSuggestions(
     categories: string[],
     quantity: number = 5,
+    noAi: boolean = false,
   ): Promise<SuggestionDto[]> {
     const validCategories = this.validateCategories(categories);
     const suggestions = await this.suggestionProvider.getSuggestions(
       validCategories,
       quantity,
+      noAi,
     );
 
     return shuffle(suggestions).slice(0, quantity);

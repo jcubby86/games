@@ -96,6 +96,22 @@ describe('SuggestionCacheService', () => {
     });
   });
 
+  it('bypasses OpenAI and the cache entirely when noAi is set', async () => {
+    const stored = [suggestion('a'), suggestion('b')];
+    suggestionRepository.getSuggestions.mockResolvedValue(stored);
+
+    const result = await service.getSuggestions([Category.STATEMENT], 5, true);
+    const byValue = (a: SuggestionDto, b: SuggestionDto) =>
+      a.value.localeCompare(b.value);
+
+    expect(result.sort(byValue)).toEqual(stored.sort(byValue));
+    expect(suggestionRepository.getSuggestions).toHaveBeenCalledWith([
+      Category.STATEMENT,
+    ]);
+    expect(openAIService.getSuggestions).not.toHaveBeenCalled();
+    expect(eventEmitter.emit).not.toHaveBeenCalled();
+  });
+
   it('generates a batch via OpenAI and appends it to the cache when replenishing', async () => {
     const generated = [suggestion('a'), suggestion('b')];
     openAIService.getSuggestions.mockResolvedValue(generated);

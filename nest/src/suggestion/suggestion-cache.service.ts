@@ -45,7 +45,14 @@ export class SuggestionCacheService
   async getSuggestions(
     categories: Category[],
     quantity: number = 5,
+    noAi: boolean = false,
   ): Promise<SuggestionDto[]> {
+    if (noAi) {
+      const suggestions =
+        await this.suggestionRepository.getSuggestions(categories);
+      return shuffle(suggestions).slice(0, quantity);
+    }
+
     const results = await Promise.all(
       categories.map((category) =>
         this.getSuggestionsForCategory(category, quantity),

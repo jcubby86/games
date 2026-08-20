@@ -10,8 +10,9 @@ import { SuggestionRepository } from 'src/suggestion/suggestion.repository';
 const EXAMPLE_COUNT = 5;
 
 const CATEGORY_DESCRIPTIONS: Record<Category, string> = {
-  FEMALE_NAME: 'the name of a well-known or fictional woman',
-  MALE_NAME: 'the name of a well-known or fictional man',
+  FEMALE_NAME:
+    'the name of a well-known fictional, historical, or famous woman',
+  MALE_NAME: 'the name of a well-known fictional, historical, or famous man',
   PAST_ACTION: 'a funny thing someone did, written in the past tense',
   PRESENT_ACTION:
     'a funny thing someone is doing, written in the present ("-ing") tense',
