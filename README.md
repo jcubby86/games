@@ -22,6 +22,7 @@ A web-based multiplayer party games platform inspired by Jackbox Games. Create a
 - 🌐 **Fully Self-Hostable** - Run your own instance with Docker
 - 📱 **Responsive Design** - Works great on mobile and desktop
 - ⚡ **Real-time Updates** - WebSocket-powered live game updates
+- 🤖 **AI-Generated Suggestions** - Optional OpenAI-powered suggestions to help players who are stuck, with a per-user opt-out
 
 ## Games
 
@@ -161,6 +162,11 @@ npm run start:dev
 | `NODE_ENV` | Environment (development/production) | No | development |
 | `NODE_PORT` | Backend server port | No | 3000 |
 | `JWT_SECRET` | Secret for JWT token signing | Yes | - |
+| `OPENAI_API_KEY` | OpenAI API key, used to generate AI suggestions | No | - |
+| `OPENAI_BASE_URL` | Base URL for an OpenAI-compatible endpoint (e.g. a local/self-hosted model such as llama.cpp or Ollama); can be used instead of or alongside `OPENAI_API_KEY` | No | - |
+| `OPENAI_MODEL` | Model name to use for suggestions | No | gpt-4o |
+
+AI suggestions are disabled entirely if neither `OPENAI_API_KEY` nor `OPENAI_BASE_URL` is set - the app falls back to a static, pre-seeded pool of suggestions. When enabled, generated suggestions are cached in memory and replenished in the background so requests don't wait on the OpenAI API. Players can also opt out of AI suggestions individually from the Join page; this preference is stored in their browser and sent to the backend as the `no_ai` query parameter on `GET /api/suggestions`.
 
 ### Frontend (`app/.env`)
 
