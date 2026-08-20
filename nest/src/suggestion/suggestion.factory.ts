@@ -1,29 +1,30 @@
 import { FactoryProvider } from '@nestjs/common';
 
+import { SuggestionCacheService } from './suggestion-cache.service';
 import { SuggestionRepository } from './suggestion.repository';
 import { SuggestionDto } from 'src/game/game.types';
 import { Category } from 'src/generated/prisma/client';
-import { OpenAIService } from 'src/openai/openai.service';
 
-export const SUGGESTION_PROVIDERS = 'SuggestionProviders';
+export const SUGGESTION_PROVIDER = 'SuggestionProvider';
 
 export interface SuggestionProvider {
   getSuggestions(
     categories: Category[],
     quantity?: number,
+    noAi?: boolean,
   ): Promise<SuggestionDto[]>;
   enabled(): boolean;
 }
 
-export const suggestionProviderFactory: FactoryProvider<SuggestionProvider[]> =
-  {
-    provide: SUGGESTION_PROVIDERS,
-    useFactory: (
-      suggestionRepository: SuggestionRepository,
-      openAIService: OpenAIService,
-    ) => {
-      const providers = [suggestionRepository, openAIService];
-      return providers.filter((p) => p.enabled());
-    },
-    inject: [SuggestionRepository, OpenAIService],
-  };
+export const suggestionProviderFactory: FactoryProvider<SuggestionProvider> = {
+  provide: SUGGESTION_PROVIDER,
+  useFactory: (
+    suggestionRepository: SuggestionRepository,
+    suggestionCacheService: SuggestionCacheService,
+  ): SuggestionProvider =>
+    // OpenAI (via the cache) supersedes the static repository whenever it's configured.
+    suggestionCacheService.enabled()
+      ? suggestionCacheService
+      : suggestionRepository,
+  inject: [SuggestionRepository, SuggestionCacheService],
+};

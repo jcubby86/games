@@ -7,6 +7,7 @@ import Glitch from '../components/Glitch';
 import { showModal } from '../components/ModalPortal';
 import { SpinnerButton } from '../components/SpinnerButton';
 import { useAppContext, useDocumentTitle } from '../contexts/AppContext';
+import { useAiSuggestionsSetting } from '../hooks/useAiSuggestionsSetting';
 import {
   deletePlayer,
   getGameByCode,
@@ -21,6 +22,7 @@ import { GameDto } from '../utils/types';
 const Join = () => {
   useDocumentTitle('Join Game');
   const { context, dispatchContext } = useAppContext();
+  const { noAi, setNoAi } = useAiSuggestionsSetting();
   const [searchParams] = useSearchParams();
 
   const codeQueryParam = searchParams.get('code')?.toLowerCase();
@@ -254,6 +256,22 @@ const Join = () => {
               Leave Game
             </SpinnerButton>
           )}
+        </Row>
+        <Row>
+          <Col>
+            <div className="d-flex justify-content-between align-items-center px-3 py-2">
+              <Form.Label htmlFor="ai-suggestions-toggle" className="mb-0">
+                AI-generated suggestions
+              </Form.Label>
+              <Form.Check
+                type="switch"
+                role="switch"
+                id="ai-suggestions-toggle"
+                checked={!noAi}
+                onChange={(e) => setNoAi(!e.target.checked)}
+              />
+            </div>
+          </Col>
         </Row>
         {gameQuery.isError && (
           <Row>

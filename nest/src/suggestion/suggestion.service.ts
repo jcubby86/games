@@ -5,7 +5,9 @@ import {
   Logger,
 } from '@nestjs/common';
 
-import { SUGGESTION_PROVIDERS, SuggestionProvider } from './suggestion.factory';
+import { SUGGESTION_PROVIDER } from './suggestion.factory';
+import type { SuggestionProvider } from './suggestion.factory';
+import { shuffle } from './suggestion.utils';
 import { SuggestionDto } from 'src/game/game.types';
 import { Category } from 'src/generated/prisma/client';
 
@@ -14,34 +16,27 @@ export class SuggestionService {
   private readonly logger = new Logger(SuggestionService.name);
 
   constructor(
-    @Inject(SUGGESTION_PROVIDERS)
-    private suggestionProviders: SuggestionProvider[],
+    @Inject(SUGGESTION_PROVIDER)
+    private readonly suggestionProvider: SuggestionProvider,
   ) {
-    if (this.suggestionProviders.length === 0) {
-      this.logger.warn(
-        `Enabled ${this.suggestionProviders.length} suggestion providers`,
-      );
-    }
+    this.logger.log(
+      `Using suggestion provider: ${this.suggestionProvider.constructor.name}`,
+    );
   }
 
   async getSuggestions(
     categories: string[],
     quantity: number = 5,
+    noAi: boolean = false,
   ): Promise<SuggestionDto[]> {
     const validCategories = this.validateCategories(categories);
-    const suggestions = await this.getAll(validCategories, quantity);
+    const suggestions = await this.suggestionProvider.getSuggestions(
+      validCategories,
+      quantity,
+      noAi,
+    );
 
-    this.shuffle(suggestions);
-
-    return suggestions.slice(0, quantity);
-  }
-
-  private async getAll(categories: Category[], quantity: number) {
-    return Promise.all(
-      this.suggestionProviders.map((p) =>
-        p.getSuggestions(categories, quantity),
-      ),
-    ).then((results) => results.flat());
+    return shuffle(suggestions).slice(0, quantity);
   }
 
   private validateCategories(categories: string[]) {
@@ -50,12 +45,5 @@ export class SuggestionService {
       throw new BadRequestException('One or more categories are invalid');
     }
     return categories as Category[];
-  }
-
-  private shuffle<T>(rows: T[]) {
-    for (let i = rows.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [rows[i], rows[j]] = [rows[j], rows[i]];
-    }
   }
 }
