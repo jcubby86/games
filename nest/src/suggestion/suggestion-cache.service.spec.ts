@@ -12,6 +12,14 @@ const REFILL_BATCH_SIZE = 10;
 
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
+interface SuggestionCacheServiceInternals {
+  cache: Map<Category, SuggestionDto[]>;
+  fillCategory(category: Category): Promise<void>;
+}
+
+const internals = (service: SuggestionCacheService) =>
+  service as unknown as SuggestionCacheServiceInternals;
+
 describe('SuggestionCacheService', () => {
   let service: SuggestionCacheService;
   let openAIService: { enabled: jest.Mock; getSuggestions: jest.Mock };
@@ -72,7 +80,7 @@ describe('SuggestionCacheService', () => {
     const cached = Array.from({ length: TARGET_STOCK + 2 }, (_, i) =>
       suggestion(Category.STATEMENT, `s${i}`),
     );
-    (service as any).cache.set(Category.STATEMENT, [...cached]);
+    internals(service).cache.set(Category.STATEMENT, [...cached]);
 
     const result = await service.getSuggestions([Category.STATEMENT], 2);
 
@@ -84,7 +92,7 @@ describe('SuggestionCacheService', () => {
     const cached = Array.from({ length: TARGET_STOCK - 10 }, (_, i) =>
       suggestion(Category.STATEMENT, `s${i}`),
     );
-    (service as any).cache.set(Category.STATEMENT, [...cached]);
+    internals(service).cache.set(Category.STATEMENT, [...cached]);
     openAIService.getSuggestions.mockResolvedValue([]);
 
     await service.getSuggestions([Category.STATEMENT], 1);
@@ -121,7 +129,7 @@ describe('SuggestionCacheService', () => {
       );
     openAIService.getSuggestions.mockResolvedValue(batch(REFILL_BATCH_SIZE));
 
-    await (service as any).fillCategory(Category.STATEMENT);
+    await internals(service).fillCategory(Category.STATEMENT);
 
     const expectedCalls = TARGET_STOCK / REFILL_BATCH_SIZE;
     expect(openAIService.getSuggestions).toHaveBeenCalledTimes(expectedCalls);
@@ -130,7 +138,7 @@ describe('SuggestionCacheService', () => {
       [Category.STATEMENT],
       REFILL_BATCH_SIZE,
     );
-    expect((service as any).cache.get(Category.STATEMENT)).toHaveLength(
+    expect(internals(service).cache.get(Category.STATEMENT)).toHaveLength(
       TARGET_STOCK,
     );
   });
@@ -144,8 +152,8 @@ describe('SuggestionCacheService', () => {
     openAIService.getSuggestions.mockImplementationOnce(() => first);
     openAIService.getSuggestions.mockResolvedValue([]);
 
-    (service as any).cache.set(Category.STATEMENT, []);
-    (service as any).cache.set(Category.FEMALE_NAME, []);
+    internals(service).cache.set(Category.STATEMENT, []);
+    internals(service).cache.set(Category.FEMALE_NAME, []);
 
     void service.getSuggestions([Category.STATEMENT], 1);
     await flushPromises();
