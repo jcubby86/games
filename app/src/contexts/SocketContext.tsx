@@ -1,3 +1,4 @@
+import { GameDto, Message, PokeMessageData } from '@games/shared';
 import { useMutation } from '@tanstack/react-query';
 import {
   createContext,
@@ -15,7 +16,6 @@ import { showFloatingMessage } from '../components/FloatingMessagePortal';
 import Icon from '../components/Icon';
 import { usePlayerQuery } from '../hooks/usePlayerQuery';
 import { postPlayer } from '../utils/apiClient';
-import { GameDto, Message, PokeMessageData } from '../utils/types';
 
 interface SocketContextType {
   emit: (event: string, message: Message<any>) => void;

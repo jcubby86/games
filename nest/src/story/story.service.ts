@@ -1,3 +1,4 @@
+import { PlayerDto, StoryEntryDto } from '@games/shared';
 import {
   BadRequestException,
   Injectable,
@@ -10,7 +11,6 @@ import { hints } from './story.constants';
 import { storyEntryMaxLength } from 'src/game/game.constants';
 import { GameService } from 'src/game/game.service';
 import type { GameUpdatedEvent } from 'src/game/game.service';
-import { PlayerDto, StoryEntryDto } from 'src/game/game.types';
 import {
   Game,
   GamePhase,

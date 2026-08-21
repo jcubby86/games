@@ -1,9 +1,9 @@
+import { SuggestionDto } from '@games/shared';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { SuggestionCacheService } from './suggestion-cache.service';
 import { SuggestionRepository } from './suggestion.repository';
-import { SuggestionDto } from 'src/game/game.types';
 import { Category } from 'src/generated/prisma/client';
 import { OpenAIService } from 'src/openai/openai.service';
 

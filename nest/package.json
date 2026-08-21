@@ -9,7 +9,7 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
-    "start:dev": "nest start --watch",
+    "start:dev": "nest start --watch --preserveWatchOutput",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/src/main",
     "migrate:deploy": "prisma migrate deploy",
@@ -21,6 +21,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@games/shared": "*",
     "@nestjs/common": "^11.1.17",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
@@ -90,11 +91,5 @@
   "overrides": {
     "deepmerge-ts": ">=8.0.0",
     "mysql2": ">=3.23.1"
-  },
-  "allowScripts": {
-    "esbuild@0.28.1": true,
-    "unrs-resolver@1.11.1": true,
-    "prisma@7.10.0": true,
-    "@prisma/engines@7.10.0": true
   }
 }

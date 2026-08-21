@@ -1,3 +1,4 @@
+import { GameDto } from '@games/shared';
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
@@ -12,7 +13,6 @@ import { deletePlayer, postGame, postPlayer } from '../utils/apiClient';
 import { nicknameMaxLength } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
 import { gameVariants } from '../utils/gameVariants';
-import { GameDto } from '../utils/types';
 
 const Create = () => {
   useDocumentTitle('Create Game');

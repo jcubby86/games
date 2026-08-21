@@ -1,3 +1,4 @@
+import { PlayerDto } from '@games/shared';
 import { Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
 
 import Glitch from './Glitch';
@@ -8,7 +9,6 @@ import { SpinnerButton } from './SpinnerButton';
 import { useAppContext } from '../contexts/AppContext';
 import { useUpdateGameMutation } from '../hooks/useUpdateGameMutation';
 import { PLAY } from '../utils/constants';
-import { PlayerDto } from '../utils/types';
 
 interface StartGameProps {
   title: string;

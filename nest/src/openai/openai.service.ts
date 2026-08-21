@@ -1,8 +1,8 @@
+import { SuggestionDto } from '@games/shared';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OpenAI } from 'openai';
 
-import { SuggestionDto } from 'src/game/game.types';
 import { Category } from 'src/generated/prisma/enums';
 import type { SuggestionProvider } from 'src/suggestion/suggestion.factory';
 import { SuggestionRepository } from 'src/suggestion/suggestion.repository';

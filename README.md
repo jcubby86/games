@@ -59,6 +59,16 @@ Each player answers the same six prompts. Stories are then built randomly using 
 - Nginx for serving frontend
 - PostgreSQL database
 
+## Project Structure
+
+This is an npm workspaces monorepo with three packages:
+
+- [`app/`](app) — the React frontend
+- [`nest/`](nest) — the NestJS backend
+- [`shared/`](shared) — TypeScript types (`@games/shared`) shared between frontend and backend, e.g. `GameDto`, `PlayerDto`
+
+`shared` has no runtime dependencies of its own — it's compiled to `shared/dist` on install (via the root `postinstall` script) and consumed by both `app` and `nest` as a regular npm dependency. If you edit files in `shared/src`, run `npm run build:shared` (or `npm run dev:shared` to watch) from the repo root so the other packages pick up the change.
+
 ## Getting Started
 
 ### Prerequisites
@@ -67,6 +77,14 @@ Each player answers the same six prompts. Stories are then built randomly using 
 - **For Local Development**:
   - Node.js 18+ and npm
   - PostgreSQL 14+
+
+### Install dependencies
+
+Install once from the repo root — this installs all three workspaces and builds `shared`:
+
+```bash
+npm install
+```
 
 ### Quick Start with Docker
 
@@ -89,18 +107,14 @@ docker-compose up -d
 
 ### Local Development
 
+Install dependencies once from the repo root (see [Install dependencies](#install-dependencies) above), then:
+
 #### Backend Setup
 
 1. Navigate to the backend directory:
 
 ```bash
 cd nest
-```
-
-1. Install dependencies:
-
-```bash
-npm install
 ```
 
 1. Set up your environment variables in a `.env` file:
@@ -130,12 +144,6 @@ npm run start:dev
 
 ```bash
 cd app
-```
-
-1. Install dependencies:
-
-```bash
-npm install
 ```
 
 1. Create a `.env` file:

@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 import {
   GameDto,
   NameEntryDto,
@@ -7,7 +5,8 @@ import {
   StoryArchiveDto,
   StoryEntryDto,
   SuggestionDto
-} from './types';
+} from '@games/shared';
+import axios from 'axios';
 
 export function postGame(type: string) {
   return axios.post<GameDto>('/api/games', {

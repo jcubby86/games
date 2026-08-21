@@ -1,3 +1,4 @@
+import { GameDto, PlayerDto, GameUpdatedMessageData } from '@games/shared';
 import {
   BadRequestException,
   Injectable,
@@ -8,11 +9,6 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { gameCodeLength, nicknameMaxLength } from './game.constants';
 import { isPrismaUniqueError } from 'src/filters/prisma-exception.filter';
-import {
-  GameDto,
-  PlayerDto,
-  GameUpdatedMessageData,
-} from 'src/game/game.types';
 import { Game, GamePhase, GameType, Player } from 'src/generated/prisma/client';
 import { NameService } from 'src/name/name.service';
 import { PrismaService } from 'src/prisma.service';

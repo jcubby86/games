@@ -1,3 +1,4 @@
+import { SuggestionDto } from '@games/shared';
 import {
   BadRequestException,
   Inject,
@@ -8,7 +9,6 @@ import {
 import { SUGGESTION_PROVIDER } from './suggestion.factory';
 import type { SuggestionProvider } from './suggestion.factory';
 import { shuffle } from './suggestion.utils';
-import { SuggestionDto } from 'src/game/game.types';
 import { Category } from 'src/generated/prisma/client';
 
 @Injectable()

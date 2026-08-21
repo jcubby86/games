@@ -1,3 +1,4 @@
+import { GameDto } from '@games/shared';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
@@ -17,7 +18,6 @@ import {
 import { gameCodeLength, nicknameMaxLength } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
 import { gameVariants } from '../utils/gameVariants';
-import { GameDto } from '../utils/types';
 
 const Join = () => {
   useDocumentTitle('Join Game');

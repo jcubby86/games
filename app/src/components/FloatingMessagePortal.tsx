@@ -84,11 +84,7 @@ export function FloatingMessagePortal() {
   if (typeof document === 'undefined') return null;
 
   return createPortal(
-    <div
-      ref={containerRef}
-      className="float-root"
-      style={{} as React.CSSProperties}
-    >
+    <div ref={containerRef} className="float-root" style={{}}>
       {messages.map((m) => (
         <div
           key={m.id}

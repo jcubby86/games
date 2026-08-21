@@ -1,9 +1,9 @@
+import { Message, PlayerDto, PokeMessageData } from '@games/shared';
 import { useEffect, useEffectEvent, useState } from 'react';
 import { Badge, Container, ListGroup } from 'react-bootstrap';
 
 import { useAppContext } from '../contexts/AppContext';
 import { useSocketContext } from '../contexts/SocketContext';
-import { Message, PlayerDto, PokeMessageData } from '../utils/types';
 
 interface PlayerListProps {
   players?: PlayerDto[];

@@ -1,0 +1,33 @@
+{
+  "name": "games",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "shared",
+    "app",
+    "nest"
+  ],
+  "scripts": {
+    "postinstall": "npm run build -w shared",
+    "build:shared": "npm run build -w shared",
+    "dev:shared": "npm run dev -w shared",
+    "start:dev": "concurrently -n app,nest -c blue,green \"npm run start:dev -w app\" \"npm run start:dev -w nest\"",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "format": "npm run format --workspaces --if-present"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "overrides": {
+    "deepmerge-ts": ">=8.0.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "unrs-resolver@1.12.2": true,
+    "@parcel/watcher@2.6.0": true,
+    "@swc/core@1.16.1": true,
+    "@prisma/engines@7.10.0": true,
+    "prisma@7.10.0": true
+  }
+}
