@@ -230,6 +230,22 @@ const Join = () => {
           </Col>
         </Row>
         <Row>
+          <Col>
+            <div className="d-flex justify-content-between align-items-center px-3 py-2">
+              <Form.Label htmlFor="ai-suggestions-toggle" className="mb-0">
+                AI-generated suggestions
+              </Form.Label>
+              <Form.Check
+                type="switch"
+                role="switch"
+                id="ai-suggestions-toggle"
+                checked={!noAi}
+                onChange={(e) => setNoAi(!e.target.checked)}
+              />
+            </div>
+          </Col>
+        </Row>
+        <Row>
           <SpinnerButton
             variant="success"
             disabled={!formEnabled}
@@ -256,22 +272,6 @@ const Join = () => {
               Leave Game
             </SpinnerButton>
           )}
-        </Row>
-        <Row>
-          <Col>
-            <div className="d-flex justify-content-between align-items-center px-3 py-2">
-              <Form.Label htmlFor="ai-suggestions-toggle" className="mb-0">
-                AI-generated suggestions
-              </Form.Label>
-              <Form.Check
-                type="switch"
-                role="switch"
-                id="ai-suggestions-toggle"
-                checked={!noAi}
-                onChange={(e) => setNoAi(!e.target.checked)}
-              />
-            </div>
-          </Col>
         </Row>
         {gameQuery.isError && (
           <Row>

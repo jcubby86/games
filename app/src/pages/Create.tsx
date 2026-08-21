@@ -7,6 +7,7 @@ import Glitch from '../components/Glitch';
 import { showModal } from '../components/ModalPortal';
 import { SpinnerButton } from '../components/SpinnerButton';
 import { useAppContext, useDocumentTitle } from '../contexts/AppContext';
+import { useAiSuggestionsSetting } from '../hooks/useAiSuggestionsSetting';
 import { deletePlayer, postGame, postPlayer } from '../utils/apiClient';
 import { nicknameMaxLength } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
@@ -16,6 +17,7 @@ import { GameDto } from '../utils/types';
 const Create = () => {
   useDocumentTitle('Create Game');
   const { context, dispatchContext } = useAppContext();
+  const { noAi, setNoAi } = useAiSuggestionsSetting();
   const [gameType, setGameType] = useState<string | null>(null);
   const [nickname, setNickname] = useState(context.player?.nickname || null);
   const navigate = useNavigate();
@@ -151,6 +153,22 @@ const Create = () => {
                 isInvalid={nickname === ''}
               />
             </FloatingLabel>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <div className="d-flex justify-content-between align-items-center px-3 py-2">
+              <Form.Label htmlFor="ai-suggestions-toggle" className="mb-0">
+                AI-generated suggestions
+              </Form.Label>
+              <Form.Check
+                type="switch"
+                role="switch"
+                id="ai-suggestions-toggle"
+                checked={!noAi}
+                onChange={(e) => setNoAi(!e.target.checked)}
+              />
+            </div>
           </Col>
         </Row>
         <Row>
