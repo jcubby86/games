@@ -1,3 +1,4 @@
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { SuggestionCacheService } from './suggestion-cache.service';
@@ -33,6 +34,10 @@ describe('SuggestionCacheService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         SuggestionCacheService,
+        {
+          provide: ConfigService,
+          useValue: { get: jest.fn().mockReturnValue(undefined) },
+        },
         { provide: OpenAIService, useValue: openAIService },
         { provide: SuggestionRepository, useValue: suggestionRepository },
       ],

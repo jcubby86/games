@@ -1,4 +1,5 @@
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 import type { SuggestionProvider } from './suggestion.factory';
 import { SuggestionRepository } from './suggestion.repository';
@@ -8,7 +9,6 @@ import { Category } from 'src/generated/prisma/client';
 import { OpenAIService } from 'src/openai/openai.service';
 
 const TARGET_STOCK = 50;
-const REFILL_BATCH_SIZE = 10;
 
 @Injectable()
 export class SuggestionCacheService
@@ -19,11 +19,16 @@ export class SuggestionCacheService
   private readonly queue: Category[] = [];
   private readonly queued = new Set<Category>();
   private processing = false;
+  private readonly batchSize: number;
 
   constructor(
+    private readonly configService: ConfigService,
     private readonly openAIService: OpenAIService,
     private readonly suggestionRepository: SuggestionRepository,
-  ) {}
+  ) {
+    const size = this.configService.get<string>('SUGGESTION_REFILL_BATCH_SIZE');
+    this.batchSize = size ? Number(size) : 10;
+  }
 
   onApplicationBootstrap() {
     if (!this.enabled()) return;
@@ -114,7 +119,7 @@ export class SuggestionCacheService
     while ((this.cache.get(category)?.length ?? 0) < TARGET_STOCK) {
       const suggestions = await this.openAIService.getSuggestions(
         [category],
-        REFILL_BATCH_SIZE,
+        this.batchSize,
       );
       const cached = this.cache.get(category) ?? [];
       cached.push(...suggestions);
