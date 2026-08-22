@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
-import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { ConfigService } from '@nestjs/config';
 
 import type { SuggestionProvider } from './suggestion.factory';
 import { SuggestionRepository } from './suggestion.repository';
@@ -8,13 +8,7 @@ import { SuggestionDto } from 'src/game/game.types';
 import { Category } from 'src/generated/prisma/client';
 import { OpenAIService } from 'src/openai/openai.service';
 
-const LOW_WATER_MARK = 10;
-const REFILL_BATCH_SIZE = 20;
-export const REPLENISH_EVENT = 'suggestion.cache.replenish';
-
-interface ReplenishEvent {
-  category: Category;
-}
+const TARGET_STOCK = 50;
 
 @Injectable()
 export class SuggestionCacheService
@@ -22,13 +16,19 @@ export class SuggestionCacheService
 {
   private readonly logger = new Logger(SuggestionCacheService.name);
   private readonly cache = new Map<Category, SuggestionDto[]>();
-  private readonly replenishing = new Set<Category>();
+  private readonly queue: Category[] = [];
+  private readonly queued = new Set<Category>();
+  private processing = false;
+  private readonly batchSize: number;
 
   constructor(
+    private readonly configService: ConfigService,
     private readonly openAIService: OpenAIService,
     private readonly suggestionRepository: SuggestionRepository,
-    private readonly eventEmitter: EventEmitter2,
-  ) {}
+  ) {
+    const size = this.configService.get<string>('SUGGESTION_REFILL_BATCH_SIZE');
+    this.batchSize = size ? Number(size) : 10;
+  }
 
   onApplicationBootstrap() {
     if (!this.enabled()) return;
@@ -80,7 +80,7 @@ export class SuggestionCacheService
 
     const taken = cached.splice(0, quantity);
 
-    if (cached.length < LOW_WATER_MARK) {
+    if (cached.length < TARGET_STOCK) {
       this.replenish(category);
     }
 
@@ -88,21 +88,38 @@ export class SuggestionCacheService
   }
 
   private replenish(category: Category) {
-    if (this.replenishing.has(category)) return;
+    if (this.queued.has(category)) return;
 
-    this.replenishing.add(category);
+    this.queued.add(category);
+    this.queue.push(category);
     this.logger.log(`Queuing suggestion cache refill for category ${category}`);
-    this.eventEmitter.emit(REPLENISH_EVENT, {
-      category,
-    } satisfies ReplenishEvent);
+
+    void this.processQueue();
   }
 
-  @OnEvent(REPLENISH_EVENT)
-  async handleReplenish({ category }: ReplenishEvent) {
+  private async processQueue() {
+    if (this.processing) return;
+    this.processing = true;
+
     try {
+      let category: Category | undefined;
+      while ((category = this.queue.shift()) !== undefined) {
+        try {
+          await this.fillCategory(category);
+        } finally {
+          this.queued.delete(category);
+        }
+      }
+    } finally {
+      this.processing = false;
+    }
+  }
+
+  private async fillCategory(category: Category) {
+    while ((this.cache.get(category)?.length ?? 0) < TARGET_STOCK) {
       const suggestions = await this.openAIService.getSuggestions(
         [category],
-        REFILL_BATCH_SIZE,
+        this.batchSize,
       );
       const cached = this.cache.get(category) ?? [];
       cached.push(...suggestions);
@@ -111,8 +128,8 @@ export class SuggestionCacheService
       this.logger.log(
         `Generated ${suggestions.length} suggestions for category ${category} (cache size: ${cached.length})`,
       );
-    } finally {
-      this.replenishing.delete(category);
+
+      if (suggestions.length === 0) break;
     }
   }
 }

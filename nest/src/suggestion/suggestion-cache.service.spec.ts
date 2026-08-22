@@ -1,24 +1,33 @@
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 
-import {
-  REPLENISH_EVENT,
-  SuggestionCacheService,
-} from './suggestion-cache.service';
+import { SuggestionCacheService } from './suggestion-cache.service';
 import { SuggestionRepository } from './suggestion.repository';
 import { SuggestionDto } from 'src/game/game.types';
 import { Category } from 'src/generated/prisma/client';
 import { OpenAIService } from 'src/openai/openai.service';
 
+const TARGET_STOCK = 50;
+const REFILL_BATCH_SIZE = 10;
+
+const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+interface SuggestionCacheServiceInternals {
+  cache: Map<Category, SuggestionDto[]>;
+  fillCategory(category: Category): Promise<void>;
+}
+
+const internals = (service: SuggestionCacheService) =>
+  service as unknown as SuggestionCacheServiceInternals;
+
 describe('SuggestionCacheService', () => {
   let service: SuggestionCacheService;
   let openAIService: { enabled: jest.Mock; getSuggestions: jest.Mock };
   let suggestionRepository: { getSuggestions: jest.Mock };
-  let eventEmitter: { emit: jest.Mock };
 
-  const suggestion = (value: string): SuggestionDto => ({
+  const suggestion = (category: Category, value: string): SuggestionDto => ({
     value,
-    category: Category.STATEMENT,
+    category,
   });
 
   beforeEach(async () => {
@@ -29,14 +38,16 @@ describe('SuggestionCacheService', () => {
     suggestionRepository = {
       getSuggestions: jest.fn().mockResolvedValue([]),
     };
-    eventEmitter = { emit: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         SuggestionCacheService,
+        {
+          provide: ConfigService,
+          useValue: { get: jest.fn().mockReturnValue(undefined) },
+        },
         { provide: OpenAIService, useValue: openAIService },
         { provide: SuggestionRepository, useValue: suggestionRepository },
-        { provide: EventEmitter2, useValue: eventEmitter },
       ],
     }).compile();
 
@@ -49,7 +60,10 @@ describe('SuggestionCacheService', () => {
   });
 
   it('falls back to the suggestion repository when the cache has fewer than the requested quantity', async () => {
-    const stored = [suggestion('a'), suggestion('b')];
+    const stored = [
+      suggestion(Category.STATEMENT, 'a'),
+      suggestion(Category.STATEMENT, 'b'),
+    ];
     suggestionRepository.getSuggestions.mockResolvedValue(stored);
 
     const result = await service.getSuggestions([Category.STATEMENT], 5);
@@ -62,42 +76,39 @@ describe('SuggestionCacheService', () => {
     ]);
   });
 
-  it('emits a replenish event when falling back to the repository', async () => {
-    await service.getSuggestions([Category.STATEMENT], 5);
-
-    expect(eventEmitter.emit).toHaveBeenCalledWith(REPLENISH_EVENT, {
-      category: Category.STATEMENT,
-    });
-  });
-
-  it('serves from the cache once it has been populated', async () => {
-    // 12 cached items so taking 2 leaves 10, at (not below) the low water mark.
-    const cached = Array.from({ length: 12 }, (_, i) => suggestion(`s${i}`));
-    openAIService.getSuggestions.mockResolvedValue(cached);
-    await service.handleReplenish({ category: Category.STATEMENT });
-    eventEmitter.emit.mockClear();
+  it('serves from the cache and does not queue a refill above the target stock', async () => {
+    const cached = Array.from({ length: TARGET_STOCK + 2 }, (_, i) =>
+      suggestion(Category.STATEMENT, `s${i}`),
+    );
+    internals(service).cache.set(Category.STATEMENT, [...cached]);
 
     const result = await service.getSuggestions([Category.STATEMENT], 2);
 
     expect(result).toEqual(cached.slice(0, 2));
-    expect(eventEmitter.emit).not.toHaveBeenCalled();
+    expect(openAIService.getSuggestions).not.toHaveBeenCalled();
   });
 
-  it('emits a replenish event once the cache drops below the low water mark', async () => {
-    const cached = Array.from({ length: 9 }, (_, i) => suggestion(`s${i}`));
-    openAIService.getSuggestions.mockResolvedValue(cached);
-    await service.handleReplenish({ category: Category.STATEMENT });
-    eventEmitter.emit.mockClear();
+  it('queues a refill once the cache drops below the target stock', async () => {
+    const cached = Array.from({ length: TARGET_STOCK - 10 }, (_, i) =>
+      suggestion(Category.STATEMENT, `s${i}`),
+    );
+    internals(service).cache.set(Category.STATEMENT, [...cached]);
+    openAIService.getSuggestions.mockResolvedValue([]);
 
     await service.getSuggestions([Category.STATEMENT], 1);
+    await flushPromises();
 
-    expect(eventEmitter.emit).toHaveBeenCalledWith(REPLENISH_EVENT, {
-      category: Category.STATEMENT,
-    });
+    expect(openAIService.getSuggestions).toHaveBeenCalledWith(
+      [Category.STATEMENT],
+      REFILL_BATCH_SIZE,
+    );
   });
 
   it('bypasses OpenAI and the cache entirely when noAi is set', async () => {
-    const stored = [suggestion('a'), suggestion('b')];
+    const stored = [
+      suggestion(Category.STATEMENT, 'a'),
+      suggestion(Category.STATEMENT, 'b'),
+    ];
     suggestionRepository.getSuggestions.mockResolvedValue(stored);
 
     const result = await service.getSuggestions([Category.STATEMENT], 5, true);
@@ -109,18 +120,60 @@ describe('SuggestionCacheService', () => {
       Category.STATEMENT,
     ]);
     expect(openAIService.getSuggestions).not.toHaveBeenCalled();
-    expect(eventEmitter.emit).not.toHaveBeenCalled();
   });
 
-  it('generates a batch via OpenAI and appends it to the cache when replenishing', async () => {
-    const generated = [suggestion('a'), suggestion('b')];
-    openAIService.getSuggestions.mockResolvedValue(generated);
+  it('fills the cache in small batches until the target stock is reached', async () => {
+    const batch = (n: number) =>
+      Array.from({ length: n }, (_, i) =>
+        suggestion(Category.STATEMENT, `b${i}`),
+      );
+    openAIService.getSuggestions.mockResolvedValue(batch(REFILL_BATCH_SIZE));
 
-    await service.handleReplenish({ category: Category.STATEMENT });
+    await internals(service).fillCategory(Category.STATEMENT);
 
+    const expectedCalls = TARGET_STOCK / REFILL_BATCH_SIZE;
+    expect(openAIService.getSuggestions).toHaveBeenCalledTimes(expectedCalls);
+    expect(openAIService.getSuggestions).toHaveBeenNthCalledWith(
+      1,
+      [Category.STATEMENT],
+      REFILL_BATCH_SIZE,
+    );
+    expect(internals(service).cache.get(Category.STATEMENT)).toHaveLength(
+      TARGET_STOCK,
+    );
+  });
+
+  it('processes queued refills for different categories one at a time', async () => {
+    let resolveFirst: (value: SuggestionDto[]) => void = () => {};
+    const first = new Promise<SuggestionDto[]>((resolve) => {
+      resolveFirst = resolve;
+    });
+
+    openAIService.getSuggestions.mockImplementationOnce(() => first);
+    openAIService.getSuggestions.mockResolvedValue([]);
+
+    internals(service).cache.set(Category.STATEMENT, []);
+    internals(service).cache.set(Category.FEMALE_NAME, []);
+
+    void service.getSuggestions([Category.STATEMENT], 1);
+    await flushPromises();
+    void service.getSuggestions([Category.FEMALE_NAME], 1);
+    await flushPromises();
+
+    // The second category's refill has been queued but not yet requested.
+    expect(openAIService.getSuggestions).toHaveBeenCalledTimes(1);
     expect(openAIService.getSuggestions).toHaveBeenCalledWith(
       [Category.STATEMENT],
-      20,
+      REFILL_BATCH_SIZE,
+    );
+
+    resolveFirst([]);
+    await flushPromises();
+    await flushPromises();
+
+    expect(openAIService.getSuggestions).toHaveBeenCalledWith(
+      [Category.FEMALE_NAME],
+      REFILL_BATCH_SIZE,
     );
   });
 });
