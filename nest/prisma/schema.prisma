@@ -81,15 +81,18 @@ model StoryEntry {
 }
 
 model Suggestion {
-  id        Int      @id @default(autoincrement())
-  uuid      String   @unique @default(uuid())
+  id        Int            @id @default(autoincrement())
+  uuid      String         @unique @default(uuid())
   category  Category
   value     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  type      SuggestionType @default(HUMAN)
+  likes     Int            @default(0)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
 
   @@unique([category, value])
   @@index([category])
+  @@index([category, type])
 }
 
 enum GamePhase {
@@ -110,4 +113,9 @@ enum Category {
   PAST_ACTION
   PRESENT_ACTION
   STATEMENT
+}
+
+enum SuggestionType {
+  HUMAN
+  AI
 }

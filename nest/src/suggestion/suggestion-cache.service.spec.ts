@@ -13,7 +13,6 @@ const REFILL_BATCH_SIZE = 10;
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 interface SuggestionCacheServiceInternals {
-  cache: Map<Category, SuggestionDto[]>;
   fillCategory(category: Category): Promise<void>;
 }
 
@@ -23,7 +22,12 @@ const internals = (service: SuggestionCacheService) =>
 describe('SuggestionCacheService', () => {
   let service: SuggestionCacheService;
   let openAIService: { enabled: jest.Mock; getSuggestions: jest.Mock };
-  let suggestionRepository: { getSuggestions: jest.Mock };
+  let suggestionRepository: {
+    getSuggestions: jest.Mock;
+    popAiSuggestions: jest.Mock;
+    countAiSuggestions: jest.Mock;
+    createAiSuggestions: jest.Mock;
+  };
 
   const suggestion = (category: Category, value: string): SuggestionDto => ({
     value,
@@ -37,6 +41,9 @@ describe('SuggestionCacheService', () => {
     };
     suggestionRepository = {
       getSuggestions: jest.fn().mockResolvedValue([]),
+      popAiSuggestions: jest.fn().mockResolvedValue([]),
+      countAiSuggestions: jest.fn().mockResolvedValue(0),
+      createAiSuggestions: jest.fn().mockResolvedValue(undefined),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -59,40 +66,49 @@ describe('SuggestionCacheService', () => {
     expect(service.enabled()).toBe(false);
   });
 
-  it('falls back to the suggestion repository when the cache has fewer than the requested quantity', async () => {
-    const stored = [
+  it('tops up from the suggestion repository when the DB stock has fewer than the requested quantity', async () => {
+    const popped = [suggestion(Category.STATEMENT, 'popped')];
+    const fallback = [
       suggestion(Category.STATEMENT, 'a'),
       suggestion(Category.STATEMENT, 'b'),
     ];
-    suggestionRepository.getSuggestions.mockResolvedValue(stored);
+    suggestionRepository.popAiSuggestions.mockResolvedValue(popped);
+    suggestionRepository.getSuggestions.mockResolvedValue(fallback);
 
-    const result = await service.getSuggestions([Category.STATEMENT], 5);
-    const byValue = (a: SuggestionDto, b: SuggestionDto) =>
-      a.value.localeCompare(b.value);
+    const result = await service.getSuggestions([Category.STATEMENT], 3);
 
-    expect(result.sort(byValue)).toEqual(stored.sort(byValue));
+    expect(result).toHaveLength(3);
+    expect(result).toEqual(expect.arrayContaining(popped));
+    expect(suggestionRepository.popAiSuggestions).toHaveBeenCalledWith(
+      Category.STATEMENT,
+      3,
+    );
     expect(suggestionRepository.getSuggestions).toHaveBeenCalledWith([
       Category.STATEMENT,
     ]);
   });
 
-  it('serves from the cache and does not queue a refill above the target stock', async () => {
-    const cached = Array.from({ length: TARGET_STOCK + 2 }, (_, i) =>
-      suggestion(Category.STATEMENT, `s${i}`),
-    );
-    internals(service).cache.set(Category.STATEMENT, [...cached]);
+  it('serves purely from the DB stock and does not queue a refill above the target stock', async () => {
+    const popped = [
+      suggestion(Category.STATEMENT, 'a'),
+      suggestion(Category.STATEMENT, 'b'),
+    ];
+    suggestionRepository.popAiSuggestions.mockResolvedValue(popped);
+    suggestionRepository.countAiSuggestions.mockResolvedValue(TARGET_STOCK);
 
     const result = await service.getSuggestions([Category.STATEMENT], 2);
 
-    expect(result).toEqual(cached.slice(0, 2));
+    expect(result).toEqual(popped);
     expect(openAIService.getSuggestions).not.toHaveBeenCalled();
   });
 
-  it('queues a refill once the cache drops below the target stock', async () => {
-    const cached = Array.from({ length: TARGET_STOCK - 10 }, (_, i) =>
-      suggestion(Category.STATEMENT, `s${i}`),
+  it('queues a refill once the DB stock drops below the target stock', async () => {
+    suggestionRepository.popAiSuggestions.mockResolvedValue([
+      suggestion(Category.STATEMENT, 'a'),
+    ]);
+    suggestionRepository.countAiSuggestions.mockResolvedValue(
+      TARGET_STOCK - 10,
     );
-    internals(service).cache.set(Category.STATEMENT, [...cached]);
     openAIService.getSuggestions.mockResolvedValue([]);
 
     await service.getSuggestions([Category.STATEMENT], 1);
@@ -104,7 +120,7 @@ describe('SuggestionCacheService', () => {
     );
   });
 
-  it('bypasses OpenAI and the cache entirely when noAi is set', async () => {
+  it('bypasses OpenAI and the AI stock entirely when noAi is set', async () => {
     const stored = [
       suggestion(Category.STATEMENT, 'a'),
       suggestion(Category.STATEMENT, 'b'),
@@ -120,14 +136,26 @@ describe('SuggestionCacheService', () => {
       Category.STATEMENT,
     ]);
     expect(openAIService.getSuggestions).not.toHaveBeenCalled();
+    expect(suggestionRepository.popAiSuggestions).not.toHaveBeenCalled();
   });
 
-  it('fills the cache in small batches until the target stock is reached', async () => {
+  it('fills the DB stock in small batches until the target stock is reached', async () => {
     const batch = (n: number) =>
       Array.from({ length: n }, (_, i) =>
         suggestion(Category.STATEMENT, `b${i}`),
       );
     openAIService.getSuggestions.mockResolvedValue(batch(REFILL_BATCH_SIZE));
+
+    let stock = 0;
+    suggestionRepository.countAiSuggestions.mockImplementation(() =>
+      Promise.resolve(stock),
+    );
+    suggestionRepository.createAiSuggestions.mockImplementation(
+      (_category: Category, values: string[]) => {
+        stock += values.length;
+        return Promise.resolve();
+      },
+    );
 
     await internals(service).fillCategory(Category.STATEMENT);
 
@@ -138,9 +166,11 @@ describe('SuggestionCacheService', () => {
       [Category.STATEMENT],
       REFILL_BATCH_SIZE,
     );
-    expect(internals(service).cache.get(Category.STATEMENT)).toHaveLength(
-      TARGET_STOCK,
+    expect(suggestionRepository.createAiSuggestions).toHaveBeenCalledWith(
+      Category.STATEMENT,
+      batch(REFILL_BATCH_SIZE).map((s) => s.value),
     );
+    expect(stock).toBe(TARGET_STOCK);
   });
 
   it('processes queued refills for different categories one at a time', async () => {
@@ -152,8 +182,9 @@ describe('SuggestionCacheService', () => {
     openAIService.getSuggestions.mockImplementationOnce(() => first);
     openAIService.getSuggestions.mockResolvedValue([]);
 
-    internals(service).cache.set(Category.STATEMENT, []);
-    internals(service).cache.set(Category.FEMALE_NAME, []);
+    suggestionRepository.countAiSuggestions.mockResolvedValue(0);
+    suggestionRepository.popAiSuggestions.mockResolvedValue([]);
+    suggestionRepository.getSuggestions.mockResolvedValue([]);
 
     void service.getSuggestions([Category.STATEMENT], 1);
     await flushPromises();

@@ -15,7 +15,6 @@ export class SuggestionCacheService
   implements SuggestionProvider, OnApplicationBootstrap
 {
   private readonly logger = new Logger(SuggestionCacheService.name);
-  private readonly cache = new Map<Category, SuggestionDto[]>();
   private readonly queue: Category[] = [];
   private readonly queued = new Set<Category>();
   private processing = false;
@@ -65,22 +64,26 @@ export class SuggestionCacheService
     category: Category,
     quantity: number,
   ): Promise<SuggestionDto[]> {
-    const cached = this.cache.get(category) ?? [];
+    const taken = await this.suggestionRepository.popAiSuggestions(
+      category,
+      quantity,
+    );
 
-    if (cached.length < quantity) {
+    if (taken.length < quantity) {
       this.logger.warn(
-        `Suggestion cache has fewer than ${quantity} entries for category ${category}, falling back to the suggestion repository`,
+        `Suggestion stock has fewer than ${quantity} entries for category ${category}, falling back to the suggestion repository`,
       );
       this.replenish(category);
       const suggestions = await this.suggestionRepository.getSuggestions([
         category,
       ]);
-      return shuffle(suggestions).slice(0, quantity);
+      const needed = quantity - taken.length;
+      return [...taken, ...shuffle(suggestions).slice(0, needed)];
     }
 
-    const taken = cached.splice(0, quantity);
-
-    if (cached.length < TARGET_STOCK) {
+    const remaining =
+      await this.suggestionRepository.countAiSuggestions(category);
+    if (remaining < TARGET_STOCK) {
       this.replenish(category);
     }
 
@@ -116,20 +119,25 @@ export class SuggestionCacheService
   }
 
   private async fillCategory(category: Category) {
-    while ((this.cache.get(category)?.length ?? 0) < TARGET_STOCK) {
+    while (
+      (await this.suggestionRepository.countAiSuggestions(category)) <
+      TARGET_STOCK
+    ) {
       const suggestions = await this.openAIService.getSuggestions(
         [category],
         this.batchSize,
       );
-      const cached = this.cache.get(category) ?? [];
-      cached.push(...suggestions);
-      this.cache.set(category, cached);
-
-      this.logger.log(
-        `Generated ${suggestions.length} suggestions for category ${category} (cache size: ${cached.length})`,
-      );
 
       if (suggestions.length === 0) break;
+
+      await this.suggestionRepository.createAiSuggestions(
+        category,
+        suggestions.map((s) => s.value),
+      );
+
+      this.logger.log(
+        `Generated ${suggestions.length} suggestions for category ${category}`,
+      );
     }
   }
 }
