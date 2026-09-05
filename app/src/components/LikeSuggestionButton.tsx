@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Button } from 'react-bootstrap';
 
 import Icon from './Icon';
+import { useAppContext } from '../contexts/AppContext';
 import { postSuggestionLike } from '../utils/apiClient';
 import { alertError } from '../utils/errorHandler';
 
@@ -19,10 +20,11 @@ const LikeSuggestionButton = ({
   className,
   size
 }: LikeSuggestionButtonProps) => {
+  const { context } = useAppContext();
   const [liked, setLiked] = useState(false);
 
   const likeMutation = useMutation({
-    mutationFn: () => postSuggestionLike(uuid!),
+    mutationFn: () => postSuggestionLike(context.token!, uuid!),
     onSuccess: () => setLiked(true),
     onError: (err: unknown) => alertError('Error saving like', err)
   });

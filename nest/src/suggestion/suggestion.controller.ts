@@ -8,11 +8,14 @@ import {
   Post,
   Query,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import type { Response } from 'express';
 
 import { SuggestionService } from './suggestion.service';
+import { JwtAuthGuard } from '../auth/auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('api/suggestions')
 export class SuggestionController {
   constructor(private readonly suggestionService: SuggestionService) {}
