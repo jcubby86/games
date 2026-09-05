@@ -103,6 +103,10 @@ export function getSuggestions(
   );
 }
 
+export function postSuggestionLike(uuid: string) {
+  return axios.post<SuggestionDto | undefined>(`/api/suggestions/${uuid}/like`);
+}
+
 export function getStoryEntries(gameUuid: string) {
   return axios.get<StoryArchiveDto[]>(`/api/games/${gameUuid}/story-entries`);
 }

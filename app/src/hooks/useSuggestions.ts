@@ -81,9 +81,14 @@ export const useSuggestions = ({
     [nextSuggestion]
   );
 
-  const suggestion = suggestionQuery.isSuccess
-    ? suggestionQuery.data[offset % quantity]?.value
-    : '';
+  const currentSuggestion = suggestionQuery.isSuccess
+    ? suggestionQuery.data[offset % quantity]
+    : undefined;
 
-  return { suggestion, updateCategory, nextSuggestion };
+  return {
+    suggestion: currentSuggestion?.value ?? '',
+    suggestionUuid: currentSuggestion?.uuid,
+    updateCategory,
+    nextSuggestion
+  };
 };

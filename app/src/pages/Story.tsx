@@ -4,6 +4,7 @@ import { Col, Container, Form, Row } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 
 import Icon from '../components/Icon';
+import LikeSuggestionButton from '../components/LikeSuggestionButton';
 import { LinkButton } from '../components/LinkButton';
 import { showModal } from '../components/ModalPortal';
 import PlayerList from '../components/PlayerList';
@@ -29,11 +30,12 @@ const categories = [
 
 const Story = () => {
   useDocumentTitle(StoryVariant.title);
-  const { suggestion, updateCategory, nextSuggestion } = useSuggestions({
-    initialCategory: categories[0],
-    quantity: 5,
-    prefetchCategories: categories
-  });
+  const { suggestion, suggestionUuid, updateCategory, nextSuggestion } =
+    useSuggestions({
+      initialCategory: categories[0],
+      quantity: 5,
+      prefetchCategories: categories
+    });
 
   const { context } = useAppContext(true);
   const entryRef = useRef<HTMLTextAreaElement>(null);
@@ -96,7 +98,7 @@ const Story = () => {
         >
           <h4 className="text-center fw-bold">{player.entry?.hint?.prompt}</h4>
           <Row>
-            <Col>
+            <Col className="position-relative">
               <Form.Control
                 as="textarea"
                 placeholder={suggestion}
@@ -104,30 +106,42 @@ const Story = () => {
                 style={{ minHeight: '100px' }}
                 maxLength={player.entry?.hint?.limit ?? storyEntryMaxLength}
                 autoFocus
+                className="pe-5"
               />
+              <div className="suggestion-actions position-absolute bottom-0 end-0 d-flex gap-1 p-1">
+                <LikeSuggestionButton
+                  key={suggestionUuid}
+                  uuid={suggestionUuid}
+                  size="sm"
+                  className="border-0"
+                  disabled={postStoryMutation.isPending}
+                />
+                <Button
+                  variant="outline-secondary"
+                  size="sm"
+                  className="border-0"
+                  title="Get a new suggestion"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    nextSuggestion();
+                  }}
+                  disabled={postStoryMutation.isPending}
+                >
+                  <Icon icon="arrow-clockwise" />
+                </Button>
+              </div>
             </Col>
           </Row>
           <Row>
             <SpinnerButton
               variant="success"
-              className="col-10"
+              className="col"
               loading={postStoryMutation.isPending}
               type="submit"
             >
               Submit
             </SpinnerButton>
-            <Button
-              variant="outline-secondary"
-              className="col"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                nextSuggestion();
-              }}
-              disabled={postStoryMutation.isPending}
-            >
-              <Icon icon="arrow-clockwise" />
-            </Button>
           </Row>
         </Form>
       </Container>
