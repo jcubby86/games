@@ -65,6 +65,28 @@ footer i {
   align-items: center;
 }
 
+.toggle-row {
+  border: var(--bs-border-width) solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+  background-color: var(--bs-body-bg);
+}
+
+.ai-toggle-switch .form-check-input {
+  width: 2.5rem !important;
+  height: 1.5rem !important;
+  cursor: pointer;
+}
+
+.ai-toggle-switch .form-check-input:checked {
+  background-color: var(--bs-success);
+  border-color: var(--bs-success);
+}
+
+.ai-toggle-switch .form-check-input:focus {
+  border-color: var(--bs-success);
+  box-shadow: 0 0 0 0.25rem rgba(var(--bs-success-rgb), 0.25);
+}
+
 .form-control:not(:placeholder-shown) + .suggestion-actions {
   display: none !important;
 }

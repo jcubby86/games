@@ -157,7 +157,7 @@ const Create = () => {
         </Row>
         <Row>
           <Col>
-            <div className="d-flex justify-content-between align-items-center px-3 py-2">
+            <div className="toggle-row d-flex justify-content-between align-items-center px-3 py-2">
               <Form.Label htmlFor="ai-suggestions-toggle" className="mb-0">
                 AI-generated suggestions
               </Form.Label>
@@ -165,6 +165,7 @@ const Create = () => {
                 type="switch"
                 role="switch"
                 id="ai-suggestions-toggle"
+                className="ai-toggle-switch"
                 checked={!noAi}
                 onChange={(e) => setNoAi(!e.target.checked)}
               />
