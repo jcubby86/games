@@ -12,6 +12,7 @@ on:
 
 jobs:
   test:
+    name: Run tests
     runs-on: ubuntu-latest
     steps:
       -
@@ -39,6 +40,7 @@ jobs:
         name: Test
         run: npm run test
   nest:
+    name: Build and push backend
     runs-on: ubuntu-latest
     steps:
       -
@@ -65,7 +67,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       -
-        name: Build and push backend
+        name: Docker build and push
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -74,6 +76,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
   app:
+    name: Build and push frontend
     runs-on: ubuntu-latest
     steps:
       -
@@ -100,7 +103,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       -
-        name: Build and push frontend
+        name: Docker build and push
         uses: docker/build-push-action@v6
         with:
           context: .
