@@ -8,8 +8,11 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      // string shorthand: http://localhost:5173/foo -> http://localhost:4567/foo
-      '/api': process.env.VITE_BACKEND_ADDRESS || 'http://localhost:3000'
+      '/api': process.env.VITE_BACKEND_ADDRESS || 'http://localhost:3000',
+      '/socket.io': {
+        target: process.env.VITE_BACKEND_ADDRESS || 'http://localhost:3000',
+        ws: true
+      }
     }
   },
   css: {

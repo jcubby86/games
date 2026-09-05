@@ -25,7 +25,6 @@ interface SocketContextType {
 }
 
 const SocketContext = createContext<SocketContextType | null>(null);
-const URL = import.meta.env.VITE_BACKEND_ADDRESS as string | undefined;
 
 export const SocketContextProvider = ({
   children
@@ -96,7 +95,7 @@ export const SocketContextProvider = ({
       return;
     }
 
-    socketRef.current = io(URL, {
+    socketRef.current = io({
       auth: {
         bearer: context.token
       }
