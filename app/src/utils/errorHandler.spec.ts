@@ -5,6 +5,7 @@ import { alertError, logError } from './errorHandler';
 import * as ToastPortal from '../components/ToastPortal';
 
 function axiosErrorWithResponse(status: number, message: string) {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   return new AxiosError('Request failed', undefined, undefined, undefined, {
     status,
     data: { message }
