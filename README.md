@@ -7,11 +7,13 @@ A web-based multiplayer party games platform inspired by Jackbox Games. Create a
 - [Features](#features)
 - [Games](#games)
 - [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Quick Start with Docker](#quick-start-with-docker)
   - [Local Development](#local-development)
 - [Environment Variables](#environment-variables)
+- [Testing](#testing)
 - [Deployment](#deployment)
 - [License](#license)
 
@@ -40,7 +42,7 @@ Each player answers the same six prompts. Stories are then built randomly using 
 
 - React 19 with TypeScript
 - Vite for build tooling
-- React Router for navigation
+- TanStack Router for navigation
 - TanStack Query for server state management
 - Socket.io for real-time communication
 - Bootstrap 5 & Sass for styling
@@ -88,6 +90,8 @@ npm install
 
 ### Quick Start with Docker
 
+[compose.yml](compose.yml) pulls pre-built images (`ghcr.io/jcubby86/games-app` and `ghcr.io/jcubby86/games-backend`) published by CI on every push to `master` — no local build required.
+
 1. Clone the repository:
 
 ```bash
@@ -100,14 +104,16 @@ cd games
 2. Start the application:
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
-1. Access the app at `http://localhost` (or your configured port)
+1. Access the app at `http://localhost:3020` (or your configured port)
 
 ### Local Development
 
 Install dependencies once from the repo root (see [Install dependencies](#install-dependencies) above), then:
+
+> Once the backend `.env` file is set up (below) and migrations have been run, you can start both the frontend and backend together from the repo root with `npm run start:dev`, instead of running them separately as shown here.
 
 #### Backend Setup
 
@@ -146,12 +152,6 @@ npm run start:dev
 cd app
 ```
 
-1. Create a `.env` file:
-
-```env
-VITE_API_URL=http://localhost:3000
-```
-
 1. Start the development server:
 
 ```bash
@@ -177,12 +177,6 @@ npm run start:dev
 
 AI suggestions are disabled entirely if neither `OPENAI_API_KEY` nor `OPENAI_BASE_URL` is set - the app falls back to a static, pre-seeded pool of suggestions. When enabled, generated suggestions are cached in memory and replenished in the background so requests don't wait on the OpenAI API. Players can also opt out of AI suggestions individually from the Join page; this preference is stored in their browser and sent to the backend as the `no_ai` query parameter on `GET /api/suggestions`.
 
-### Frontend (`app/.env`)
-
-| Variable | Description | Required | Default |
-| -------- | ----------- | -------- | ------- |
-| `VITE_API_URL` | Backend API URL | No | /api (relative) |
-
 ### Docker Compose (`.env`)
 
 | Variable | Description | Required | Default |
@@ -190,11 +184,27 @@ AI suggestions are disabled entirely if neither `OPENAI_API_KEY` nor `OPENAI_BAS
 | `POSTGRES_PASSWORD` | PostgreSQL database password | Yes | - |
 | `JWT_SECRET` | Secret for JWT token signing | Yes | - |
 
+## Testing
+
+Run unit tests for all workspaces from the repo root:
+
+```bash
+npm test
+```
+
+The frontend also has Playwright end-to-end tests, run separately from the `app` workspace (requires browsers to be installed once via `npx playwright install`):
+
+```bash
+npm run test:e2e -w app
+```
+
+Architecture decisions for notable backend features (e.g. suggestion caching and likes) are documented as ADRs in [`docs/`](docs).
+
 ## Deployment
 
 ### Using Docker Compose
 
-See [compose.yml](compose.yml) for the complete configuration.
+See [compose.yml](compose.yml) for the complete configuration. Images are built and published to GitHub Container Registry by [CI](.github/workflows/ci.yml) on every push to `master` and on version tags.
 
 ## License
 
