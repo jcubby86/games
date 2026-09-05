@@ -34,6 +34,8 @@ coverage
 
 app/build
 app/src/routeTree.gen.ts
+app/playwright-report
+app/test-results
 .generated
 
 compose.test.yml

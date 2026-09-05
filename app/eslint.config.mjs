@@ -11,7 +11,13 @@ import reactQuery from '@tanstack/eslint-plugin-query';
 
 export default defineConfig(
   {
-    ignores: ['eslint.config.mjs', 'dist', 'src/routeTree.gen.ts']
+    ignores: [
+      'eslint.config.mjs',
+      'dist',
+      'src/routeTree.gen.ts',
+      'playwright-report',
+      'test-results'
+    ]
   },
   eslint.configs.recommended,
   tseslint.configs.recommendedTypeChecked,
