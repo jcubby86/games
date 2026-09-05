@@ -59,6 +59,10 @@ footer i {
   text-overflow: ellipsis;
 }
 
+textarea.form-control {
+  resize: none;
+}
+
 .center-content {
   display: flex;
   justify-content: center;
