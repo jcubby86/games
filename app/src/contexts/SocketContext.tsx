@@ -1,5 +1,6 @@
 import { GameDto, Message, PokeMessageData } from '@games/shared';
 import { useMutation } from '@tanstack/react-query';
+import { useNavigate } from '@tanstack/react-router';
 import {
   createContext,
   useContext,
@@ -8,7 +9,6 @@ import {
   useRef,
   useState
 } from 'react';
-import { useNavigate } from 'react-router';
 import { Socket, io } from 'socket.io-client';
 
 import { useAppContext } from './AppContext';
@@ -47,7 +47,8 @@ export const SocketContextProvider = ({
         player: playerResponse.data,
         token: playerResponse.headers['x-auth-token'] as string
       });
-      await navigate(`/` + playerResponse.data.game!.type.toLowerCase());
+      const path = `/${playerResponse.data.game!.type.toLowerCase()}`;
+      await navigate({ to: path as any });
     }
   });
 

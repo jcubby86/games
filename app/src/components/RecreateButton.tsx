@@ -1,6 +1,6 @@
 import { GameDto } from '@games/shared';
 import { useMutation } from '@tanstack/react-query';
-import { useNavigate } from 'react-router';
+import { useNavigate } from '@tanstack/react-router';
 
 import { showModal } from './ModalPortal';
 import { SpinnerButton } from './SpinnerButton';
@@ -38,7 +38,7 @@ const RecreateButton = ({ className, to }: RecreateButtonProps) => {
       });
 
       if (to) {
-        await navigate(to);
+        await navigate({ to: to as any });
       }
     },
     onError: (err: unknown) => alertError('Unable to create player', err)

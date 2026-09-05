@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
+import { createFileRoute, useParams } from '@tanstack/react-router';
 import { Col, Container, ListGroup, Row } from 'react-bootstrap';
-import { useParams } from 'react-router';
 
 import Glitch from '../components/Glitch';
 import RecreateButton from '../components/RecreateButton';
@@ -9,13 +9,17 @@ import { useDocumentTitle } from '../contexts/AppContext';
 import { getStoryEntries } from '../utils/apiClient';
 import { StoryVariant } from '../utils/gameVariants';
 
-export default function StoryArchive() {
+export const Route = createFileRoute('/story_/$gameUuid')({
+  component: RouteComponent
+});
+
+function RouteComponent() {
   useDocumentTitle(StoryVariant.title);
-  const { gameUuid } = useParams();
+  const { gameUuid } = useParams({ from: '/story_/$gameUuid' });
   const storyQuery = useQuery({
     queryKey: ['games', { uuid: gameUuid }, 'story-entries'],
     queryFn: async () => {
-      const response = await getStoryEntries(gameUuid!);
+      const response = await getStoryEntries(gameUuid);
       return response.data;
     },
     enabled: !!gameUuid,

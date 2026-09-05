@@ -33,6 +33,7 @@ coverage
 .DS_Store
 
 app/build
+app/src/routeTree.gen.ts
 .generated
 
 compose.test.yml

@@ -1,6 +1,12 @@
+import { createFileRoute } from '@tanstack/react-router';
+
 import { useDocumentTitle } from '../contexts/AppContext';
 
-const Privacy = () => {
+export const Route = createFileRoute('/privacy')({
+  component: RouteComponent
+});
+
+function RouteComponent() {
   useDocumentTitle('Games');
   return (
     <div className="privacy-policy">
@@ -44,6 +50,4 @@ const Privacy = () => {
       <p className="text-muted small">Last updated: January 30, 2026</p>
     </div>
   );
-};
-
-export default Privacy;
+}

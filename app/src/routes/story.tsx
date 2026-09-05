@@ -1,4 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
+import { createFileRoute } from '@tanstack/react-router';
 import { useRef } from 'react';
 import { Col, Container, Form, Row } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
@@ -20,6 +21,10 @@ import { JOIN, PLAY, READ, storyEntryMaxLength } from '../utils/constants';
 import { alertError } from '../utils/errorHandler';
 import { StoryVariant } from '../utils/gameVariants';
 
+export const Route = createFileRoute('/story')({
+  component: RouteComponent
+});
+
 const categories = [
   'MALE_NAME',
   'FEMALE_NAME',
@@ -28,7 +33,7 @@ const categories = [
   'PAST_ACTION'
 ];
 
-const Story = () => {
+function RouteComponent() {
   useDocumentTitle(StoryVariant.title);
   const { suggestion, suggestionUuid, updateCategory, nextSuggestion } =
     useSuggestions({
@@ -187,6 +192,4 @@ const Story = () => {
       </Container>
     );
   }
-};
-
-export default Story;
+}

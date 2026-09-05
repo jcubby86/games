@@ -1,6 +1,6 @@
+import { Link } from '@tanstack/react-router';
 import { Button } from 'react-bootstrap';
 import { ButtonVariant } from 'react-bootstrap/types';
-import { Link } from 'react-router';
 
 type LinkButtonProps = {
   children: React.ReactNode;
