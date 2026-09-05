@@ -1,10 +1,6 @@
 import { GameDto } from '@games/shared';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import {
-  createFileRoute,
-  useNavigate,
-  useSearch
-} from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import { Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
 
@@ -23,7 +19,14 @@ import { gameCodeLength, nicknameMaxLength } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
 import { gameVariants } from '../utils/gameVariants';
 
+interface JoinSearch {
+  code?: string;
+}
+
 export const Route = createFileRoute('/join')({
+  validateSearch: (search: Record<string, unknown>): JoinSearch => ({
+    code: typeof search.code === 'string' ? search.code : undefined
+  }),
   component: RouteComponent
 });
 
@@ -31,10 +34,9 @@ function RouteComponent() {
   useDocumentTitle('Join Game');
   const { context, dispatchContext } = useAppContext();
   const { noAi, setNoAi } = useAiSuggestionsSetting();
-  const search: Record<string, unknown> = useSearch({ strict: false });
+  const { code: rawCodeQueryParam } = Route.useSearch();
 
-  const codeQueryParam =
-    typeof search.code === 'string' ? search.code.toLowerCase() : undefined;
+  const codeQueryParam = rawCodeQueryParam?.toLowerCase();
   const contextGameCode = context.game?.code.toLowerCase();
 
   const [code, setCode] = useState(codeQueryParam || contextGameCode || null);

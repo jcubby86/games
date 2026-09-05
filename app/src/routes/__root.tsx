@@ -1,4 +1,9 @@
-import { Link, Outlet, createRootRoute } from '@tanstack/react-router';
+import { QueryClient } from '@tanstack/react-query';
+import {
+  Link,
+  Outlet,
+  createRootRouteWithContext
+} from '@tanstack/react-router';
 import { Suspense } from 'react';
 import { Container, Navbar } from 'react-bootstrap';
 
@@ -7,7 +12,11 @@ import Loading from '../components/Loading';
 import { AppContextProvider, useAppContext } from '../contexts/AppContext';
 import { SocketContextProvider } from '../contexts/SocketContext';
 
-export const Route = createRootRoute({
+export interface RouterContext {
+  queryClient: QueryClient;
+}
+
+export const Route = createRootRouteWithContext<RouterContext>()({
   component: () => (
     <Suspense fallback={<Loading />}>
       <AppContextProvider>

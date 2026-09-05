@@ -28,8 +28,11 @@ function RedirectHome() {
   return null;
 }
 
+const client = new QueryClient();
+
 const router = createRouter({
   routeTree,
+  context: { queryClient: client },
   defaultNotFoundComponent: RedirectHome,
   defaultPreload: 'intent',
   scrollRestoration: true
@@ -40,8 +43,6 @@ declare module '@tanstack/react-router' {
     router: typeof router;
   }
 }
-
-const client = new QueryClient();
 
 function App() {
   return (
