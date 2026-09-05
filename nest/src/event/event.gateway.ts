@@ -1,3 +1,9 @@
+import type {
+  GameDto,
+  GameUpdatedMessageData,
+  Message,
+  PokeMessageData,
+} from '@games/shared';
 import { Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import {
@@ -9,12 +15,6 @@ import { Server, Socket } from 'socket.io';
 
 import { AuthPayload, AuthService } from 'src/auth/auth.service';
 import type { GameUpdatedEvent } from 'src/game/game.service';
-import type {
-  GameDto,
-  GameUpdatedMessageData,
-  Message,
-  PokeMessageData,
-} from 'src/game/game.types';
 
 interface AuthenticatedSocket extends Socket, AuthPayload {}
 

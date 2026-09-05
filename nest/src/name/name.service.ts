@@ -1,3 +1,4 @@
+import { NameEntryDto, PlayerDto } from '@games/shared';
 import {
   BadRequestException,
   Injectable,
@@ -10,7 +11,6 @@ import { isPrismaUniqueError } from 'src/filters/prisma-exception.filter';
 import { nameEntryMaxLength } from 'src/game/game.constants';
 import { GameService } from 'src/game/game.service';
 import type { GameUpdatedEvent } from 'src/game/game.service';
-import { NameEntryDto, PlayerDto } from 'src/game/game.types';
 import {
   Game,
   GamePhase,

@@ -1,3 +1,4 @@
+import { GameDto, Message, PokeMessageData } from '@games/shared';
 import { useMutation } from '@tanstack/react-query';
 import {
   createContext,
@@ -15,7 +16,6 @@ import { showFloatingMessage } from '../components/FloatingMessagePortal';
 import Icon from '../components/Icon';
 import { usePlayerQuery } from '../hooks/usePlayerQuery';
 import { postPlayer } from '../utils/apiClient';
-import { GameDto, Message, PokeMessageData } from '../utils/types';
 
 interface SocketContextType {
   emit: (event: string, message: Message<any>) => void;
@@ -25,7 +25,6 @@ interface SocketContextType {
 }
 
 const SocketContext = createContext<SocketContextType | null>(null);
-const URL = import.meta.env.VITE_BACKEND_ADDRESS as string | undefined;
 
 export const SocketContextProvider = ({
   children
@@ -96,7 +95,7 @@ export const SocketContextProvider = ({
       return;
     }
 
-    socketRef.current = io(URL, {
+    socketRef.current = io({
       auth: {
         bearer: context.token
       }

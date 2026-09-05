@@ -1,7 +1,9 @@
+import { GameDto, PlayerDto, NameEntryDto, StoryEntryDto } from '@games/shared';
 import {
   Controller,
   Get,
   Param,
+  ParseUUIDPipe,
   Post,
   Body,
   Query,
@@ -13,7 +15,6 @@ import {
 import type { Response } from 'express';
 
 import { GameService } from './game.service';
-import { GameDto, PlayerDto, NameEntryDto, StoryEntryDto } from './game.types';
 import { GameAuthGuard, Roles } from '../auth/auth.guard';
 import { AuthService } from '../auth/auth.service';
 import { StoryService } from '../story/story.service';
@@ -39,7 +40,7 @@ export class GameController {
   }
 
   @Get('games/:uuid')
-  async getGame(@Param('uuid') uuid: string): Promise<GameDto> {
+  async getGame(@Param('uuid', ParseUUIDPipe) uuid: string): Promise<GameDto> {
     return this.gameService.getGame(uuid);
   }
 
@@ -55,7 +56,7 @@ export class GameController {
 
   @Post('games/:uuid/players')
   async addPlayer(
-    @Param('uuid') uuid: string,
+    @Param('uuid', ParseUUIDPipe) uuid: string,
     @Body() data: { nickname: string },
     @Res({ passthrough: true }) res: Response,
   ): Promise<PlayerDto> {
@@ -113,7 +114,7 @@ export class GameController {
   }
 
   @Get('games/:uuid/story-entries')
-  async getStoryArchives(@Param('uuid') uuid: string) {
+  async getStoryArchives(@Param('uuid', ParseUUIDPipe) uuid: string) {
     return this.storyService.getStoryArchives(uuid);
   }
 

@@ -1,8 +1,9 @@
+import { Hint } from '@games/shared';
+
 import {
   nameEntryMaxLength,
   storyEntryMaxLength,
 } from 'src/game/game.constants';
-import { Hint } from 'src/game/game.types';
 import { Category } from 'src/generated/prisma/enums';
 
 export const hints: Hint[] = [

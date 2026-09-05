@@ -1,3 +1,4 @@
+import { GameDto, PlayerDto } from '@games/shared';
 import {
   Injectable,
   InternalServerErrorException,
@@ -5,8 +6,6 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-
-import { GameDto, PlayerDto } from 'src/game/game.types';
 
 export interface AuthPayload {
   game: { uuid: string };
@@ -44,7 +43,7 @@ export class AuthService {
       });
     } catch (error: unknown) {
       throw new InternalServerErrorException(
-        error as Error,
+        error,
         'Failed to generate authentication token',
       );
     }
@@ -58,7 +57,7 @@ export class AuthService {
       return payload;
     } catch (error: unknown) {
       throw new UnauthorizedException(
-        error as Error,
+        error,
         'Failed to verify authentication token',
       );
     }

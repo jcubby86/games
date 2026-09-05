@@ -1,3 +1,4 @@
+import { GameDto } from '@games/shared';
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 
@@ -7,7 +8,6 @@ import { useAppContext } from '../contexts/AppContext';
 import { useSocketContext } from '../contexts/SocketContext';
 import { postGame, postPlayer } from '../utils/apiClient';
 import { alertError } from '../utils/errorHandler';
-import { GameDto } from '../utils/types';
 
 type RecreateButtonProps = {
   className?: string;

@@ -1,8 +1,8 @@
+import { SuggestionDto } from '@games/shared';
 import { FactoryProvider } from '@nestjs/common';
 
 import { SuggestionCacheService } from './suggestion-cache.service';
 import { SuggestionRepository } from './suggestion.repository';
-import { SuggestionDto } from 'src/game/game.types';
 import { Category } from 'src/generated/prisma/client';
 
 export const SUGGESTION_PROVIDER = 'SuggestionProvider';

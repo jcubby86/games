@@ -1,3 +1,4 @@
+import { GameDto } from '@games/shared';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
@@ -17,7 +18,6 @@ import {
 import { gameCodeLength, nicknameMaxLength } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
 import { gameVariants } from '../utils/gameVariants';
-import { GameDto } from '../utils/types';
 
 const Join = () => {
   useDocumentTitle('Join Game');
@@ -231,7 +231,7 @@ const Join = () => {
         </Row>
         <Row>
           <Col>
-            <div className="d-flex justify-content-between align-items-center px-3 py-2">
+            <div className="toggle-row d-flex justify-content-between align-items-center px-3 py-2">
               <Form.Label htmlFor="ai-suggestions-toggle" className="mb-0">
                 AI-generated suggestions
               </Form.Label>
@@ -239,6 +239,7 @@ const Join = () => {
                 type="switch"
                 role="switch"
                 id="ai-suggestions-toggle"
+                className="ai-toggle-switch"
                 checked={!noAi}
                 onChange={(e) => setNoAi(!e.target.checked)}
               />

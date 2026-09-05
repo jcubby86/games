@@ -1,8 +1,8 @@
+import { GameDto, PlayerDto } from '@games/shared';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
 
 import { useAppContext } from '../contexts/AppContext';
 import { getPlayer } from '../utils/apiClient';
-import { GameDto, PlayerDto } from '../utils/types';
 
 const transformGame = (
   game: GameDto | undefined,

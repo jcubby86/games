@@ -1,3 +1,4 @@
+import { GameDto, PlayerDto } from '@games/shared';
 import {
   Dispatch,
   createContext,
@@ -7,8 +8,6 @@ import {
   useState
 } from 'react';
 import { useNavigate } from 'react-router';
-
-import { GameDto, PlayerDto } from '../utils/types';
 
 export interface AppState {
   player?: Pick<PlayerDto, 'uuid' | 'nickname' | 'roles'>;

@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 import {
   GameDto,
   NameEntryDto,
@@ -7,7 +5,8 @@ import {
   StoryArchiveDto,
   StoryEntryDto,
   SuggestionDto
-} from './types';
+} from '@games/shared';
+import axios from 'axios';
 
 export function postGame(type: string) {
   return axios.post<GameDto>('/api/games', {
@@ -102,6 +101,10 @@ export function getSuggestions(
   return axios.get<SuggestionDto[]>(
     `/api/suggestions?category=${category}&quantity=${quantity}${noAiParam}`
   );
+}
+
+export function postSuggestionLike(uuid: string) {
+  return axios.post<SuggestionDto | undefined>(`/api/suggestions/${uuid}/like`);
 }
 
 export function getStoryEntries(gameUuid: string) {

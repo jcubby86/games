@@ -1,10 +1,9 @@
+import { SuggestionDto } from '@games/shared';
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import type { SuggestionProvider } from './suggestion.factory';
 import { SuggestionRepository } from './suggestion.repository';
-import { shuffle } from './suggestion.utils';
-import { SuggestionDto } from 'src/game/game.types';
 import { Category } from 'src/generated/prisma/client';
 import { OpenAIService } from 'src/openai/openai.service';
 
@@ -15,7 +14,6 @@ export class SuggestionCacheService
   implements SuggestionProvider, OnApplicationBootstrap
 {
   private readonly logger = new Logger(SuggestionCacheService.name);
-  private readonly cache = new Map<Category, SuggestionDto[]>();
   private readonly queue: Category[] = [];
   private readonly queued = new Set<Category>();
   private processing = false;
@@ -47,44 +45,27 @@ export class SuggestionCacheService
     quantity: number = 5,
     noAi: boolean = false,
   ): Promise<SuggestionDto[]> {
-    if (noAi) {
-      const suggestions =
-        await this.suggestionRepository.getSuggestions(categories);
-      return shuffle(suggestions).slice(0, quantity);
+    const suggestions = await this.suggestionRepository.getSuggestions(
+      categories,
+      quantity,
+      noAi,
+    );
+
+    if (!noAi) {
+      for (const category of categories) {
+        void this.checkStock(category);
+      }
     }
 
-    const results = await Promise.all(
-      categories.map((category) =>
-        this.getSuggestionsForCategory(category, quantity),
-      ),
-    );
-    return results.flat();
+    return suggestions;
   }
 
-  private async getSuggestionsForCategory(
-    category: Category,
-    quantity: number,
-  ): Promise<SuggestionDto[]> {
-    const cached = this.cache.get(category) ?? [];
-
-    if (cached.length < quantity) {
-      this.logger.warn(
-        `Suggestion cache has fewer than ${quantity} entries for category ${category}, falling back to the suggestion repository`,
-      );
-      this.replenish(category);
-      const suggestions = await this.suggestionRepository.getSuggestions([
-        category,
-      ]);
-      return shuffle(suggestions).slice(0, quantity);
-    }
-
-    const taken = cached.splice(0, quantity);
-
-    if (cached.length < TARGET_STOCK) {
+  private async checkStock(category: Category) {
+    const remaining =
+      await this.suggestionRepository.countAiSuggestions(category);
+    if (remaining < TARGET_STOCK) {
       this.replenish(category);
     }
-
-    return taken;
   }
 
   private replenish(category: Category) {
@@ -116,20 +97,25 @@ export class SuggestionCacheService
   }
 
   private async fillCategory(category: Category) {
-    while ((this.cache.get(category)?.length ?? 0) < TARGET_STOCK) {
+    while (
+      (await this.suggestionRepository.countAiSuggestions(category)) <
+      TARGET_STOCK
+    ) {
       const suggestions = await this.openAIService.getSuggestions(
         [category],
         this.batchSize,
       );
-      const cached = this.cache.get(category) ?? [];
-      cached.push(...suggestions);
-      this.cache.set(category, cached);
-
-      this.logger.log(
-        `Generated ${suggestions.length} suggestions for category ${category} (cache size: ${cached.length})`,
-      );
 
       if (suggestions.length === 0) break;
+
+      await this.suggestionRepository.createAiSuggestions(
+        category,
+        suggestions.map((s) => s.value),
+      );
+
+      this.logger.log(
+        `Generated ${suggestions.length} suggestions for category ${category}`,
+      );
     }
   }
 }

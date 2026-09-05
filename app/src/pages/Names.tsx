@@ -4,6 +4,7 @@ import { Col, Container, Form, Row } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 
 import Icon from '../components/Icon';
+import LikeSuggestionButton from '../components/LikeSuggestionButton';
 import List from '../components/List';
 import { showModal } from '../components/ModalPortal';
 import PlayerList from '../components/PlayerList';
@@ -21,7 +22,7 @@ import { NameVariant } from '../utils/gameVariants';
 
 const Names = () => {
   useDocumentTitle(NameVariant.title);
-  const { suggestion, nextSuggestion } = useSuggestions({
+  const { suggestion, suggestionUuid, nextSuggestion } = useSuggestions({
     initialCategory: 'MALE_NAME,FEMALE_NAME',
     quantity: 10
   });
@@ -88,7 +89,7 @@ const Names = () => {
         >
           <h2 className="text-center fw-bold">Enter a name:</h2>
           <Row>
-            <Col>
+            <Col className="position-relative">
               <Form.Control
                 size="lg"
                 type="search"
@@ -96,31 +97,42 @@ const Names = () => {
                 ref={entryRef}
                 maxLength={nameEntryMaxLength}
                 autoFocus
-                className="text-overflow-ellipsis"
+                className="text-overflow-ellipsis pe-5"
               />
+              <div className="suggestion-actions position-absolute bottom-0 end-0 d-flex gap-1 p-1">
+                <LikeSuggestionButton
+                  key={suggestionUuid}
+                  uuid={suggestionUuid}
+                  size="sm"
+                  className="border-0"
+                  disabled={postNameMutation.isPending}
+                />
+                <Button
+                  variant="outline-secondary"
+                  size="sm"
+                  className="border-0"
+                  title="Get a new suggestion"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    nextSuggestion();
+                  }}
+                  disabled={postNameMutation.isPending}
+                >
+                  <Icon icon="arrow-clockwise" />
+                </Button>
+              </div>
             </Col>
           </Row>
           <Row>
             <SpinnerButton
               variant="success"
-              className="col-10"
+              className="col"
               loading={postNameMutation.isPending}
               type="submit"
             >
               Submit
             </SpinnerButton>
-            <Button
-              variant="outline-secondary"
-              className="col"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                nextSuggestion();
-              }}
-              disabled={postNameMutation.isPending}
-            >
-              <Icon icon="arrow-clockwise" />
-            </Button>
           </Row>
         </Form>
       </Container>
