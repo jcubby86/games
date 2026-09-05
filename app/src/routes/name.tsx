@@ -1,4 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
+import { createFileRoute } from '@tanstack/react-router';
 import { useRef } from 'react';
 import { Col, Container, Form, Row } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
@@ -20,7 +21,11 @@ import { END, JOIN, nameEntryMaxLength, PLAY, READ } from '../utils/constants';
 import { alertError } from '../utils/errorHandler';
 import { NameVariant } from '../utils/gameVariants';
 
-const Names = () => {
+export const Route = createFileRoute('/name')({
+  component: RouteComponent
+});
+
+function RouteComponent() {
   useDocumentTitle(NameVariant.title);
   const { suggestion, suggestionUuid, nextSuggestion } = useSuggestions({
     initialCategory: 'MALE_NAME,FEMALE_NAME',
@@ -201,6 +206,4 @@ const Names = () => {
       </Container>
     );
   }
-};
-
-export default Names;
+}

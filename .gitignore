@@ -33,6 +33,11 @@ coverage
 .DS_Store
 
 app/build
+app/src/routeTree.gen.ts
+app/playwright-report
+app/test-results
+app/.tanstack
+app/.vite
 .generated
 
 compose.test.yml

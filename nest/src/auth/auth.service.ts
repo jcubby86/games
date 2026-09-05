@@ -38,9 +38,10 @@ export class AuthService {
       },
     };
     try {
-      return this.jwtService.signAsync(payload, {
+      const token = await this.jwtService.signAsync(payload, {
         secret: this.secret,
       });
+      return token;
     } catch (error: unknown) {
       throw new InternalServerErrorException(
         error,

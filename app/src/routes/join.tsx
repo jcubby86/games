@@ -1,8 +1,8 @@
 import { GameDto } from '@games/shared';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import { Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
-import { useNavigate, useSearchParams } from 'react-router';
 
 import Glitch from '../components/Glitch';
 import { showModal } from '../components/ModalPortal';
@@ -19,13 +19,24 @@ import { gameCodeLength, nicknameMaxLength } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
 import { gameVariants } from '../utils/gameVariants';
 
-const Join = () => {
+interface JoinSearch {
+  code?: string;
+}
+
+export const Route = createFileRoute('/join')({
+  validateSearch: (search: Record<string, unknown>): JoinSearch => ({
+    code: typeof search.code === 'string' ? search.code : undefined
+  }),
+  component: RouteComponent
+});
+
+function RouteComponent() {
   useDocumentTitle('Join Game');
   const { context, dispatchContext } = useAppContext();
   const { noAi, setNoAi } = useAiSuggestionsSetting();
-  const [searchParams] = useSearchParams();
+  const { code: rawCodeQueryParam } = Route.useSearch();
 
-  const codeQueryParam = searchParams.get('code')?.toLowerCase();
+  const codeQueryParam = rawCodeQueryParam?.toLowerCase();
   const contextGameCode = context.game?.code.toLowerCase();
 
   const [code, setCode] = useState(codeQueryParam || contextGameCode || null);
@@ -112,14 +123,14 @@ const Join = () => {
       gameQuery.data.uuid === context.game?.uuid &&
       nickname === context.player?.nickname
     ) {
-      await navigate(`/${gameType}`);
+      await navigate({ to: `/${gameType}` as any });
     } else if (
       gameQuery.data.uuid === context.game?.uuid &&
       context.player &&
       context.token
     ) {
       await updatePlayerMutation.mutateAsync({ nickname });
-      await navigate(`/${gameType}`);
+      await navigate({ to: `/${gameType}` as any });
     } else if (context.player && context.token) {
       showModal({
         title: 'Join Game',
@@ -130,7 +141,7 @@ const Join = () => {
             game: gameQuery.data,
             nickname
           });
-          await navigate(`/${gameType}`);
+          await navigate({ to: `/${gameType}` as any });
         },
         confirmVariant: 'success'
       });
@@ -139,7 +150,7 @@ const Join = () => {
         game: gameQuery.data,
         nickname
       });
-      await navigate(`/${gameType}`);
+      await navigate({ to: `/${gameType}` as any });
     }
   };
 
@@ -284,6 +295,4 @@ const Join = () => {
       </Form>
     </Container>
   );
-};
-
-export default Join;
+}

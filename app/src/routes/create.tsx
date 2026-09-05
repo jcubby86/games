@@ -1,8 +1,8 @@
 import { GameDto } from '@games/shared';
 import { useMutation } from '@tanstack/react-query';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import { Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
-import { useNavigate } from 'react-router';
 
 import Glitch from '../components/Glitch';
 import { showModal } from '../components/ModalPortal';
@@ -14,7 +14,11 @@ import { nicknameMaxLength } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
 import { gameVariants } from '../utils/gameVariants';
 
-const Create = () => {
+export const Route = createFileRoute('/create')({
+  component: RouteComponent
+});
+
+function RouteComponent() {
   useDocumentTitle('Create Game');
   const { context, dispatchContext } = useAppContext();
   const { noAi, setNoAi } = useAiSuggestionsSetting();
@@ -74,7 +78,7 @@ const Create = () => {
             game: gameResponse.data,
             nickname
           });
-          await navigate(`/${gameType}`);
+          await navigate({ to: `/${gameType}` as any });
         },
         confirmVariant: 'success'
       });
@@ -86,7 +90,7 @@ const Create = () => {
         game: gameResponse.data,
         nickname
       });
-      await navigate(`/${gameType}`);
+      await navigate({ to: `/${gameType}` as any });
     }
   };
 
@@ -193,6 +197,4 @@ const Create = () => {
       </Form>
     </Container>
   );
-};
-
-export default Create;
+}

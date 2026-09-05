@@ -1,0 +1,19 @@
+meta {
+  name: Like Suggestion
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{baseUrl}}/api/suggestions/:uuid/like
+  body: none
+  auth: bearer
+}
+
+params:path {
+  uuid: {{suggestionUuid}}
+}
+
+auth:bearer {
+  token: {{token}}
+}

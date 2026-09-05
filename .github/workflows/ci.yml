@@ -11,7 +11,36 @@ on:
       - 'master'
 
 jobs:
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+      -
+        name: Install dependencies
+        run: npm ci
+      -
+        name: Generate Prisma client
+        run: npm run generate --workspace=nest
+      -
+        name: Build
+        run: npm run build --workspaces --if-present
+      -
+        name: Lint
+        run: npm run lint
+      -
+        name: Test
+        run: npm run test
   nest:
+    name: Build and push backend
     runs-on: ubuntu-latest
     steps:
       -
@@ -38,7 +67,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       -
-        name: Build and push backend
+        name: Docker build and push
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -47,6 +76,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
   app:
+    name: Build and push frontend
     runs-on: ubuntu-latest
     steps:
       -
@@ -73,7 +103,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       -
-        name: Build and push frontend
+        name: Docker build and push
         uses: docker/build-push-action@v6
         with:
           context: .

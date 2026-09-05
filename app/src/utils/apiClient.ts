@@ -93,18 +93,24 @@ export function postStoryEntry(
 }
 
 export function getSuggestions(
+  token: string,
   category: string,
   quantity: number,
   noAi?: boolean
 ) {
   const noAiParam = noAi ? '&no_ai=true' : '';
   return axios.get<SuggestionDto[]>(
-    `/api/suggestions?category=${category}&quantity=${quantity}${noAiParam}`
+    `/api/suggestions?category=${category}&quantity=${quantity}${noAiParam}`,
+    { headers: { Authorization: `Bearer ${token}` } }
   );
 }
 
-export function postSuggestionLike(uuid: string) {
-  return axios.post<SuggestionDto | undefined>(`/api/suggestions/${uuid}/like`);
+export function postSuggestionLike(token: string, uuid: string) {
+  return axios.post<SuggestionDto | undefined>(
+    `/api/suggestions/${uuid}/like`,
+    undefined,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
 }
 
 export function getStoryEntries(gameUuid: string) {

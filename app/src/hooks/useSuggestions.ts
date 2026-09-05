@@ -2,6 +2,7 @@ import { queryOptions, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useEffectEvent, useState } from 'react';
 
 import { useAiSuggestionsSetting } from './useAiSuggestionsSetting';
+import { useAppContext } from '../contexts/AppContext';
 import { getSuggestions } from '../utils/apiClient';
 
 type UseSuggestionsArgs = {
@@ -11,6 +12,7 @@ type UseSuggestionsArgs = {
 };
 
 function suggestionOptions(
+  token: string,
   category: string,
   quantity: number,
   offsetKey: number,
@@ -19,7 +21,7 @@ function suggestionOptions(
   return queryOptions({
     queryKey: ['suggestions', { category, quantity, offsetKey, noAi }],
     queryFn: async () => {
-      const response = await getSuggestions(category, quantity, noAi);
+      const response = await getSuggestions(token, category, quantity, noAi);
       return response.data;
     },
     retry: false,
@@ -34,13 +36,15 @@ export const useSuggestions = ({
 }: UseSuggestionsArgs) => {
   const queryClient = useQueryClient();
   const { noAi } = useAiSuggestionsSetting();
+  const { context } = useAppContext();
+  const token = context.token!;
   const [category, setCategory] = useState(initialCategory);
   const [offsets, setOffsets] = useState<{ [key: string]: number }>({});
   const offset = offsets[category] ?? 0;
   const offsetKey = Math.floor(offset / quantity);
 
   const suggestionQuery = useQuery(
-    suggestionOptions(category, quantity, offsetKey, noAi)
+    suggestionOptions(token, category, quantity, offsetKey, noAi)
   );
 
   const prefetch = useEffectEvent(() => {
@@ -48,7 +52,9 @@ export const useSuggestions = ({
       return;
     }
     prefetchCategories.forEach((cat) => {
-      void queryClient.prefetchQuery(suggestionOptions(cat, quantity, 0, noAi));
+      void queryClient.prefetchQuery(
+        suggestionOptions(token, cat, quantity, 0, noAi)
+      );
     });
   });
 
@@ -62,9 +68,9 @@ export const useSuggestions = ({
       return;
     }
     void queryClient.prefetchQuery(
-      suggestionOptions(category, quantity, offsetKey + 1, noAi)
+      suggestionOptions(token, category, quantity, offsetKey + 1, noAi)
     );
-  }, [category, quantity, offset, offsetKey, noAi, queryClient]);
+  }, [category, quantity, offset, offsetKey, noAi, queryClient, token]);
 
   const nextSuggestion = useCallback(() => {
     setOffsets((prev) => ({

@@ -17,8 +17,8 @@ import type { Response } from 'express';
 import { GameService } from './game.service';
 import { GameAuthGuard, Roles } from '../auth/auth.guard';
 import { AuthService } from '../auth/auth.service';
+import { NameService } from '../name/name.service';
 import { StoryService } from '../story/story.service';
-import { NameService } from 'src/name/name.service';
 
 @Controller('api')
 export class GameController {

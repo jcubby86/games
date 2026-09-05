@@ -7,11 +7,15 @@ meta {
 get {
   url: {{baseUrl}}/api/suggestions?category=STATEMENT
   body: none
-  auth: none
+  auth: bearer
 }
 
 params:query {
   category: STATEMENT
   ~quantity: 5
   ~no_ai: true
+}
+
+auth:bearer {
+  token: {{token}}
 }

@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
+import { queryOptions, useQuery } from '@tanstack/react-query';
+import { createFileRoute } from '@tanstack/react-router';
 import { Col, Container, ListGroup, Row } from 'react-bootstrap';
-import { useParams } from 'react-router';
 
 import Glitch from '../components/Glitch';
 import RecreateButton from '../components/RecreateButton';
@@ -9,18 +9,34 @@ import { useDocumentTitle } from '../contexts/AppContext';
 import { getStoryEntries } from '../utils/apiClient';
 import { StoryVariant } from '../utils/gameVariants';
 
-export default function StoryArchive() {
-  useDocumentTitle(StoryVariant.title);
-  const { gameUuid } = useParams();
-  const storyQuery = useQuery({
+function storyEntriesQueryOptions(gameUuid: string) {
+  return queryOptions({
     queryKey: ['games', { uuid: gameUuid }, 'story-entries'],
     queryFn: async () => {
-      const response = await getStoryEntries(gameUuid!);
+      const response = await getStoryEntries(gameUuid);
       return response.data;
     },
-    enabled: !!gameUuid,
     staleTime: Infinity
   });
+}
+
+export const Route = createFileRoute('/story_/$gameUuid')({
+  loader: async ({ context, params }) => {
+    try {
+      await context.queryClient.ensureQueryData(
+        storyEntriesQueryOptions(params.gameUuid)
+      );
+    } catch {
+      // let the component's own useQuery surface the error state
+    }
+  },
+  component: RouteComponent
+});
+
+function RouteComponent() {
+  useDocumentTitle(StoryVariant.title);
+  const { gameUuid } = Route.useParams();
+  const storyQuery = useQuery(storyEntriesQueryOptions(gameUuid));
 
   const stories = storyQuery.data;
 

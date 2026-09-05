@@ -1,6 +1,12 @@
+import { createFileRoute } from '@tanstack/react-router';
+
 import { useDocumentTitle } from '../contexts/AppContext';
 
-const Privacy = () => {
+export const Route = createFileRoute('/privacy')({
+  component: RouteComponent
+});
+
+function RouteComponent() {
   useDocumentTitle('Games');
   return (
     <div className="privacy-policy">
@@ -34,6 +40,16 @@ const Privacy = () => {
       </div>
 
       <div className="mb-3">
+        <h5>AI Usage</h5>
+        <p>
+          Some game content (such as suggested names or prompts) may be
+          generated using an AI language model. Only gameplay content, such as
+          category names, is sent to the AI provider &mdash; never your nickname
+          or other personal information.
+        </p>
+      </div>
+
+      <div className="mb-3">
         <h5>Contact</h5>
         <p>
           For privacy questions or concerns, please contact:{' '}
@@ -41,9 +57,7 @@ const Privacy = () => {
         </p>
       </div>
 
-      <p className="text-muted small">Last updated: January 30, 2026</p>
+      <p className="text-muted small">Last updated: September 5, 2026</p>
     </div>
   );
-};
-
-export default Privacy;
+}

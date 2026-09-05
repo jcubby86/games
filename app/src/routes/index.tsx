@@ -1,3 +1,4 @@
+import { createFileRoute } from '@tanstack/react-router';
 import { clsx } from 'clsx';
 import { Col, Container, Row } from 'react-bootstrap';
 
@@ -6,7 +7,11 @@ import Icon from '../components/Icon';
 import { LinkButton } from '../components/LinkButton';
 import { useAppContext, useDocumentTitle } from '../contexts/AppContext';
 
-const Home = () => {
+export const Route = createFileRoute('/')({
+  component: RouteComponent
+});
+
+function RouteComponent() {
   useDocumentTitle('Games');
   const { context } = useAppContext();
 
@@ -56,6 +61,4 @@ const Home = () => {
       </Container>
     </>
   );
-};
-
-export default Home;
+}

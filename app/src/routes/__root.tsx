@@ -1,10 +1,34 @@
+import { QueryClient } from '@tanstack/react-query';
+import {
+  Link,
+  Outlet,
+  createRootRouteWithContext
+} from '@tanstack/react-router';
+import { Suspense } from 'react';
 import { Container, Navbar } from 'react-bootstrap';
-import { Link, Outlet } from 'react-router';
 
 import Icon from '../components/Icon';
-import { useAppContext } from '../contexts/AppContext';
+import Loading from '../components/Loading';
+import { AppContextProvider, useAppContext } from '../contexts/AppContext';
+import { SocketContextProvider } from '../contexts/SocketContext';
 
-const Layout = () => {
+export interface RouterContext {
+  queryClient: QueryClient;
+}
+
+export const Route = createRootRouteWithContext<RouterContext>()({
+  component: () => (
+    <Suspense fallback={<Loading />}>
+      <AppContextProvider>
+        <SocketContextProvider>
+          <RouteComponent />
+        </SocketContextProvider>
+      </AppContextProvider>
+    </Suspense>
+  )
+});
+
+function RouteComponent() {
   const { context, title } = useAppContext();
 
   return (
@@ -16,7 +40,7 @@ const Layout = () => {
       <header>
         <Navbar className="bg-dark" data-bs-theme="dark">
           <Container fluid>
-            <Link className="navbar-brand" to=".">
+            <Link className="navbar-brand" to="/">
               <Icon icon="house" />
             </Link>
             {context.player && (
@@ -69,6 +93,4 @@ const Layout = () => {
       </footer>
     </>
   );
-};
-
-export default Layout;
+}

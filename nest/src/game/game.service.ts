@@ -32,11 +32,12 @@ export class GameService {
   ) {}
 
   generateCode(): string {
-    return Math.random()
-      .toString(36)
-      .replace(/[^a-z]+/g, '')
-      .substring(0, gameCodeLength)
-      .toUpperCase();
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let code = '';
+    for (let i = 0; i < gameCodeLength; i++) {
+      code += alphabet[Math.floor(Math.random() * alphabet.length)];
+    }
+    return code;
   }
 
   static mapToGameDto(game: Game, players?: PlayerDto[]): GameDto {

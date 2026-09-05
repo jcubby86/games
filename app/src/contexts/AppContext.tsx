@@ -1,4 +1,5 @@
 import { GameDto, PlayerDto } from '@games/shared';
+import { useNavigate } from '@tanstack/react-router';
 import {
   Dispatch,
   createContext,
@@ -7,7 +8,6 @@ import {
   useReducer,
   useState
 } from 'react';
-import { useNavigate } from 'react-router';
 
 export interface AppState {
   player?: Pick<PlayerDto, 'uuid' | 'nickname' | 'roles'>;
@@ -123,7 +123,7 @@ export const useAppContext = (required = false) => {
 
   useEffect(() => {
     if (required && (!player || !game || !token)) {
-      void navigate('/', { replace: true });
+      void navigate({ to: '/', replace: true });
     }
   }, [required, player, game, token, navigate]);
   return appContext;

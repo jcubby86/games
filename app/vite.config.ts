@@ -1,3 +1,4 @@
+import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import 'dotenv/config';
@@ -5,7 +6,10 @@ import 'dotenv/config';
 // https://vitejs.dev/config/
 export default defineConfig({
   clearScreen: false,
-  plugins: [react()],
+  plugins: [
+    tanstackRouter({ target: 'react', autoCodeSplitting: true }),
+    react()
+  ],
   server: {
     proxy: {
       '/api': process.env.VITE_BACKEND_ADDRESS || 'http://localhost:3000',
