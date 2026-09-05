@@ -3,19 +3,54 @@ import { Injectable } from '@nestjs/common';
 
 import { SuggestionProvider } from './suggestion.factory';
 import { shuffle } from './suggestion.utils';
-import { Category } from 'src/generated/prisma/client';
+import { Category, SuggestionType } from 'src/generated/prisma/client';
 import { PrismaService } from 'src/prisma.service';
+
+interface RawSuggestionRow {
+  value: string;
+  category: Category;
+  uuid: string;
+  likes: number;
+  type: SuggestionType;
+}
 
 @Injectable()
 export class SuggestionRepository implements SuggestionProvider {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getSuggestions(categories: Category[]) {
-    return this.prisma.suggestion.findMany({
-      where: { category: { in: categories }, type: 'HUMAN' },
-      select: { value: true, category: true },
-      orderBy: { id: 'asc' },
-    });
+  async getSuggestions(
+    categories: Category[],
+    quantity: number = 5,
+    noAi: boolean = false,
+  ): Promise<SuggestionDto[]> {
+    const suggestions = await this.prisma.$queryRaw<RawSuggestionRow[]>`
+      SELECT value, category, uuid, likes, type
+      FROM "Suggestion"
+      WHERE category = ANY(${categories}::"Category"[])
+        AND (
+          type = 'HUMAN'
+          OR (type = 'AI' AND likes <> -1 AND NOT ${noAi})
+        )
+      ORDER BY POWER(random(), 1.0 / (likes + 1)) DESC
+      LIMIT ${quantity}
+    `;
+
+    const freshAiUuids = suggestions
+      .filter((s) => s.type === 'AI' && s.likes === 0)
+      .map((s) => s.uuid);
+
+    if (freshAiUuids.length > 0) {
+      await this.prisma.suggestion.updateMany({
+        where: { uuid: { in: freshAiUuids } },
+        data: { likes: -1 },
+      });
+    }
+
+    return suggestions.map(({ value, category, uuid }) => ({
+      value,
+      category,
+      uuid,
+    }));
   }
 
   async getExamples(category: Category, count: number): Promise<string[]> {
@@ -27,7 +62,9 @@ export class SuggestionRepository implements SuggestionProvider {
   }
 
   async countAiSuggestions(category: Category): Promise<number> {
-    return this.prisma.suggestion.count({ where: { category, type: 'AI' } });
+    return this.prisma.suggestion.count({
+      where: { category, type: 'AI', likes: 0 },
+    });
   }
 
   async createAiSuggestions(category: Category, values: string[]) {
@@ -37,20 +74,23 @@ export class SuggestionRepository implements SuggestionProvider {
     });
   }
 
-  async popAiSuggestions(
-    category: Category,
-    quantity: number,
-  ): Promise<SuggestionDto[]> {
-    return this.prisma.$queryRaw<SuggestionDto[]>`
-      DELETE FROM "Suggestion"
-      WHERE id IN (
-        SELECT id FROM "Suggestion"
-        WHERE category = ${category}::"Category" AND type = 'AI'::"SuggestionType"
-        ORDER BY random()
-        LIMIT ${quantity}
-      )
-      RETURNING value, category;
+  async deleteUnlikedUsedAiSuggestions(before: Date): Promise<number> {
+    const { count } = await this.prisma.suggestion.deleteMany({
+      where: { type: 'AI', likes: -1, updatedAt: { lt: before } },
+    });
+    return count;
+  }
+
+  async incrementLikes(uuid: string): Promise<SuggestionDto | undefined> {
+    const rows = await this.prisma.$queryRaw<
+      { value: string; category: Category; uuid: string }[]
+    >`
+      UPDATE "Suggestion"
+      SET likes = CASE WHEN likes = -1 THEN 1 ELSE likes + 1 END
+      WHERE uuid = ${uuid}
+      RETURNING value, category, uuid
     `;
+    return rows[0];
   }
 
   enabled() {

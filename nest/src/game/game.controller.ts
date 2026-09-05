@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  ParseUUIDPipe,
   Post,
   Body,
   Query,
@@ -39,7 +40,7 @@ export class GameController {
   }
 
   @Get('games/:uuid')
-  async getGame(@Param('uuid') uuid: string): Promise<GameDto> {
+  async getGame(@Param('uuid', ParseUUIDPipe) uuid: string): Promise<GameDto> {
     return this.gameService.getGame(uuid);
   }
 
@@ -55,7 +56,7 @@ export class GameController {
 
   @Post('games/:uuid/players')
   async addPlayer(
-    @Param('uuid') uuid: string,
+    @Param('uuid', ParseUUIDPipe) uuid: string,
     @Body() data: { nickname: string },
     @Res({ passthrough: true }) res: Response,
   ): Promise<PlayerDto> {
@@ -113,7 +114,7 @@ export class GameController {
   }
 
   @Get('games/:uuid/story-entries')
-  async getStoryArchives(@Param('uuid') uuid: string) {
+  async getStoryArchives(@Param('uuid', ParseUUIDPipe) uuid: string) {
     return this.storyService.getStoryArchives(uuid);
   }
 

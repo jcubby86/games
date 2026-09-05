@@ -8,7 +8,7 @@ import {
 
 import { SUGGESTION_PROVIDER } from './suggestion.factory';
 import type { SuggestionProvider } from './suggestion.factory';
-import { shuffle } from './suggestion.utils';
+import { SuggestionRepository } from './suggestion.repository';
 import { Category } from 'src/generated/prisma/client';
 
 @Injectable()
@@ -18,6 +18,7 @@ export class SuggestionService {
   constructor(
     @Inject(SUGGESTION_PROVIDER)
     private readonly suggestionProvider: SuggestionProvider,
+    private readonly suggestionRepository: SuggestionRepository,
   ) {
     this.logger.log(
       `Using suggestion provider: ${this.suggestionProvider.constructor.name}`,
@@ -30,13 +31,15 @@ export class SuggestionService {
     noAi: boolean = false,
   ): Promise<SuggestionDto[]> {
     const validCategories = this.validateCategories(categories);
-    const suggestions = await this.suggestionProvider.getSuggestions(
+    return this.suggestionProvider.getSuggestions(
       validCategories,
       quantity,
       noAi,
     );
+  }
 
-    return shuffle(suggestions).slice(0, quantity);
+  async likeSuggestion(uuid: string): Promise<SuggestionDto | undefined> {
+    return this.suggestionRepository.incrementLikes(uuid);
   }
 
   private validateCategories(categories: string[]) {

@@ -1,13 +1,16 @@
-import { SuggestionDto } from '@games/shared';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OpenAI } from 'openai';
 
 import { Category } from 'src/generated/prisma/enums';
-import type { SuggestionProvider } from 'src/suggestion/suggestion.factory';
 import { SuggestionRepository } from 'src/suggestion/suggestion.repository';
 
 const EXAMPLE_COUNT = 5;
+
+interface GeneratedSuggestion {
+  value: string;
+  category: Category;
+}
 
 const CATEGORY_DESCRIPTIONS: Record<Category, string> = {
   FEMALE_NAME:
@@ -20,7 +23,7 @@ const CATEGORY_DESCRIPTIONS: Record<Category, string> = {
 };
 
 @Injectable()
-export class OpenAIService implements SuggestionProvider {
+export class OpenAIService {
   private readonly logger = new Logger(OpenAIService.name);
   private readonly model: string;
   private readonly client?: OpenAI;
@@ -55,7 +58,7 @@ export class OpenAIService implements SuggestionProvider {
   async getSuggestions(
     categories: Category[],
     quantity: number = 5,
-  ): Promise<SuggestionDto[]> {
+  ): Promise<GeneratedSuggestion[]> {
     const results = await Promise.all(
       categories.map((category) =>
         this.getSuggestionsForCategory(category, quantity),
@@ -67,7 +70,7 @@ export class OpenAIService implements SuggestionProvider {
   private async getSuggestionsForCategory(
     category: Category,
     quantity: number,
-  ): Promise<SuggestionDto[]> {
+  ): Promise<GeneratedSuggestion[]> {
     const examples = await this.suggestionRepository.getExamples(
       category,
       EXAMPLE_COUNT,

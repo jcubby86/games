@@ -1,5 +1,15 @@
 import { SuggestionDto } from '@games/shared';
-import { Controller, Get, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Query,
+  Res,
+} from '@nestjs/common';
+import type { Response } from 'express';
 
 import { SuggestionService } from './suggestion.service';
 
@@ -19,5 +29,17 @@ export class SuggestionController {
       quantity,
       noAi === 'true',
     );
+  }
+
+  @Post(':uuid/like')
+  async likeSuggestion(
+    @Param('uuid', ParseUUIDPipe) uuid: string,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<SuggestionDto | undefined> {
+    const suggestion = await this.suggestionService.likeSuggestion(uuid);
+    if (!suggestion) {
+      res.status(HttpStatus.NO_CONTENT);
+    }
+    return suggestion;
   }
 }

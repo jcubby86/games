@@ -4,7 +4,6 @@ import { ConfigService } from '@nestjs/config';
 
 import type { SuggestionProvider } from './suggestion.factory';
 import { SuggestionRepository } from './suggestion.repository';
-import { shuffle } from './suggestion.utils';
 import { Category } from 'src/generated/prisma/client';
 import { OpenAIService } from 'src/openai/openai.service';
 
@@ -46,48 +45,27 @@ export class SuggestionCacheService
     quantity: number = 5,
     noAi: boolean = false,
   ): Promise<SuggestionDto[]> {
-    if (noAi) {
-      const suggestions =
-        await this.suggestionRepository.getSuggestions(categories);
-      return shuffle(suggestions).slice(0, quantity);
+    const suggestions = await this.suggestionRepository.getSuggestions(
+      categories,
+      quantity,
+      noAi,
+    );
+
+    if (!noAi) {
+      for (const category of categories) {
+        void this.checkStock(category);
+      }
     }
 
-    const results = await Promise.all(
-      categories.map((category) =>
-        this.getSuggestionsForCategory(category, quantity),
-      ),
-    );
-    return results.flat();
+    return suggestions;
   }
 
-  private async getSuggestionsForCategory(
-    category: Category,
-    quantity: number,
-  ): Promise<SuggestionDto[]> {
-    const taken = await this.suggestionRepository.popAiSuggestions(
-      category,
-      quantity,
-    );
-
-    if (taken.length < quantity) {
-      this.logger.warn(
-        `Suggestion stock has fewer than ${quantity} entries for category ${category}, falling back to the suggestion repository`,
-      );
-      this.replenish(category);
-      const suggestions = await this.suggestionRepository.getSuggestions([
-        category,
-      ]);
-      const needed = quantity - taken.length;
-      return [...taken, ...shuffle(suggestions).slice(0, needed)];
-    }
-
+  private async checkStock(category: Category) {
     const remaining =
       await this.suggestionRepository.countAiSuggestions(category);
     if (remaining < TARGET_STOCK) {
       this.replenish(category);
     }
-
-    return taken;
   }
 
   private replenish(category: Category) {

@@ -36,6 +36,7 @@ export interface GameDto {
 }
 
 export interface SuggestionDto {
+  uuid: string;
   value: string;
   category: string;
 }

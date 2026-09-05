@@ -2,6 +2,7 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { JwtModule } from '@nestjs/jwt';
+import { ScheduleModule } from '@nestjs/schedule';
 
 import { AuthService } from './auth/auth.service';
 import { EventGateway } from './event/event.gateway';
@@ -12,6 +13,7 @@ import { NameService } from './name/name.service';
 import { PrismaService } from './prisma.service';
 import { StoryService } from './story/story.service';
 import { SuggestionCacheService } from './suggestion/suggestion-cache.service';
+import { SuggestionCleanupService } from './suggestion/suggestion-cleanup.service';
 import { SuggestionController } from './suggestion/suggestion.controller';
 import { suggestionProviderFactory } from './suggestion/suggestion.factory';
 import { SuggestionRepository } from './suggestion/suggestion.repository';
@@ -22,6 +24,7 @@ import { OpenAIService } from 'src/openai/openai.service';
   imports: [
     ConfigModule.forRoot({ isGlobal: true, cache: true }),
     EventEmitterModule.forRoot(),
+    ScheduleModule.forRoot(),
     JwtModule.register({
       global: true,
       signOptions: { expiresIn: '60m' },
@@ -37,6 +40,7 @@ import { OpenAIService } from 'src/openai/openai.service';
     SuggestionService,
     SuggestionRepository,
     SuggestionCacheService,
+    SuggestionCleanupService,
     suggestionProviderFactory,
     EventGateway,
     OpenAIService,

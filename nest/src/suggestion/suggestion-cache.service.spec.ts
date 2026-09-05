@@ -24,12 +24,12 @@ describe('SuggestionCacheService', () => {
   let openAIService: { enabled: jest.Mock; getSuggestions: jest.Mock };
   let suggestionRepository: {
     getSuggestions: jest.Mock;
-    popAiSuggestions: jest.Mock;
     countAiSuggestions: jest.Mock;
     createAiSuggestions: jest.Mock;
   };
 
   const suggestion = (category: Category, value: string): SuggestionDto => ({
+    uuid: `uuid-${value}`,
     value,
     category,
   });
@@ -41,7 +41,6 @@ describe('SuggestionCacheService', () => {
     };
     suggestionRepository = {
       getSuggestions: jest.fn().mockResolvedValue([]),
-      popAiSuggestions: jest.fn().mockResolvedValue([]),
       countAiSuggestions: jest.fn().mockResolvedValue(0),
       createAiSuggestions: jest.fn().mockResolvedValue(undefined),
     };
@@ -66,46 +65,31 @@ describe('SuggestionCacheService', () => {
     expect(service.enabled()).toBe(false);
   });
 
-  it('tops up from the suggestion repository when the DB stock has fewer than the requested quantity', async () => {
-    const popped = [suggestion(Category.STATEMENT, 'popped')];
-    const fallback = [
-      suggestion(Category.STATEMENT, 'a'),
-      suggestion(Category.STATEMENT, 'b'),
-    ];
-    suggestionRepository.popAiSuggestions.mockResolvedValue(popped);
-    suggestionRepository.getSuggestions.mockResolvedValue(fallback);
-
-    const result = await service.getSuggestions([Category.STATEMENT], 3);
-
-    expect(result).toHaveLength(3);
-    expect(result).toEqual(expect.arrayContaining(popped));
-    expect(suggestionRepository.popAiSuggestions).toHaveBeenCalledWith(
-      Category.STATEMENT,
-      3,
-    );
-    expect(suggestionRepository.getSuggestions).toHaveBeenCalledWith([
-      Category.STATEMENT,
-    ]);
-  });
-
-  it('serves purely from the DB stock and does not queue a refill above the target stock', async () => {
-    const popped = [
-      suggestion(Category.STATEMENT, 'a'),
-      suggestion(Category.STATEMENT, 'b'),
-    ];
-    suggestionRepository.popAiSuggestions.mockResolvedValue(popped);
+  it('delegates suggestion selection to the repository', async () => {
+    const drawn = [suggestion(Category.STATEMENT, 'a')];
+    suggestionRepository.getSuggestions.mockResolvedValue(drawn);
     suggestionRepository.countAiSuggestions.mockResolvedValue(TARGET_STOCK);
 
-    const result = await service.getSuggestions([Category.STATEMENT], 2);
+    const result = await service.getSuggestions([Category.STATEMENT], 3, false);
 
-    expect(result).toEqual(popped);
+    expect(result).toEqual(drawn);
+    expect(suggestionRepository.getSuggestions).toHaveBeenCalledWith(
+      [Category.STATEMENT],
+      3,
+      false,
+    );
+  });
+
+  it('does not queue a refill when DB stock is at or above the target stock', async () => {
+    suggestionRepository.countAiSuggestions.mockResolvedValue(TARGET_STOCK);
+
+    await service.getSuggestions([Category.STATEMENT], 2);
+    await flushPromises();
+
     expect(openAIService.getSuggestions).not.toHaveBeenCalled();
   });
 
   it('queues a refill once the DB stock drops below the target stock', async () => {
-    suggestionRepository.popAiSuggestions.mockResolvedValue([
-      suggestion(Category.STATEMENT, 'a'),
-    ]);
     suggestionRepository.countAiSuggestions.mockResolvedValue(
       TARGET_STOCK - 10,
     );
@@ -120,7 +104,7 @@ describe('SuggestionCacheService', () => {
     );
   });
 
-  it('bypasses OpenAI and the AI stock entirely when noAi is set', async () => {
+  it('bypasses the AI stock check entirely when noAi is set', async () => {
     const stored = [
       suggestion(Category.STATEMENT, 'a'),
       suggestion(Category.STATEMENT, 'b'),
@@ -128,15 +112,16 @@ describe('SuggestionCacheService', () => {
     suggestionRepository.getSuggestions.mockResolvedValue(stored);
 
     const result = await service.getSuggestions([Category.STATEMENT], 5, true);
-    const byValue = (a: SuggestionDto, b: SuggestionDto) =>
-      a.value.localeCompare(b.value);
+    await flushPromises();
 
-    expect(result.sort(byValue)).toEqual(stored.sort(byValue));
-    expect(suggestionRepository.getSuggestions).toHaveBeenCalledWith([
-      Category.STATEMENT,
-    ]);
+    expect(result).toEqual(stored);
+    expect(suggestionRepository.getSuggestions).toHaveBeenCalledWith(
+      [Category.STATEMENT],
+      5,
+      true,
+    );
+    expect(suggestionRepository.countAiSuggestions).not.toHaveBeenCalled();
     expect(openAIService.getSuggestions).not.toHaveBeenCalled();
-    expect(suggestionRepository.popAiSuggestions).not.toHaveBeenCalled();
   });
 
   it('fills the DB stock in small batches until the target stock is reached', async () => {
@@ -183,7 +168,6 @@ describe('SuggestionCacheService', () => {
     openAIService.getSuggestions.mockResolvedValue([]);
 
     suggestionRepository.countAiSuggestions.mockResolvedValue(0);
-    suggestionRepository.popAiSuggestions.mockResolvedValue([]);
     suggestionRepository.getSuggestions.mockResolvedValue([]);
 
     void service.getSuggestions([Category.STATEMENT], 1);
