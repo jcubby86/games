@@ -11,6 +11,27 @@ on:
       - 'master'
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+      -
+        name: Install dependencies
+        run: npm ci
+      -
+        name: Lint
+        run: npm run lint
+      -
+        name: Test
+        run: npm run test
   nest:
     runs-on: ubuntu-latest
     steps:

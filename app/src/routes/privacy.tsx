@@ -44,8 +44,8 @@ function RouteComponent() {
         <p>
           Some game content (such as suggested names or prompts) may be
           generated using an AI language model. Only gameplay content, such as
-          category names, is sent to the AI provider &mdash; never your
-          nickname or other personal information.
+          category names, is sent to the AI provider &mdash; never your nickname
+          or other personal information.
         </p>
       </div>
 
