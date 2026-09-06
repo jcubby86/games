@@ -10,12 +10,15 @@ import {
   createRouter,
   useNavigate
 } from '@tanstack/react-router';
+import type { ErrorComponentProps } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 import { StrictMode, useEffect } from 'react';
+import { Button } from 'react-bootstrap';
 import { createRoot } from 'react-dom/client';
 import { ErrorBoundary } from 'react-error-boundary';
 
 import { FloatingMessagePortal } from './components/FloatingMessagePortal';
+import Glitch from './components/Glitch';
 import { ModalPortal } from './components/ModalPortal';
 import { ToastPortal } from './components/ToastPortal';
 import { routeTree } from './routeTree.gen';
@@ -31,12 +34,29 @@ function RedirectHome() {
   return null;
 }
 
+function ErrorFallback({ onRetry }: { onRetry: () => void }) {
+  return (
+    <div className="center-content flex-column gap-3 min-vh-100 w-100 text-center px-3">
+      <Glitch text="Error" />
+      <p className="mb-0">Something went wrong. Please try again.</p>
+      <Button variant="outline-primary" onClick={onRetry}>
+        Try again
+      </Button>
+    </div>
+  );
+}
+
+function RouteErrorComponent({ reset }: ErrorComponentProps) {
+  return <ErrorFallback onRetry={reset} />;
+}
+
 const client = new QueryClient();
 
 const router = createRouter({
   routeTree,
   context: { queryClient: client },
   defaultNotFoundComponent: RedirectHome,
+  defaultErrorComponent: RouteErrorComponent,
   defaultPreload: 'intent',
   scrollRestoration: true
 });
@@ -56,12 +76,7 @@ function App() {
             <ErrorBoundary
               onReset={reset}
               fallbackRender={({ resetErrorBoundary }) => (
-                <div>
-                  There was an error!
-                  <button onClick={() => resetErrorBoundary()}>
-                    Try again
-                  </button>
-                </div>
+                <ErrorFallback onRetry={resetErrorBoundary} />
               )}
             >
               <RouterProvider router={router} />
