@@ -74,7 +74,7 @@ const PlayerList = ({ players, showText }: PlayerListProps) => {
             >
               {p.nickname}
               {isCurrentPlayer && (
-                <Badge bg="secondary" pill className="center-content">
+                <Badge bg="info" pill className="center-content">
                   You
                 </Badge>
               )}

@@ -60,7 +60,7 @@ export function ModalPortal() {
       </Modal.Header>
       <Modal.Body>{message?.body}</Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={cancel} disabled={loading}>
+        <Button variant="warning" onClick={cancel} disabled={loading}>
           Cancel
         </Button>
         <SpinnerButton

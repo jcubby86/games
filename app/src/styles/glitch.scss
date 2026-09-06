@@ -4,6 +4,7 @@ h1.glitch {
   font-style: normal;
   position: relative;
   font-size: 60px;
+  text-shadow: 0 0 18px rgba(0, 229, 255, 0.25);
 }
 
 h1.glitch.glitch-sm {
@@ -23,13 +24,13 @@ h1.glitch::after {
 
 h1.glitch::before {
   left: 0.03em;
-  text-shadow: -0.03em 0 red;
+  text-shadow: -0.03em 0 var(--neon-cyan, #00e5ff);
   animation: glitch-animation-1 3s linear 0s infinite alternate;
 }
 
 h1.glitch::after {
   left: -0.03em;
-  text-shadow: 0.03em 0 blue;
+  text-shadow: 0.03em 0 var(--neon-magenta, #ff2bd6);
   animation: glitch-animation-2 3s linear 0s infinite alternate;
 }
 

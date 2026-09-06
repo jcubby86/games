@@ -1,8 +1,6 @@
+@import 'theme';
+
 body {
-  margin: 0;
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
-    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -79,6 +77,8 @@ textarea.form-control {
   width: 2.5rem !important;
   height: 1.5rem !important;
   cursor: pointer;
+  background-color: #1a2436;
+  border-color: #3d4f78;
 }
 
 .ai-toggle-switch .form-check-input:checked {
@@ -106,6 +106,39 @@ textarea.form-control {
 
   .container-fluid {
     padding: 0;
+  }
+}
+
+:root {
+  color-scheme: dark;
+  --neon-cyan: #00e5ff;
+  --neon-magenta: #ff2bd6;
+}
+
+.navbar {
+  border-bottom: 1px solid rgba(var(--bs-primary-rgb), 0.4);
+  box-shadow: 0 1px 16px rgba(var(--bs-primary-rgb), 0.2);
+}
+
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+  box-shadow:
+    0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25),
+    0 0 12px rgba(var(--bs-primary-rgb), 0.35);
+}
+
+@each $color in primary, secondary, success, danger, warning, info {
+  .btn-#{$color}:hover:not(:disabled),
+  .btn-#{$color}:focus-visible:not(:disabled),
+  .btn-outline-#{$color}:hover:not(:disabled),
+  .btn-outline-#{$color}:focus-visible:not(:disabled) {
+    box-shadow: 0 0 14px rgba(var(--bs-#{$color}-rgb), 0.7);
+  }
+
+  .link-#{$color}:hover,
+  .link-#{$color}:focus-visible {
+    text-shadow: 0 0 10px rgba(var(--bs-#{$color}-rgb), 0.8);
   }
 }
 
