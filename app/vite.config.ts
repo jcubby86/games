@@ -1,3 +1,4 @@
+import { devtools } from '@tanstack/devtools-vite';
 import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
@@ -7,6 +8,7 @@ import 'dotenv/config';
 export default defineConfig({
   clearScreen: false,
   plugins: [
+    devtools(),
     tanstackRouter({ target: 'react', autoCodeSplitting: true }),
     react()
   ],

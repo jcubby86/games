@@ -1,13 +1,16 @@
+import { TanStackDevtools } from '@tanstack/react-devtools';
 import {
   QueryClient,
   QueryClientProvider,
   QueryErrorResetBoundary
 } from '@tanstack/react-query';
+import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools';
 import {
   RouterProvider,
   createRouter,
   useNavigate
 } from '@tanstack/react-router';
+import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 import { StrictMode, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -76,5 +79,18 @@ function App() {
 createRoot(document.getElementById('root') as HTMLElement).render(
   <StrictMode>
     <App />
+    <TanStackDevtools
+      config={{ position: 'bottom-left', hideUntilHover: true }}
+      plugins={[
+        {
+          name: 'TanStack Query',
+          render: <ReactQueryDevtoolsPanel client={client} />
+        },
+        {
+          name: 'TanStack Router',
+          render: <TanStackRouterDevtoolsPanel router={router} />
+        }
+      ]}
+    />
   </StrictMode>
 );
