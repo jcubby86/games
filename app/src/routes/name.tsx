@@ -108,13 +108,11 @@ function RouteComponent() {
                 <LikeSuggestionButton
                   key={suggestionUuid}
                   uuid={suggestionUuid}
-                  size="sm"
                   className="border-0"
                   disabled={postNameMutation.isPending}
                 />
                 <Button
-                  variant="outline-secondary"
-                  size="sm"
+                  variant="outline-info"
                   className="border-0"
                   title="Get a new suggestion"
                   onClick={(e) => {

@@ -1,0 +1,68 @@
+// Cyberpunk theme overrides. Must be imported BEFORE `bootstrap/scss/bootstrap`
+// so these override Bootstrap's `!default` variables instead of being ignored.
+
+$cyan: #00e5ff;
+$magenta: #ff2bd6;
+
+$primary: $cyan;
+$info: $magenta;
+$success: #2de37a;
+$warning: #ffb800;
+$danger: #ff3860;
+
+$body-bg: #0b0e17;
+$body-color: #e6f1ff;
+
+$dark: #10151f;
+$light: #1a2232;
+
+$border-color: #23304a;
+
+$link-color: $primary;
+$link-hover-color: #66f0ff;
+
+$input-bg: #0f1420;
+$input-color: $body-color;
+$input-border-color: $border-color;
+$input-focus-border-color: rgba($primary, 0.6);
+
+// The switch knob defaults to a near-black translucent circle, meant to
+// show up against a light track. On our dark track it nearly disappears
+// in the "off" state, so lighten it instead.
+$form-switch-color: rgba($body-color, 0.45);
+
+$list-group-bg: transparent;
+$list-group-color: $body-color;
+$list-group-border-color: $border-color;
+$list-group-hover-bg: rgba($primary, 0.08);
+$list-group-active-bg: rgba($primary, 0.18);
+$list-group-active-border-color: $primary;
+
+$card-bg: #10151f;
+$card-border-color: $border-color;
+
+$border-radius: 0.3rem;
+$border-radius-sm: 0.2rem;
+$border-radius-lg: 0.4rem;
+
+$font-family-sans-serif:
+  'Chakra Petch',
+  -apple-system,
+  BlinkMacSystemFont,
+  'Segoe UI',
+  'Roboto',
+  sans-serif;
+
+// Bootstrap's "-subtle" bg/border variants tint toward white by default,
+// which is unreadable against our light body text on a dark theme. Mix
+// toward the dark body background instead so they stay dark surfaces.
+$primary-bg-subtle: mix($primary, $body-bg, 18%);
+$primary-border-subtle: mix($primary, $body-bg, 45%);
+$success-bg-subtle: mix($success, $body-bg, 18%);
+$success-border-subtle: mix($success, $body-bg, 45%);
+$info-bg-subtle: mix($info, $body-bg, 18%);
+$info-border-subtle: mix($info, $body-bg, 45%);
+$warning-bg-subtle: mix($warning, $body-bg, 18%);
+$warning-border-subtle: mix($warning, $body-bg, 45%);
+$danger-bg-subtle: mix($danger, $body-bg, 18%);
+$danger-border-subtle: mix($danger, $body-bg, 45%);

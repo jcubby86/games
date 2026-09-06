@@ -59,17 +59,9 @@ function RouteComponent() {
       </main>
 
       <footer className="footer py-2 px-4 d-flex gap-3">
-        <a
-          href="https://github.com/jcubby86/games"
-          className="text-dark text-decoration-none link-danger ms-auto"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <Icon icon="github" className="fs-2" />
-        </a>
-        <a
+        {/* <a
           href="https://www.linkedin.com/in/jacob-bastian-643033206/"
-          className="text-dark text-decoration-none link-info"
+          className="text-decoration-none link-primary"
           target="_blank"
           rel="noreferrer"
         >
@@ -77,18 +69,26 @@ function RouteComponent() {
         </a>
         <a
           href="mailto:games@muffinjr.com?&subject=Hello!&body=I'm reaching out about"
-          className="text-dark text-decoration-none link-success"
+          className="text-decoration-none link-success"
           target="_blank"
           rel="noreferrer"
         >
           <Icon icon="envelope-fill" className="fs-2" />
+        </a> */}
+        <a
+          href="https://github.com/jcubby86/games"
+          className="text-decoration-none link-info ms-auto"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <Icon icon="github" className="fs-2" />
         </a>
         <Link
           to="/privacy"
-          className="text-dark text-decoration-none link-primary"
+          className="text-decoration-none link-primary"
           title="Privacy Policy"
         >
-          <Icon icon="shield-fill-check" className="fs-2" />
+          <Icon icon="shield-check" className="fs-2" />
         </Link>
       </footer>
     </>
