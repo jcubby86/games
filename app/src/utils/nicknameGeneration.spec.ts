@@ -13,7 +13,7 @@ describe('generateNickname', () => {
 
   it('generates different nicknames across many calls', () => {
     const nicknames = new Set(
-      Array.from({ length: 20 }, () => generateNickname())
+      Array.from({ length: 20 }, () => generateNickname()),
     );
 
     expect(nicknames.size).toBeGreaterThan(1);

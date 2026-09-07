@@ -21,7 +21,7 @@ const RecreateButton = ({ className, to }: RecreateButtonProps) => {
 
   const createGameMutation = useMutation({
     mutationFn: () => postGame(context.game!.type),
-    onError: (err: unknown) => alertError('Unable to create game', err)
+    onError: (err: unknown) => alertError('Unable to create game', err),
   });
 
   const createPlayerMutation = useMutation({
@@ -34,14 +34,14 @@ const RecreateButton = ({ className, to }: RecreateButtonProps) => {
         type: 'save',
         game: playerResponse.data.game!,
         player: playerResponse.data,
-        token: playerResponse.headers['x-auth-token'] as string
+        token: playerResponse.headers['x-auth-token'] as string,
       });
 
       if (to) {
         await navigate({ to: to as any });
       }
     },
-    onError: (err: unknown) => alertError('Unable to create player', err)
+    onError: (err: unknown) => alertError('Unable to create player', err),
   });
 
   const recreateGameHandler = () => {
@@ -54,7 +54,7 @@ const RecreateButton = ({ className, to }: RecreateButtonProps) => {
       onConfirm: async () => {
         const gameResponse = await createGameMutation.mutateAsync();
         await createPlayerMutation.mutateAsync({ game: gameResponse.data });
-      }
+      },
     });
   };
 

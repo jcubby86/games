@@ -16,7 +16,7 @@ function suggestionOptions(
   category: string,
   quantity: number,
   offsetKey: number,
-  noAi: boolean
+  noAi: boolean,
 ) {
   return queryOptions({
     queryKey: ['suggestions', { category, quantity, offsetKey, noAi }],
@@ -25,14 +25,14 @@ function suggestionOptions(
       return response.data;
     },
     retry: false,
-    staleTime: Infinity
+    staleTime: Infinity,
   });
 }
 
 export const useSuggestions = ({
   initialCategory,
   quantity,
-  prefetchCategories
+  prefetchCategories,
 }: UseSuggestionsArgs) => {
   const queryClient = useQueryClient();
   const { noAi } = useAiSuggestionsSetting();
@@ -44,7 +44,7 @@ export const useSuggestions = ({
   const offsetKey = Math.floor(offset / quantity);
 
   const suggestionQuery = useQuery(
-    suggestionOptions(token, category, quantity, offsetKey, noAi)
+    suggestionOptions(token, category, quantity, offsetKey, noAi),
   );
 
   const prefetch = useEffectEvent(() => {
@@ -53,7 +53,7 @@ export const useSuggestions = ({
     }
     prefetchCategories.forEach((cat) => {
       void queryClient.prefetchQuery(
-        suggestionOptions(token, cat, quantity, 0, noAi)
+        suggestionOptions(token, cat, quantity, 0, noAi),
       );
     });
   });
@@ -68,14 +68,14 @@ export const useSuggestions = ({
       return;
     }
     void queryClient.prefetchQuery(
-      suggestionOptions(token, category, quantity, offsetKey + 1, noAi)
+      suggestionOptions(token, category, quantity, offsetKey + 1, noAi),
     );
   }, [category, quantity, offset, offsetKey, noAi, queryClient, token]);
 
   const nextSuggestion = useCallback(() => {
     setOffsets((prev) => ({
       ...prev,
-      [category]: offset + 1
+      [category]: offset + 1,
     }));
   }, [category, offset]);
 
@@ -84,7 +84,7 @@ export const useSuggestions = ({
       nextSuggestion();
       setCategory((prev) => newCategory ?? prev);
     },
-    [nextSuggestion]
+    [nextSuggestion],
   );
 
   const currentSuggestion = suggestionQuery.isSuccess
@@ -95,6 +95,6 @@ export const useSuggestions = ({
     suggestion: currentSuggestion?.value ?? '',
     suggestionUuid: currentSuggestion?.uuid,
     updateCategory,
-    nextSuggestion
+    nextSuggestion,
   };
 };

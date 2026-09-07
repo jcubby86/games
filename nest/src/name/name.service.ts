@@ -9,7 +9,7 @@ import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 
 import { isPrismaUniqueError } from 'src/filters/prisma-exception.filter';
 import { nameEntryMaxLength } from 'src/game/game.constants';
-import { GameService } from 'src/game/game.service';
+import { mapToGameDto, mapToPlayerDto } from 'src/game/game.mappers';
 import type { GameUpdatedEvent } from 'src/game/game.service';
 import {
   Game,
@@ -171,12 +171,12 @@ export class NameService {
     const playerMap = await this.getPlayerSubmissionMap(game);
     const entries = Array.from(playerMap.values());
 
-    const response = GameService.mapToPlayerDto(
+    const response = mapToPlayerDto(
       player,
       playerMap.get(player.uuid)!.canSubmit(),
-      GameService.mapToGameDto(
+      mapToGameDto(
         game,
-        entries.map((e) => GameService.mapToPlayerDto(e.player, e.canSubmit())),
+        entries.map((e) => mapToPlayerDto(e.player, e.canSubmit())),
       ),
       roles,
     );

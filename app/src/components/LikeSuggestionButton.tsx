@@ -18,7 +18,7 @@ const LikeSuggestionButton = ({
   uuid,
   disabled,
   className,
-  size
+  size,
 }: LikeSuggestionButtonProps) => {
   const { context } = useAppContext();
   const [liked, setLiked] = useState(false);
@@ -26,7 +26,7 @@ const LikeSuggestionButton = ({
   const likeMutation = useMutation({
     mutationFn: () => postSuggestionLike(context.token!, uuid!),
     onSuccess: () => setLiked(true),
-    onError: (err: unknown) => alertError('Error saving like', err)
+    onError: (err: unknown) => alertError('Error saving like', err),
   });
 
   return (

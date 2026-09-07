@@ -1,7 +1,7 @@
 import { SuggestionDto } from '@games/shared';
 import { Injectable } from '@nestjs/common';
 
-import { SuggestionProvider } from './suggestion.factory';
+import type { SuggestionProvider } from './suggestion.factory';
 import { shuffle } from './suggestion.utils';
 import { Category, SuggestionType } from 'src/generated/prisma/client';
 import { PrismaService } from 'src/prisma.service';

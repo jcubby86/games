@@ -5,7 +5,7 @@ const foods = [
   'danish',
   'eclair',
   'chocolate',
-  'cheese'
+  'cheese',
 ];
 const animals = [
   'aphid',
@@ -14,7 +14,7 @@ const animals = [
   'monkey',
   'shrimp',
   'zebra',
-  'flamingo'
+  'flamingo',
 ];
 const objects = [
   'frost',
@@ -26,7 +26,7 @@ const objects = [
   'ring',
   'tree',
   'oak',
-  'cable'
+  'cable',
 ];
 const places = [
   'saloon',
@@ -36,7 +36,7 @@ const places = [
   'ocean',
   'town',
   'chapel',
-  'beach'
+  'beach',
 ];
 const verbs = [
   'stand',
@@ -49,7 +49,7 @@ const verbs = [
   'think',
   'invent',
   'join',
-  'goto'
+  'goto',
 ];
 const adjectives = [
   'dirty',
@@ -63,7 +63,7 @@ const adjectives = [
   'yellow',
   'purple',
   'limp',
-  'funky'
+  'funky',
 ];
 
 function randomNumber(limit: number) {

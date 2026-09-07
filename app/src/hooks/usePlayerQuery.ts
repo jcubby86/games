@@ -6,12 +6,12 @@ import { getPlayer } from '../utils/apiClient';
 
 const transformGame = (
   game: GameDto | undefined,
-  updates: Partial<GameDto>
+  updates: Partial<GameDto>,
 ) => {
   if (!game) return undefined;
   return {
     ...game,
-    ...updates
+    ...updates,
   };
 };
 
@@ -26,18 +26,18 @@ export const usePlayerQuery = () => {
     queryFn: async () => {
       const playerResponse = await getPlayer(
         context.token!,
-        context.player!.uuid
+        context.player!.uuid,
       );
       return playerResponse.data;
     },
     enabled: !!context.player?.uuid && !!context.token,
-    staleTime: 120000 // 2 minutes
+    staleTime: 120000, // 2 minutes
   });
 
   const invalidatePlayerQuery = async () => {
     if (!playerQuery.isFetching) {
       await queryClient.invalidateQueries({
-        queryKey
+        queryKey,
       });
     }
   };
@@ -56,14 +56,14 @@ export const usePlayerQuery = () => {
       const players: PlayerDto[] | undefined = oldData.game?.players?.map(
         (p) => ({
           ...p,
-          canSubmit: p.uuid !== oldData.uuid && p.canSubmit
-        })
+          canSubmit: p.uuid !== oldData.uuid && p.canSubmit,
+        }),
       );
 
       return {
         ...oldData,
         canSubmit: false,
-        game: transformGame(oldData.game, { players })
+        game: transformGame(oldData.game, { players }),
       } satisfies PlayerDto;
     });
   };
@@ -72,7 +72,7 @@ export const usePlayerQuery = () => {
     setPlayerQueryData((oldData) => {
       return {
         ...oldData,
-        game: transformGame(oldData.game, { phase })
+        game: transformGame(oldData.game, { phase }),
       } satisfies PlayerDto;
     });
   };
@@ -81,6 +81,6 @@ export const usePlayerQuery = () => {
     playerQuery,
     invalidatePlayerQuery,
     setPlayerSubmitted,
-    setGamePhase
+    setGamePhase,
   };
 };

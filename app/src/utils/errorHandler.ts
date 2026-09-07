@@ -19,11 +19,11 @@ const getErrorMessages = (message: string, err: unknown) => {
     return { friendly, detailed };
   } else if (err instanceof Error) {
     return {
-      detailed: `${message}: ${err.message}`
+      detailed: `${message}: ${err.message}`,
     };
   } else {
     return {
-      detailed: `${message}: ${String(err)}`
+      detailed: `${message}: ${String(err)}`,
     };
   }
 };
@@ -42,7 +42,7 @@ export const alertError = (message: string, err: unknown): void => {
     showToast({
       message: errorMessage.friendly ?? message,
       header: 'Error',
-      type: 'danger'
+      type: 'danger',
     });
   }
 };

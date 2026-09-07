@@ -15,7 +15,7 @@ import { alertError, logError } from '../utils/errorHandler';
 import { gameVariants } from '../utils/gameVariants';
 
 export const Route = createFileRoute('/create')({
-  component: RouteComponent
+  component: RouteComponent,
 });
 
 function RouteComponent() {
@@ -29,12 +29,12 @@ function RouteComponent() {
   const leaveGameMutation = useMutation({
     mutationFn: () => deletePlayer(context.token!, context.player!.uuid),
     onError: (err: unknown) => logError('Error leaving game', err),
-    onSettled: () => dispatchContext({ type: 'clear' })
+    onSettled: () => dispatchContext({ type: 'clear' }),
   });
 
   const createGameMutation = useMutation({
     mutationFn: async ({ type }: { type: string }) => postGame(type),
-    onError: (err: unknown) => alertError('Error creating game', err)
+    onError: (err: unknown) => alertError('Error creating game', err),
   });
 
   const createPlayerMutation = useMutation({
@@ -45,15 +45,15 @@ function RouteComponent() {
         type: 'save',
         player: playerResponse.data,
         game: playerResponse.data.game!,
-        token: playerResponse.headers['x-auth-token'] as string
+        token: playerResponse.headers['x-auth-token'] as string,
       }),
-    onError: (err: unknown) => alertError('Error creating player', err)
+    onError: (err: unknown) => alertError('Error creating player', err),
   });
 
   const mutations = [
     leaveGameMutation,
     createGameMutation,
-    createPlayerMutation
+    createPlayerMutation,
   ];
 
   const submit = async () => {
@@ -71,23 +71,23 @@ function RouteComponent() {
         body: 'Are you sure you want to create a new game? You will leave your current game.',
         onConfirm: async () => {
           const gameResponse = await createGameMutation.mutateAsync({
-            type: gameType.toUpperCase()
+            type: gameType.toUpperCase(),
           });
           await leaveGameMutation.mutateAsync();
           await createPlayerMutation.mutateAsync({
             game: gameResponse.data,
-            nickname
+            nickname,
           });
           await navigate({ to: `/${gameType}` as any });
-        }
+        },
       });
     } else {
       const gameResponse = await createGameMutation.mutateAsync({
-        type: gameType.toUpperCase()
+        type: gameType.toUpperCase(),
       });
       await createPlayerMutation.mutateAsync({
         game: gameResponse.data,
-        nickname
+        nickname,
       });
       await navigate({ to: `/${gameType}` as any });
     }

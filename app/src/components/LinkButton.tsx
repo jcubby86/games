@@ -16,7 +16,7 @@ export const LinkButton = ({
   variant,
   size,
   className,
-  to
+  to,
 }: LinkButtonProps) => {
   const navigate = useNavigate();
 

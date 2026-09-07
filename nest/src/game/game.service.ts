@@ -8,6 +8,7 @@ import {
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { gameCodeLength, nicknameMaxLength } from './game.constants';
+import { mapToGameDto, mapToPlayerDto } from './game.mappers';
 import { isPrismaUniqueError } from 'src/filters/prisma-exception.filter';
 import { Game, GamePhase, GameType, Player } from 'src/generated/prisma/client';
 import { NameService } from 'src/name/name.service';
@@ -40,31 +41,6 @@ export class GameService {
     return code;
   }
 
-  static mapToGameDto(game: Game, players?: PlayerDto[]): GameDto {
-    return {
-      type: game.type,
-      code: game.code,
-      uuid: game.uuid,
-      phase: game.phase,
-      players,
-    };
-  }
-
-  static mapToPlayerDto(
-    player: Player,
-    canSubmit?: boolean,
-    game?: GameDto,
-    roles?: string[],
-  ): PlayerDto {
-    return {
-      uuid: player.uuid,
-      nickname: player.nickname,
-      canSubmit: canSubmit ?? false,
-      game,
-      roles,
-    };
-  }
-
   async createGame(type: string): Promise<GameDto> {
     if (!Object.values(GameType).includes(type as GameType)) {
       throw new BadRequestException('Invalid Game Type');
@@ -77,7 +53,7 @@ export class GameService {
       },
     });
 
-    return GameService.mapToGameDto(game);
+    return mapToGameDto(game);
   }
 
   async getGameByCode(code: string): Promise<GameDto> {
@@ -87,7 +63,7 @@ export class GameService {
     if (!game) {
       throw new NotFoundException('Game not found');
     }
-    return GameService.mapToGameDto(game);
+    return mapToGameDto(game);
   }
 
   async getGame(uuid: string): Promise<GameDto> {
@@ -100,9 +76,9 @@ export class GameService {
     if (!game) {
       throw new NotFoundException('Game not found');
     }
-    return GameService.mapToGameDto(
+    return mapToGameDto(
       game,
-      game.players.map((p) => GameService.mapToPlayerDto(p)),
+      game.players.map((p) => mapToPlayerDto(p)),
     );
   }
 
@@ -126,7 +102,7 @@ export class GameService {
       player: null,
     } satisfies GameUpdatedEvent);
 
-    return GameService.mapToGameDto(game);
+    return mapToGameDto(game);
   }
 
   async addPlayer(gameUuid: string, nickname: string): Promise<PlayerDto> {
@@ -219,7 +195,7 @@ export class GameService {
     if (!player) {
       throw new NotFoundException('Player not found');
     } else if (!player.game) {
-      return GameService.mapToPlayerDto(player);
+      return mapToPlayerDto(player);
     }
 
     const roles: string[] = [];
@@ -258,6 +234,6 @@ export class GameService {
       player.game = null;
     }
 
-    return GameService.mapToPlayerDto(player);
+    return mapToPlayerDto(player);
   }
 }

@@ -58,6 +58,6 @@ export function ToastPortal() {
         </Toast>
       </ToastContainer>
     </div>,
-    document.body
+    document.body,
   );
 }

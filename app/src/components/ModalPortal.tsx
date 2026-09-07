@@ -78,6 +78,6 @@ export function ModalPortal() {
         </SpinnerButton>
       </Modal.Footer>
     </Modal>,
-    document.body
+    document.body,
   );
 }

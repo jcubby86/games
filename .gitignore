@@ -39,5 +39,6 @@ app/test-results
 app/.tanstack
 app/.vite
 .generated
+.eslintcache
 
 compose.test.yml

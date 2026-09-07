@@ -22,7 +22,7 @@ import { alertError } from '../utils/errorHandler';
 import { StoryVariant } from '../utils/gameVariants';
 
 export const Route = createFileRoute('/story')({
-  component: RouteComponent
+  component: RouteComponent,
 });
 
 const categories = [
@@ -30,7 +30,7 @@ const categories = [
   'FEMALE_NAME',
   'STATEMENT',
   'PRESENT_ACTION',
-  'PAST_ACTION'
+  'PAST_ACTION',
 ];
 
 function RouteComponent() {
@@ -39,7 +39,7 @@ function RouteComponent() {
     useSuggestions({
       initialCategory: categories[0],
       quantity: 5,
-      prefetchCategories: categories
+      prefetchCategories: categories,
     });
 
   const { context } = useAppContext(true);
@@ -52,7 +52,7 @@ function RouteComponent() {
       const response = await postStoryEntry(
         context.token!,
         context.player!.uuid,
-        value
+        value,
       );
       return response.data;
     },
@@ -61,7 +61,7 @@ function RouteComponent() {
       updateCategory(data.hint?.category);
       setPlayerSubmitted();
     },
-    onError: (err: unknown) => alertError('Error saving entry', err)
+    onError: (err: unknown) => alertError('Error saving entry', err),
   });
 
   const player = playerQuery.data;
@@ -80,14 +80,14 @@ function RouteComponent() {
           body: `You haven't entered anything. Do you want to use the placeholder "${suggestion}"?`,
           onConfirm: () =>
             postStoryMutation.mutateAsync({
-              value: suggestion
-            })
+              value: suggestion,
+            }),
         });
         return;
       }
 
       postStoryMutation.mutate({
-        value: entryRef.current.value
+        value: entryRef.current.value,
       });
     };
 

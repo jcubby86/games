@@ -8,7 +8,7 @@ function axiosErrorWithResponse(status: number, message: string) {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   return new AxiosError('Request failed', undefined, undefined, undefined, {
     status,
-    data: { message }
+    data: { message },
   } as any);
 }
 
@@ -38,11 +38,11 @@ describe('logError', () => {
 
     logError(
       'Error joining game',
-      axiosErrorWithResponse(404, 'Game not found')
+      axiosErrorWithResponse(404, 'Game not found'),
     );
 
     expect(spy).toHaveBeenCalledWith(
-      'Error joining game (404): Game not found'
+      'Error joining game (404): Game not found',
     );
   });
 });
@@ -63,7 +63,7 @@ describe('alertError', () => {
     expect(toastSpy).toHaveBeenCalledWith({
       message: 'Error joining game',
       header: 'Error',
-      type: 'danger'
+      type: 'danger',
     });
   });
 
@@ -75,13 +75,13 @@ describe('alertError', () => {
 
     alertError(
       'Error joining game',
-      axiosErrorWithResponse(404, 'Game not found')
+      axiosErrorWithResponse(404, 'Game not found'),
     );
 
     expect(toastSpy).toHaveBeenCalledWith({
       message: 'Error joining game: Game not found',
       header: 'Error',
-      type: 'danger'
+      type: 'danger',
     });
   });
 

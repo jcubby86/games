@@ -13,7 +13,7 @@ import {
   deletePlayer,
   getGameByCode,
   patchPlayer,
-  postPlayer
+  postPlayer,
 } from '../utils/apiClient';
 import { gameCodeLength, nicknameMaxLength } from '../utils/constants';
 import { alertError, logError } from '../utils/errorHandler';
@@ -25,9 +25,9 @@ interface JoinSearch {
 
 export const Route = createFileRoute('/join')({
   validateSearch: (search: Record<string, unknown>): JoinSearch => ({
-    code: typeof search.code === 'string' ? search.code : undefined
+    code: typeof search.code === 'string' ? search.code : undefined,
   }),
-  component: RouteComponent
+  component: RouteComponent,
 });
 
 function RouteComponent() {
@@ -52,13 +52,13 @@ function RouteComponent() {
     },
     enabled: code?.length === 4,
     retry: false,
-    staleTime: 300000 // 5 minutes
+    staleTime: 300000, // 5 minutes
   });
 
   const leaveGameMutation = useMutation({
     mutationFn: () => deletePlayer(context.token!, context.player!.uuid),
     onError: (err: unknown) => logError('Error leaving game', err),
-    onSettled: () => dispatchContext({ type: 'clear' })
+    onSettled: () => dispatchContext({ type: 'clear' }),
   });
 
   const updatePlayerMutation = useMutation({
@@ -69,11 +69,11 @@ function RouteComponent() {
         type: 'save',
         game: playerResponse.data.game!,
         player: playerResponse.data,
-        token: playerResponse.headers['x-auth-token'] as string
+        token: playerResponse.headers['x-auth-token'] as string,
       }),
     onError: (err: unknown) => {
       alertError('Error updating nickname', err);
-    }
+    },
   });
 
   const createPlayerMutation = useMutation({
@@ -84,17 +84,17 @@ function RouteComponent() {
         type: 'save',
         player: playerResponse.data,
         game: playerResponse.data.game!,
-        token: playerResponse.headers['x-auth-token'] as string
+        token: playerResponse.headers['x-auth-token'] as string,
       }),
     onError: (err: unknown) => {
       alertError('Error joining game', err);
-    }
+    },
   });
 
   const mutations = [
     leaveGameMutation,
     updatePlayerMutation,
-    createPlayerMutation
+    createPlayerMutation,
   ];
 
   const leaveGame = () => {
@@ -108,7 +108,7 @@ function RouteComponent() {
         await leaveGameMutation.mutateAsync();
         setCode(null);
       },
-      confirmVariant: 'danger'
+      confirmVariant: 'danger',
     });
   };
 
@@ -139,15 +139,15 @@ function RouteComponent() {
           await leaveGameMutation.mutateAsync();
           await createPlayerMutation.mutateAsync({
             game: gameQuery.data,
-            nickname
+            nickname,
           });
           await navigate({ to: `/${gameType}` as any });
-        }
+        },
       });
     } else {
       await createPlayerMutation.mutateAsync({
         game: gameQuery.data,
-        nickname
+        nickname,
       });
       await navigate({ to: `/${gameType}` as any });
     }
@@ -156,7 +156,7 @@ function RouteComponent() {
   const formEnabled =
     gameQuery.isSuccess && nickname && mutations.every((m) => !m.isPending);
   const gameVariant = gameVariants.find(
-    (v) => v.type === gameQuery.data?.type.toLowerCase()
+    (v) => v.type === gameQuery.data?.type.toLowerCase(),
   );
   const title = gameVariant ? gameVariant.title : 'Join Game';
 

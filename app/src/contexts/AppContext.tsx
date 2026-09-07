@@ -6,7 +6,7 @@ import {
   useContext,
   useEffect,
   useReducer,
-  useState
+  useState,
 } from 'react';
 
 export interface AppState {
@@ -26,7 +26,7 @@ interface AppContextType {
 const STORAGE_KEYS = {
   PLAYER_ID: 'games-v3-player-id',
   GAME_ID: 'games-v3-game-id',
-  TOKEN: 'games-v3-token'
+  TOKEN: 'games-v3-token',
 };
 
 // Helper functions for localStorage
@@ -43,13 +43,13 @@ const loadFromStorage = (): AppState => {
     return {
       player:
         (JSON.parse(
-          localStorage.getItem(STORAGE_KEYS.PLAYER_ID) || 'null'
+          localStorage.getItem(STORAGE_KEYS.PLAYER_ID) || 'null',
         ) as PlayerDto) || undefined,
       game:
         (JSON.parse(
-          localStorage.getItem(STORAGE_KEYS.GAME_ID) || 'null'
+          localStorage.getItem(STORAGE_KEYS.GAME_ID) || 'null',
         ) as GameDto) || undefined,
-      token: localStorage.getItem(STORAGE_KEYS.TOKEN) || undefined
+      token: localStorage.getItem(STORAGE_KEYS.TOKEN) || undefined,
     };
   } catch {
     return {};
@@ -75,14 +75,14 @@ const reducer = (prev: AppState, action: Action): AppState => {
         player: {
           uuid: action.player.uuid,
           nickname: action.player.nickname,
-          roles: action.player.roles
+          roles: action.player.roles,
         },
         game: {
           uuid: action.game.uuid,
           code: action.game.code,
-          type: action.game.type
+          type: action.game.type,
         },
-        token: action.token
+        token: action.token,
       };
       saveToStorage(newState);
       return newState;
@@ -97,7 +97,7 @@ const reducer = (prev: AppState, action: Action): AppState => {
 const AppContext = createContext<AppContextType | null>(null);
 
 export const AppContextProvider = ({
-  children
+  children,
 }: {
   children: React.ReactElement;
 }) => {

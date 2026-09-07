@@ -4,12 +4,12 @@ test.describe('routing', () => {
   test('home page loads', async ({ page }) => {
     await page.goto('/');
     await expect(
-      page.getByText('Games', { exact: true }).first()
+      page.getByText('Games', { exact: true }).first(),
     ).toBeVisible();
   });
 
   test('prefills the game code from a ?code= search param', async ({
-    page
+    page,
   }) => {
     await page.goto('/join?code=ABCD');
     await expect(page.locator('#codeInput')).toHaveValue('abcd');
@@ -21,7 +21,7 @@ test.describe('routing', () => {
   });
 
   test('redirects home when visiting a protected route without a session', async ({
-    page
+    page,
   }) => {
     await page.goto('/story');
     await expect(page).toHaveURL('/');
@@ -39,7 +39,7 @@ test.describe('routing', () => {
   });
 
   test('resolves the story archive route for an arbitrary game id', async ({
-    page
+    page,
   }) => {
     await page.goto('/story/00000000-0000-0000-0000-000000000000');
     await expect(page).toHaveURL('/story/00000000-0000-0000-0000-000000000000');

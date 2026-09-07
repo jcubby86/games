@@ -7,7 +7,7 @@ import {
   useEffect,
   useEffectEvent,
   useRef,
-  useState
+  useState,
 } from 'react';
 import { Socket, io } from 'socket.io-client';
 
@@ -27,7 +27,7 @@ interface SocketContextType {
 const SocketContext = createContext<SocketContextType | null>(null);
 
 export const SocketContextProvider = ({
-  children
+  children,
 }: {
   children: React.ReactElement;
 }) => {
@@ -45,11 +45,11 @@ export const SocketContextProvider = ({
         type: 'save',
         game: playerResponse.data.game!,
         player: playerResponse.data,
-        token: playerResponse.headers['x-auth-token'] as string
+        token: playerResponse.headers['x-auth-token'] as string,
       });
       const path = `/${playerResponse.data.game!.type.toLowerCase()}`;
       await navigate({ to: path as any });
-    }
+    },
   });
 
   const handleConnect = useEffectEvent(() => {
@@ -87,7 +87,7 @@ export const SocketContextProvider = ({
         <>
           {nickname} <Icon icon="hand-index-thumb" />
         </>
-      )
+      ),
     });
   });
 
@@ -98,8 +98,8 @@ export const SocketContextProvider = ({
 
     socketRef.current = io({
       auth: {
-        bearer: context.token
-      }
+        bearer: context.token,
+      },
     });
 
     socketRef.current.on('connect', handleConnect);
@@ -132,7 +132,7 @@ export const SocketContextProvider = ({
         emit,
         on,
         off,
-        connected
+        connected,
       }}
     >
       {children}

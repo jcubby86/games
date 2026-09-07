@@ -3,6 +3,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { gameCodeLength } from './game.constants';
+import { mapToGameDto, mapToPlayerDto } from './game.mappers';
 import { GameService } from './game.service';
 import { isPrismaUniqueError } from 'src/filters/prisma-exception.filter';
 import { Game, Player } from 'src/generated/prisma/client';
@@ -105,7 +106,7 @@ describe('GameService', () => {
   describe('mapToGameDto', () => {
     it('maps game fields and omits players when not provided', () => {
       const game = makeGame();
-      expect(GameService.mapToGameDto(game)).toEqual({
+      expect(mapToGameDto(game)).toEqual({
         type: game.type,
         code: game.code,
         uuid: game.uuid,
@@ -118,7 +119,7 @@ describe('GameService', () => {
   describe('mapToPlayerDto', () => {
     it('defaults canSubmit to false when omitted', () => {
       const player = makePlayer();
-      expect(GameService.mapToPlayerDto(player)).toEqual({
+      expect(mapToPlayerDto(player)).toEqual({
         uuid: player.uuid,
         nickname: player.nickname,
         canSubmit: false,
@@ -146,7 +147,7 @@ describe('GameService', () => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         data: { code: expect.any(String), type: 'NAME' },
       });
-      expect(result).toEqual(GameService.mapToGameDto(game));
+      expect(result).toEqual(mapToGameDto(game));
     });
   });
 
@@ -164,7 +165,7 @@ describe('GameService', () => {
 
       const result = await service.getGameByCode('ABCD');
 
-      expect(result).toEqual(GameService.mapToGameDto(game));
+      expect(result).toEqual(mapToGameDto(game));
     });
   });
 
@@ -183,7 +184,7 @@ describe('GameService', () => {
 
       const result = await service.getGame('game-uuid');
 
-      expect(result.players).toEqual([GameService.mapToPlayerDto(player)]);
+      expect(result.players).toEqual([mapToPlayerDto(player)]);
     });
   });
 
@@ -210,7 +211,7 @@ describe('GameService', () => {
         action: 'phase.updated',
         player: null,
       });
-      expect(result).toEqual(GameService.mapToGameDto(game));
+      expect(result).toEqual(mapToGameDto(game));
     });
   });
 
@@ -345,7 +346,7 @@ describe('GameService', () => {
 
       const result = await service.getPlayer('player-uuid');
 
-      expect(result).toEqual(GameService.mapToPlayerDto(player));
+      expect(result).toEqual(mapToPlayerDto(player));
       expect(nameService.getPlayer).not.toHaveBeenCalled();
       expect(storyService.getPlayer).not.toHaveBeenCalled();
     });
@@ -404,7 +405,7 @@ describe('GameService', () => {
         player,
         action: 'player.left',
       });
-      expect(result).toEqual(GameService.mapToPlayerDto(player));
+      expect(result).toEqual(mapToPlayerDto(player));
     });
 
     it('does nothing extra when the player is not in a game', async () => {
@@ -415,7 +416,7 @@ describe('GameService', () => {
 
       expect(prisma.player.update).not.toHaveBeenCalled();
       expect(eventEmitter.emit).not.toHaveBeenCalled();
-      expect(result).toEqual(GameService.mapToPlayerDto(player));
+      expect(result).toEqual(mapToPlayerDto(player));
     });
   });
 });
