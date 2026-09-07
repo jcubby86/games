@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import { Button } from 'react-bootstrap';
 import { ButtonVariant } from 'react-bootstrap/types';
 
@@ -18,15 +18,18 @@ export const LinkButton = ({
   className,
   to
 }: LinkButtonProps) => {
+  const navigate = useNavigate();
+
   return (
     <Button
       variant={variant}
       size={size}
       className={className}
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      as={Link as any}
-      to={to}
-      role="button"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        void navigate({ to: to as any });
+      }}
     >
       {children}
     </Button>

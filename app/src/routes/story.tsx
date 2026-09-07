@@ -154,7 +154,7 @@ function RouteComponent() {
       <Container fluid>
         <h4 className="text-center fw-bold">Your Story:</h4>
         <Row>
-          <p className="col border rounded bg-white lh-lg fs-6 px-3 py-1 text-break">
+          <p className="col border rounded bg-dark lh-lg fs-6 px-3 py-1 text-break">
             {player?.entry?.story}
           </p>
         </Row>
@@ -163,7 +163,7 @@ function RouteComponent() {
           <LinkButton
             to={`/story/${game.uuid}`}
             variant="outline-success"
-            className="col bg-success-subtle center-content"
+            className="col bg-success-subtle"
           >
             See all
           </LinkButton>
