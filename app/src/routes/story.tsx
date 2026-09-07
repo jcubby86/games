@@ -81,8 +81,7 @@ function RouteComponent() {
           onConfirm: () =>
             postStoryMutation.mutateAsync({
               value: suggestion
-            }),
-          confirmVariant: 'warning'
+            })
         });
         return;
       }

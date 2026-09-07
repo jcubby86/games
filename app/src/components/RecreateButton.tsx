@@ -54,8 +54,7 @@ const RecreateButton = ({ className, to }: RecreateButtonProps) => {
       onConfirm: async () => {
         const gameResponse = await createGameMutation.mutateAsync();
         await createPlayerMutation.mutateAsync({ game: gameResponse.data });
-      },
-      confirmVariant: 'success'
+      }
     });
   };
 

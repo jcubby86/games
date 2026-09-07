@@ -10,6 +10,7 @@ type Message = {
   body: string;
   onConfirm: () => Promise<any>;
   confirmVariant?: ButtonVariant;
+  cancelVariant?: ButtonVariant;
 };
 
 const listeners: Array<(m: Message) => void> = [];
@@ -60,11 +61,15 @@ export function ModalPortal() {
       </Modal.Header>
       <Modal.Body>{message?.body}</Modal.Body>
       <Modal.Footer>
-        <Button variant="warning" onClick={cancel} disabled={loading}>
+        <Button
+          variant={message?.cancelVariant || 'warning'}
+          onClick={cancel}
+          disabled={loading}
+        >
           Cancel
         </Button>
         <SpinnerButton
-          variant={message?.confirmVariant || 'primary'}
+          variant={message?.confirmVariant || 'success'}
           onClick={() => void confirm()}
           loading={loading}
           autofocus

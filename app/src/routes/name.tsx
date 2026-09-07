@@ -74,8 +74,7 @@ function RouteComponent() {
           onConfirm: () =>
             postNameMutation.mutateAsync({
               name: suggestion
-            }),
-          confirmVariant: 'warning'
+            })
         });
         return;
       }

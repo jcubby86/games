@@ -27,8 +27,7 @@ const StartGame = ({ title, players }: StartGameProps) => {
     showModal({
       title: 'Start Game',
       body: 'Are you sure you want to start the game? Make sure all players have joined and are ready.',
-      onConfirm: () => updateGameMutation.mutateAsync({ phase: PLAY }),
-      confirmVariant: 'success'
+      onConfirm: () => updateGameMutation.mutateAsync({ phase: PLAY })
     });
   };
 

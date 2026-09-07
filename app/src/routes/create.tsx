@@ -79,8 +79,7 @@ function RouteComponent() {
             nickname
           });
           await navigate({ to: `/${gameType}` as any });
-        },
-        confirmVariant: 'success'
+        }
       });
     } else {
       const gameResponse = await createGameMutation.mutateAsync({
