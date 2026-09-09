@@ -1,0 +1,5 @@
+node_modules
+dist
+
+app/src/routeTree.gen.ts
+nest/src/generated/prisma

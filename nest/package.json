@@ -8,8 +8,8 @@
   "scripts": {
     "build": "nest build",
     "generate": "prisma generate",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "format": "prettier --write . --ignore-path ../.prettierignore",
+    "format:check": "prettier --check . --ignore-path ../.prettierignore",
     "start": "nest start",
     "start:dev": "nest start --watch --preserveWatchOutput",
     "start:debug": "nest start --debug --watch",
