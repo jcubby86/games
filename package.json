@@ -33,7 +33,9 @@
     "typescript-eslint": "^8.54.0"
   },
   "overrides": {
-    "deepmerge-ts": ">=8.0.0"
+    "deepmerge-ts": "^8.0.0",
+    "mysql2": "^3.23.1",
+    "multer": "^2.3.0"
   },
   "allowScripts": {
     "esbuild@0.28.2": true,
