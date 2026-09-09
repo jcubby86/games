@@ -10,16 +10,16 @@ export default defineConfig({
   plugins: [
     devtools(),
     tanstackRouter({ target: 'react', autoCodeSplitting: true }),
-    react()
+    react(),
   ],
   server: {
     proxy: {
       '/api': process.env.VITE_BACKEND_ADDRESS || 'http://localhost:3000',
       '/socket.io': {
         target: process.env.VITE_BACKEND_ADDRESS || 'http://localhost:3000',
-        ws: true
-      }
-    }
+        ws: true,
+      },
+    },
   },
   css: {
     preprocessorOptions: {
@@ -29,9 +29,9 @@ export default defineConfig({
           'color-functions',
           'global-builtin',
           'if-function',
-          'slash-div'
-        ]
-      }
-    }
-  }
+          'slash-div',
+        ],
+      },
+    },
+  },
 });

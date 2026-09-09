@@ -22,14 +22,14 @@ import { alertError } from '../utils/errorHandler';
 import { NameVariant } from '../utils/gameVariants';
 
 export const Route = createFileRoute('/name')({
-  component: RouteComponent
+  component: RouteComponent,
 });
 
 function RouteComponent() {
   useDocumentTitle(NameVariant.title);
   const { suggestion, suggestionUuid, nextSuggestion } = useSuggestions({
     initialCategory: 'MALE_NAME,FEMALE_NAME',
-    quantity: 10
+    quantity: 10,
   });
 
   const { context } = useAppContext(true);
@@ -42,7 +42,7 @@ function RouteComponent() {
       const response = await postNameEntry(
         context.token!,
         context.player!.uuid,
-        name
+        name,
       );
       return response.data;
     },
@@ -51,7 +51,7 @@ function RouteComponent() {
       nextSuggestion();
       setPlayerSubmitted();
     },
-    onError: (err: unknown) => alertError('Error saving entry', err)
+    onError: (err: unknown) => alertError('Error saving entry', err),
   });
 
   const updateGameMutation = useUpdateGameMutation();
@@ -73,9 +73,8 @@ function RouteComponent() {
           body: `You haven't entered anything. Do you want to use the placeholder "${suggestion}"?`,
           onConfirm: () =>
             postNameMutation.mutateAsync({
-              name: suggestion
+              name: suggestion,
             }),
-          confirmVariant: 'warning'
         });
         return;
       }
@@ -150,7 +149,7 @@ function RouteComponent() {
         title: 'Hide Names',
         body: 'Are you sure you want to hide the names? This will start the next phase of the game.',
         onConfirm: () => updateGameMutation.mutateAsync({ phase: END }),
-        confirmVariant: 'danger'
+        confirmVariant: 'danger',
       });
     };
 

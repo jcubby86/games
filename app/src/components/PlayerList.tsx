@@ -18,7 +18,7 @@ const PlayerList = ({ players, showText }: PlayerListProps) => {
   function setPokeCount(uuid: string, fun: (count: number) => number) {
     setPokeCounts((prev) => ({
       ...prev,
-      [uuid]: fun(prev[uuid] ?? 0)
+      [uuid]: fun(prev[uuid] ?? 0),
     }));
   }
 
@@ -27,7 +27,7 @@ const PlayerList = ({ players, showText }: PlayerListProps) => {
       return;
     }
     socket.emit('poke', {
-      data: { to: p } satisfies PokeMessageData
+      data: { to: p } satisfies PokeMessageData,
     });
 
     setPokeCount(p.uuid, (count) => Math.max(count - 1, 0));

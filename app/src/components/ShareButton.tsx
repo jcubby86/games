@@ -21,7 +21,7 @@ const ShareButton = ({ className, path, text }: ShareProps) => {
         await navigator.share({
           title: document.title,
           text: text,
-          url: getUrl()
+          url: getUrl(),
         });
       }
     } catch (err: unknown) {

@@ -7,9 +7,10 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "tsc -p tsconfig.json --watch",
-    "typecheck": "tsc --noEmit"
-  },
-  "devDependencies": {
-    "typescript": "^5.9.3"
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint --fix --cache",
+    "lint:check": "eslint",
+    "format": "prettier --write . --ignore-path ../.prettierignore",
+    "format:check": "prettier --check . --ignore-path ../.prettierignore"
   }
 }

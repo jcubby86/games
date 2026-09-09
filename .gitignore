@@ -38,6 +38,8 @@ app/playwright-report
 app/test-results
 app/.tanstack
 app/.vite
+nest/src/generated/prisma
 .generated
+.eslintcache
 
 compose.test.yml

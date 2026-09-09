@@ -8,7 +8,7 @@ import { LinkButton } from '../components/LinkButton';
 import { useAppContext, useDocumentTitle } from '../contexts/AppContext';
 
 export const Route = createFileRoute('/')({
-  component: RouteComponent
+  component: RouteComponent,
 });
 
 function RouteComponent() {
@@ -39,7 +39,7 @@ function RouteComponent() {
             variant={context.game ? 'outline-success' : 'success'}
             className={clsx(
               'd-flex flex-column fw-bold col',
-              context.game && 'bg-success-subtle'
+              context.game && 'bg-success-subtle',
             )}
           >
             <Icon icon="person-fill-up"></Icon>
@@ -51,7 +51,7 @@ function RouteComponent() {
             variant={context.game ? 'outline-success' : 'success'}
             className={clsx(
               'd-flex flex-column fw-bold col',
-              context.game && 'bg-success-subtle'
+              context.game && 'bg-success-subtle',
             )}
           >
             <Icon icon="person-fill-add"></Icon>

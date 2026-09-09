@@ -13,7 +13,7 @@ const Glitch = ({ text, size, className = '' }: GlitchProps) => {
         'glitch',
         size && `glitch-${size}`,
         'text-center',
-        className
+        className,
       )}
       style={{ '--glitch-text': `"${text}"` } as React.CSSProperties}
     >

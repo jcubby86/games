@@ -28,7 +28,6 @@ const StartGame = ({ title, players }: StartGameProps) => {
       title: 'Start Game',
       body: 'Are you sure you want to start the game? Make sure all players have joined and are ready.',
       onConfirm: () => updateGameMutation.mutateAsync({ phase: PLAY }),
-      confirmVariant: 'success'
     });
   };
 

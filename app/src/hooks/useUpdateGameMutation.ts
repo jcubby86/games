@@ -13,7 +13,7 @@ export const useUpdateGameMutation = () => {
     mutationFn: ({ phase }: { phase: string }) =>
       patchGame(context.token!, context.game!.uuid, phase),
     onSuccess: (gameResponse) => setGamePhase(gameResponse.data.phase),
-    onError: (err: unknown) => alertError('Error updating game', err)
+    onError: (err: unknown) => alertError('Error updating game', err),
   });
 
   return updateGameMutation;

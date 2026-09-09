@@ -16,7 +16,7 @@ function storyEntriesQueryOptions(gameUuid: string) {
       const response = await getStoryEntries(gameUuid);
       return response.data;
     },
-    staleTime: Infinity
+    staleTime: Infinity,
   });
 }
 
@@ -24,13 +24,13 @@ export const Route = createFileRoute('/story_/$gameUuid')({
   loader: async ({ context, params }) => {
     try {
       await context.queryClient.ensureQueryData(
-        storyEntriesQueryOptions(params.gameUuid)
+        storyEntriesQueryOptions(params.gameUuid),
       );
     } catch {
       // let the component's own useQuery surface the error state
     }
   },
-  component: RouteComponent
+  component: RouteComponent,
 });
 
 function RouteComponent() {

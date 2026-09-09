@@ -3,7 +3,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useDocumentTitle } from '../contexts/AppContext';
 
 export const Route = createFileRoute('/privacy')({
-  component: RouteComponent
+  component: RouteComponent,
 });
 
 function RouteComponent() {

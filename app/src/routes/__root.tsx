@@ -2,7 +2,7 @@ import { QueryClient } from '@tanstack/react-query';
 import {
   Link,
   Outlet,
-  createRootRouteWithContext
+  createRootRouteWithContext,
 } from '@tanstack/react-router';
 import { Suspense } from 'react';
 import { Container, Navbar } from 'react-bootstrap';
@@ -25,7 +25,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
         </SocketContextProvider>
       </AppContextProvider>
     </Suspense>
-  )
+  ),
 });
 
 function RouteComponent() {

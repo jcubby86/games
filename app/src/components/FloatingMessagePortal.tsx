@@ -30,7 +30,7 @@ function FloatingMessage({
   duration = 5,
   sway = 80,
   className = '',
-  onFinish
+  onFinish,
 }: Omit<Message, 'id'>) {
   const ref = useRef<HTMLSpanElement | null>(null);
   const [visible, setVisible] = useState(true);
@@ -102,6 +102,6 @@ export function FloatingMessagePortal() {
         </div>
       ))}
     </div>,
-    document.body
+    document.body,
   );
 }

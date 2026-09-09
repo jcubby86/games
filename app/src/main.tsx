@@ -2,13 +2,13 @@ import { TanStackDevtools } from '@tanstack/react-devtools';
 import {
   QueryClient,
   QueryClientProvider,
-  QueryErrorResetBoundary
+  QueryErrorResetBoundary,
 } from '@tanstack/react-query';
 import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools';
 import {
   RouterProvider,
   createRouter,
-  useNavigate
+  useNavigate,
 } from '@tanstack/react-router';
 import type { ErrorComponentProps } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
@@ -58,7 +58,7 @@ const router = createRouter({
   defaultNotFoundComponent: RedirectHome,
   defaultErrorComponent: RouteErrorComponent,
   defaultPreload: 'intent',
-  scrollRestoration: true
+  scrollRestoration: true,
 });
 
 declare module '@tanstack/react-router' {
@@ -99,13 +99,13 @@ createRoot(document.getElementById('root') as HTMLElement).render(
       plugins={[
         {
           name: 'TanStack Query',
-          render: <ReactQueryDevtoolsPanel client={client} />
+          render: <ReactQueryDevtoolsPanel client={client} />,
         },
         {
           name: 'TanStack Router',
-          render: <TanStackRouterDevtoolsPanel router={router} />
-        }
+          render: <TanStackRouterDevtoolsPanel router={router} />,
+        },
       ]}
     />
-  </StrictMode>
+  </StrictMode>,
 );

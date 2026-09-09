@@ -5,7 +5,7 @@ import {
   getGameByCode,
   getSuggestions,
   postGame,
-  postSuggestionLike
+  postSuggestionLike,
 } from './apiClient';
 
 describe('apiClient', () => {
@@ -36,7 +36,7 @@ describe('apiClient', () => {
 
     expect(spy).toHaveBeenCalledWith(
       '/api/suggestions?category=MALE_NAME&quantity=5',
-      { headers: { Authorization: 'Bearer a-token' } }
+      { headers: { Authorization: 'Bearer a-token' } },
     );
   });
 
@@ -47,7 +47,7 @@ describe('apiClient', () => {
 
     expect(spy).toHaveBeenCalledWith(
       '/api/suggestions?category=MALE_NAME&quantity=5&no_ai=true',
-      { headers: { Authorization: 'Bearer a-token' } }
+      { headers: { Authorization: 'Bearer a-token' } },
     );
   });
 
@@ -59,7 +59,7 @@ describe('apiClient', () => {
     expect(spy).toHaveBeenCalledWith(
       '/api/suggestions/suggestion-uuid/like',
       undefined,
-      { headers: { Authorization: 'Bearer a-token' } }
+      { headers: { Authorization: 'Bearer a-token' } },
     );
   });
 });

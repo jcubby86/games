@@ -22,7 +22,7 @@ export const SpinnerButton = ({
   className,
   type,
   onClick,
-  autofocus
+  autofocus,
 }: SpinnerButtonProps) => {
   return (
     <Button

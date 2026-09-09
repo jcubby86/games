@@ -2,7 +2,7 @@
 # Build context is the monorepo root (see .github/workflows/docker-image.yml)
 FROM node:lts-slim AS builder
 WORKDIR /usr/src/repo
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json tsconfig.base.json ./
 COPY shared shared
 COPY app/package.json app/package.json
 COPY nest/package.json nest/package.json
