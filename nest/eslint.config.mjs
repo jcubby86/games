@@ -5,7 +5,7 @@ import baseConfig from '../eslint.config.base.mjs';
 
 export default defineConfig(
   {
-    ignores: ['eslint.config.mjs', 'dist'],
+    ignores: ['eslint.config.mjs', 'dist', 'src/generated/prisma'],
   },
   baseConfig,
   {
