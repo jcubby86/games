@@ -2,6 +2,7 @@
 # Build context is the monorepo root (see .github/workflows/docker-image.yml)
 FROM node:lts-slim AS builder
 WORKDIR /usr/src/repo
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json tsconfig.base.json ./
 COPY shared shared
 COPY app/package.json app/package.json
