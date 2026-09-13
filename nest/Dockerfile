@@ -10,7 +10,7 @@ COPY nest/package.json nest/package.json
 RUN npm ci
 COPY nest nest
 WORKDIR /usr/src/repo/nest
-RUN npm run generate
+RUN npm run prisma:generate
 RUN npm run build
 WORKDIR /usr/src/repo
 RUN npm prune --omit=dev
