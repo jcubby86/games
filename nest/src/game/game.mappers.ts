@@ -21,6 +21,7 @@ export function mapToPlayerDto(
   return {
     uuid: player.uuid,
     nickname: player.nickname,
+    color: player.color,
     canSubmit: canSubmit ?? false,
     game,
     roles,

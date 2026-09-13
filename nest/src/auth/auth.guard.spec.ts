@@ -65,7 +65,7 @@ describe('JwtAuthGuard', () => {
   it('allows a request with a validly signed token', async () => {
     const payload: AuthPayload = {
       game: { uuid: 'game-uuid' },
-      player: { uuid: 'player-uuid', nickname: 'nick' },
+      player: { uuid: 'player-uuid', nickname: 'nick', color: '#e6194b' },
     };
     authService.verifyAsync.mockResolvedValue(payload);
     const context = makeContext({ authorization: 'Bearer good-token' });
@@ -83,7 +83,12 @@ describe('GameAuthGuard', () => {
 
   const payload: AuthPayload = {
     game: { uuid: 'game-uuid' },
-    player: { uuid: 'player-uuid', nickname: 'nick', roles: ['host'] },
+    player: {
+      uuid: 'player-uuid',
+      nickname: 'nick',
+      color: '#e6194b',
+      roles: ['host'],
+    },
   };
 
   beforeEach(async () => {

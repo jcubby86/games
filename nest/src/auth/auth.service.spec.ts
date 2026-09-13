@@ -13,6 +13,7 @@ const gameDto = { uuid: 'game-uuid' } as GameDto;
 const playerDto = {
   uuid: 'player-uuid',
   nickname: 'nick',
+  color: '#e6194b',
   roles: ['host'],
 } as PlayerDto;
 
@@ -59,6 +60,7 @@ describe('AuthService', () => {
           player: {
             uuid: 'player-uuid',
             nickname: 'nick',
+            color: '#e6194b',
             roles: ['host'],
           },
         },

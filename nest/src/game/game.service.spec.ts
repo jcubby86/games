@@ -1,3 +1,4 @@
+import { PLAYER_COLORS } from '@games/shared';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -34,6 +35,7 @@ function makePlayer(overrides: Partial<Player> = {}): Player {
     id: 1,
     uuid: 'player-uuid',
     nickname: 'nick',
+    color: '#e6194b',
     gameId: 1,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -103,6 +105,22 @@ describe('GameService', () => {
     });
   });
 
+  describe('pickPlayerColor', () => {
+    it('excludes colors already used in the game', () => {
+      const used = PLAYER_COLORS.slice(0, PLAYER_COLORS.length - 1);
+      for (let i = 0; i < 20; i++) {
+        expect(service.pickPlayerColor(used)).toBe(
+          PLAYER_COLORS[PLAYER_COLORS.length - 1],
+        );
+      }
+    });
+
+    it('falls back to the full palette once every color is taken', () => {
+      const color = service.pickPlayerColor([...PLAYER_COLORS]);
+      expect(PLAYER_COLORS).toContain(color);
+    });
+  });
+
   describe('mapToGameDto', () => {
     it('maps game fields and omits players when not provided', () => {
       const game = makeGame();
@@ -122,6 +140,7 @@ describe('GameService', () => {
       expect(mapToPlayerDto(player)).toEqual({
         uuid: player.uuid,
         nickname: player.nickname,
+        color: player.color,
         canSubmit: false,
         game: undefined,
         roles: undefined,
@@ -240,7 +259,7 @@ describe('GameService', () => {
     });
 
     it('creates the player, emits an event, and returns it via getPlayer', async () => {
-      const game = makeGame({ phase: GamePhase.JOIN });
+      const game = { ...makeGame({ phase: GamePhase.JOIN }), players: [] };
       const player = makePlayer();
       prisma.game.findUnique.mockResolvedValue(game);
       prisma.player.create.mockResolvedValue(player);
@@ -253,6 +272,8 @@ describe('GameService', () => {
       expect(prisma.player.create).toHaveBeenCalledWith({
         data: {
           nickname: 'nickname',
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          color: expect.any(String),
           game: { connect: { id: game.id } },
         },
       });
@@ -266,9 +287,10 @@ describe('GameService', () => {
     });
 
     it('throws a friendly error when the nickname is already taken', async () => {
-      prisma.game.findUnique.mockResolvedValue(
-        makeGame({ phase: GamePhase.JOIN }),
-      );
+      prisma.game.findUnique.mockResolvedValue({
+        ...makeGame({ phase: GamePhase.JOIN }),
+        players: [],
+      });
       prisma.player.create.mockRejectedValue(new Error('unique violation'));
       mockIsPrismaUniqueError.mockReturnValue(true);
 
@@ -278,9 +300,10 @@ describe('GameService', () => {
     });
 
     it('rethrows unrecognized errors', async () => {
-      prisma.game.findUnique.mockResolvedValue(
-        makeGame({ phase: GamePhase.JOIN }),
-      );
+      prisma.game.findUnique.mockResolvedValue({
+        ...makeGame({ phase: GamePhase.JOIN }),
+        players: [],
+      });
       const dbError = new Error('connection lost');
       prisma.player.create.mockRejectedValue(dbError);
       mockIsPrismaUniqueError.mockReturnValue(false);

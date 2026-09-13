@@ -9,7 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 
 export interface AuthPayload {
   game: { uuid: string };
-  player: { uuid: string; nickname: string; roles?: string[] };
+  player: { uuid: string; nickname: string; color: string; roles?: string[] };
 }
 
 @Injectable()
@@ -34,6 +34,7 @@ export class AuthService {
       player: {
         uuid: player.uuid,
         nickname: player.nickname,
+        color: player.color,
         roles: player.roles,
       },
     };

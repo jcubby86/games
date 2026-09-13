@@ -2,12 +2,14 @@ import { clsx } from 'clsx';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
+import Icon from './Icon';
+
 type Message = {
   id: number;
-  children: React.ReactNode;
   duration?: number;
   sway?: number;
-  className?: string;
+  nickname: string;
+  color?: string;
   onFinish?: () => void;
 };
 
@@ -26,10 +28,10 @@ function calculateSway(maxSway: number) {
 }
 
 function FloatingMessage({
-  children,
   duration = 5,
   sway = 80,
-  className = '',
+  nickname,
+  color,
   onFinish,
 }: Omit<Message, 'id'>) {
   const ref = useRef<HTMLSpanElement | null>(null);
@@ -58,9 +60,15 @@ function FloatingMessage({
   if (!visible) return null;
 
   return (
-    <span ref={ref} className={clsx('float-up-fade', className)}>
-      <span className="float-up-fade__inner no-select border px-1 border-danger-subtle rounded-pill bg-danger-subtle">
-        {children}
+    <span ref={ref} className="float-up-fade">
+      <span
+        className={clsx(
+          'float-up-fade__inner no-select border px-1 rounded-pill text-white',
+          color ? '' : 'bg-danger-subtle border-danger-subtle',
+        )}
+        style={color ? { backgroundColor: color, borderColor: color } : {}}
+      >
+        {nickname} <Icon icon="hand-index-thumb" />
       </span>
     </span>
   );
@@ -92,13 +100,12 @@ export function FloatingMessagePortal() {
           style={{ '--float-start': '40px' } as unknown as React.CSSProperties}
         >
           <FloatingMessage
+            onFinish={() => remove(m.id)}
             duration={m.duration}
             sway={m.sway}
-            className={m.className}
-            onFinish={() => remove(m.id)}
-          >
-            {m.children}
-          </FloatingMessage>
+            nickname={m.nickname}
+            color={m.color}
+          />
         </div>
       ))}
     </div>,

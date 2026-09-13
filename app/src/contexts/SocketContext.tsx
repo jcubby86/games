@@ -13,7 +13,6 @@ import { Socket, io } from 'socket.io-client';
 
 import { useAppContext } from './AppContext';
 import { showFloatingMessage } from '../components/FloatingMessagePortal';
-import Icon from '../components/Icon';
 import { usePlayerQuery } from '../hooks/usePlayerQuery';
 import { postPlayer } from '../utils/apiClient';
 
@@ -81,13 +80,10 @@ export const SocketContextProvider = ({
   });
 
   const handlePoke = useEffectEvent((message: Message<PokeMessageData>) => {
-    const nickname = message.data.from!.nickname;
+    const from = message.data.from!;
     showFloatingMessage({
-      children: (
-        <>
-          {nickname} <Icon icon="hand-index-thumb" />
-        </>
-      ),
+      nickname: from.nickname,
+      color: from.color,
     });
   });
 
