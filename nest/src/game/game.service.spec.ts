@@ -263,9 +263,11 @@ describe('GameService', () => {
       const player = makePlayer();
       prisma.game.findUnique.mockResolvedValue(game);
       prisma.player.create.mockResolvedValue(player);
-      const getPlayerSpy = jest
-        .spyOn(service, 'getPlayer')
-        .mockResolvedValue({ uuid: player.uuid, nickname: player.nickname });
+      const getPlayerSpy = jest.spyOn(service, 'getPlayer').mockResolvedValue({
+        uuid: player.uuid,
+        nickname: player.nickname,
+        color: player.color,
+      });
 
       const result = await service.addPlayer('game-uuid', 'NickName');
 
@@ -283,7 +285,11 @@ describe('GameService', () => {
         action: 'player.joined',
       });
       expect(getPlayerSpy).toHaveBeenCalledWith(player.uuid);
-      expect(result).toEqual({ uuid: player.uuid, nickname: player.nickname });
+      expect(result).toEqual({
+        uuid: player.uuid,
+        nickname: player.nickname,
+        color: player.color,
+      });
     });
 
     it('throws a friendly error when the nickname is already taken', async () => {
@@ -325,9 +331,11 @@ describe('GameService', () => {
       const game = makeGame();
       const player = { ...makePlayer(), game };
       prisma.player.update.mockResolvedValue(player);
-      const getPlayerSpy = jest
-        .spyOn(service, 'getPlayer')
-        .mockResolvedValue({ uuid: player.uuid, nickname: player.nickname });
+      const getPlayerSpy = jest.spyOn(service, 'getPlayer').mockResolvedValue({
+        uuid: player.uuid,
+        nickname: player.nickname,
+        color: player.color,
+      });
 
       const result = await service.updatePlayer('player-uuid', 'NewNick');
 
@@ -342,7 +350,11 @@ describe('GameService', () => {
         action: 'player.updated',
       });
       expect(getPlayerSpy).toHaveBeenCalledWith(player.uuid);
-      expect(result).toEqual({ uuid: player.uuid, nickname: player.nickname });
+      expect(result).toEqual({
+        uuid: player.uuid,
+        nickname: player.nickname,
+        color: player.color,
+      });
     });
 
     it('throws a friendly error when the nickname is already taken', async () => {
