@@ -21,6 +21,8 @@ WORKDIR /usr/src/app
 ENV NODE_ENV=production
 RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /usr/src/repo/node_modules ./node_modules
+COPY --from=builder /usr/src/repo/shared/dist ./shared/dist
+COPY --from=builder /usr/src/repo/shared/package.json ./shared/package.json
 COPY --from=builder /usr/src/repo/nest/package.json ./package.json
 COPY --from=builder /usr/src/repo/nest/dist ./dist
 COPY --from=builder /usr/src/repo/nest/prisma ./prisma
