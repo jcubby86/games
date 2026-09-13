@@ -1,13 +1,16 @@
+// All colors below are tuned for at least a 4.5:1 contrast ratio against
+// white text (WCAG AA), since player color is always paired with white text
+// (badges in PlayerList, floating poke messages).
 export const PLAYER_COLORS: readonly string[] = [
   '#e6194b', // red
-  '#3cb44b', // green
+  '#2d8638', // green
   '#4363d8', // blue
-  '#f58231', // orange
+  '#c15509', // orange
   '#911eb4', // purple
-  '#42a5a5', // teal
-  '#f032e6', // magenta
+  '#338080', // teal
+  '#d00fc6', // magenta
   '#9a6324', // brown
-  '#e6099c', // pink
+  '#dd0996', // pink
   '#3d5afe', // indigo
   '#008080', // dark teal
   '#c71585', // deep rose
