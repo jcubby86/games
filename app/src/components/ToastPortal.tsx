@@ -46,7 +46,7 @@ export function ToastPortal() {
           key={`toast-${message?.id}`}
           onClose={close}
           bg={message?.type}
-          className={`text-bg-${message?.type}`}
+          className="text-white"
           delay={5000}
           autohide
           show={show}
