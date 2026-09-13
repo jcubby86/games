@@ -29,10 +29,13 @@ jobs:
         run: npm ci
       -
         name: Generate Prisma client
-        run: npm run generate --workspace=nest
+        run: npm run prisma:generate
       -
         name: Build
-        run: npm run build --workspaces --if-present
+        run: npm run build
+      - 
+        name: Typecheck
+        run: npm run typecheck
       -
         name: Lint
         run: npm run lint:check

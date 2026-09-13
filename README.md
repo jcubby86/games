@@ -113,7 +113,7 @@ docker compose up -d
 
 Install dependencies once from the repo root (see [Install dependencies](#install-dependencies) above), then:
 
-> Once the backend `.env` file is set up (below) and migrations have been run, you can start both the frontend and backend together from the repo root with `npm run start:dev`, instead of running them separately as shown here.
+> Once the backend `.env` file is set up (below) and migrations have been run, you can start both the frontend and backend together from the repo root with `npm run dev`, instead of running them separately as shown here.
 
 #### Backend Setup
 
@@ -155,7 +155,7 @@ cd app
 1. Start the development server:
 
 ```bash
-npm run start:dev
+npm run dev
 ```
 
 1. Access the app at `http://localhost:5173`

@@ -9,14 +9,20 @@
   ],
   "scripts": {
     "postinstall": "npm run build -w shared",
+    "build": "npm run build --workspaces --if-present",
     "build:shared": "npm run build -w shared",
+    "dev": "concurrently -n app,nest -c blue,green \"npm run dev -w app -- --clearScreen false\" \"npm run dev -w nest -- --preserveWatchOutput\"",
+    "dev:app": "npm run dev -w app",
+    "dev:nest": "npm run dev -w nest",
     "dev:shared": "npm run dev -w shared",
-    "start:dev": "concurrently -n app,nest -c blue,green \"npm run start:dev -w app\" \"npm run start:dev -w nest\"",
+    "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "lint:check": "npm run lint:check --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present",
     "format": "npm run format --workspaces --if-present",
-    "format:check": "npm run format:check --workspaces --if-present"
+    "format:check": "npm run format:check --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "prisma:studio": "npm run prisma:studio -w nest",
+    "prisma:generate": "npm run prisma:generate -w nest"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",

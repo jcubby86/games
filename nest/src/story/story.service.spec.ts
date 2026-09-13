@@ -26,6 +26,7 @@ function makePlayer(overrides: Partial<Player> = {}): Player {
     id: 1,
     uuid: 'player-uuid',
     nickname: 'nick',
+    color: '#e6194b',
     gameId: 1,
     createdAt: new Date(),
     updatedAt: new Date(),

@@ -1,6 +1,6 @@
 import { Message, PlayerDto, PokeMessageData } from '@games/shared';
 import { useEffect, useEffectEvent, useState } from 'react';
-import { Badge, Container, ListGroup } from 'react-bootstrap';
+import { Container, ListGroup } from 'react-bootstrap';
 
 import { useAppContext } from '../contexts/AppContext';
 import { useSocketContext } from '../contexts/SocketContext';
@@ -74,14 +74,20 @@ const PlayerList = ({ players, showText }: PlayerListProps) => {
             >
               {p.nickname}
               {isCurrentPlayer && (
-                <Badge bg="info" pill className="center-content">
+                <span
+                  className="badge rounded-pill text-white center-content"
+                  style={{ backgroundColor: p.color }}
+                >
                   You
-                </Badge>
+                </span>
               )}
               {pokeCount > 0 && (
-                <Badge bg="danger" pill className="center-content">
+                <span
+                  className="badge rounded-pill text-white center-content"
+                  style={{ backgroundColor: p.color }}
+                >
                   {pokeCount >= 99 ? '99+' : pokeCount}
-                </Badge>
+                </span>
               )}
             </ListGroup.Item>
           );

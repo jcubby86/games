@@ -6,7 +6,6 @@ import 'dotenv/config';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  clearScreen: false,
   plugins: [
     devtools(),
     tanstackRouter({ target: 'react', autoCodeSplitting: true }),

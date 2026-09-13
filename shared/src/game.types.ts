@@ -20,6 +20,7 @@ export interface StoryEntryDto {
 export interface PlayerDto {
   uuid: string;
   nickname: string;
+  color: string;
   game?: GameDto;
   entry?: StoryEntryDto;
   entries?: NameEntryDto[];

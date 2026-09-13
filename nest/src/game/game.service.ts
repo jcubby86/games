@@ -1,4 +1,9 @@
-import { GameDto, PlayerDto, GameUpdatedMessageData } from '@games/shared';
+import {
+  GameDto,
+  PlayerDto,
+  GameUpdatedMessageData,
+  PLAYER_COLORS,
+} from '@games/shared';
 import {
   BadRequestException,
   Injectable,
@@ -39,6 +44,14 @@ export class GameService {
       code += alphabet[Math.floor(Math.random() * alphabet.length)];
     }
     return code;
+  }
+
+  pickPlayerColor(usedColors: string[]): string {
+    const availableColors = PLAYER_COLORS.filter(
+      (color) => !usedColors.includes(color),
+    );
+    const pool = availableColors.length > 0 ? availableColors : PLAYER_COLORS;
+    return pool[Math.floor(Math.random() * pool.length)];
   }
 
   async createGame(type: string): Promise<GameDto> {
@@ -112,6 +125,9 @@ export class GameService {
 
     const game = await this.prisma.game.findUnique({
       where: { uuid: gameUuid },
+      include: {
+        players: { select: { color: true } },
+      },
     });
     if (!game) {
       throw new NotFoundException('Game not found');
@@ -125,6 +141,7 @@ export class GameService {
       const player = await this.prisma.player.create({
         data: {
           nickname: nickname.toLowerCase().substring(0, nicknameMaxLength),
+          color: this.pickPlayerColor(game.players.map((p) => p.color)),
           game: {
             connect: { id: game.id },
           },

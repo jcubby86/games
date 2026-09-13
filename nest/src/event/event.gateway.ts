@@ -115,6 +115,7 @@ export class EventGateway implements OnGatewayInit {
         ? {
             uuid: event.player.uuid,
             nickname: event.player.nickname,
+            color: event.player.color,
           }
         : null,
       action: event.action,
