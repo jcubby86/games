@@ -267,7 +267,7 @@ export class StoryService {
         },
       },
       include: {
-        player: { select: { uuid: true, nickname: true } },
+        player: { select: { uuid: true, nickname: true, color: true } },
       },
       orderBy: { id: 'asc' },
     });
@@ -276,6 +276,7 @@ export class StoryService {
       player: {
         uuid: entry.player.uuid,
         nickname: entry.player.nickname,
+        color: entry.player.color,
       },
       story: entry.story ?? '',
     }));
