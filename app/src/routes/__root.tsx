@@ -5,6 +5,7 @@ import {
   createRootRouteWithContext,
   useLocation,
 } from '@tanstack/react-router';
+import { clsx } from 'clsx';
 import { Suspense } from 'react';
 import { Container, Navbar } from 'react-bootstrap';
 
@@ -42,19 +43,31 @@ function RouteComponent() {
       <header>
         <Navbar className="bg-dark" data-bs-theme="dark">
           <Container fluid>
-            {pathname !== '/' && (
-              <Link className="navbar-brand" to="/">
-                <Icon icon="house" />
-              </Link>
-            )}
-            {context.player && pathname !== '/join' && (
-              <Link
-                className="navbar-brand ms-auto me-0 text-danger"
-                to="/join"
-              >
-                <Icon icon="gear" />
-              </Link>
-            )}
+            <Link
+              className={clsx(
+                'navbar-brand ms-0',
+                pathname === '/' && 'invisible pe-none',
+              )}
+              to="/"
+              tabIndex={pathname === '/' ? -1 : undefined}
+              aria-hidden={pathname === '/'}
+            >
+              <Icon icon="house" />
+            </Link>
+            <Link
+              className={clsx(
+                'navbar-brand me-0 text-danger',
+                (!context.player || pathname === '/join') &&
+                  'invisible pe-none',
+              )}
+              to="/join"
+              tabIndex={
+                !context.player || pathname === '/join' ? -1 : undefined
+              }
+              aria-hidden={!context.player || pathname === '/join'}
+            >
+              <Icon icon="gear" />
+            </Link>
           </Container>
         </Navbar>
       </header>
