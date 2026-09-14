@@ -41,7 +41,11 @@ export function ToastPortal() {
 
   return createPortal(
     <div aria-live="polite" aria-atomic="true" className="position-relative">
-      <ToastContainer position="bottom-center" className="pb-5">
+      <ToastContainer
+        position="top-center"
+        containerPosition="fixed"
+        className="pt-3"
+      >
         <Toast
           key={`toast-${message?.id}`}
           onClose={close}

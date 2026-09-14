@@ -38,6 +38,7 @@ app/playwright-report
 app/test-results
 app/.tanstack
 app/.vite
+app/scripts/favicon-preview.png
 nest/src/generated/prisma
 .generated
 .eslintcache

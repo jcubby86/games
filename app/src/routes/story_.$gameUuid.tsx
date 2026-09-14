@@ -55,9 +55,14 @@ function RouteComponent() {
                 key={item.player.uuid}
                 className="text-break px-3"
               >
-                <h5 className="fw-bold mb-1 text-decoration-underline fs-6">
-                  {item.player.nickname}
-                </h5>
+                <div className="mb-1">
+                  <span
+                    className="badge rounded-pill text-white"
+                    style={{ backgroundColor: item.player.color }}
+                  >
+                    {item.player.nickname}
+                  </span>
+                </div>
                 <p>{item.story}</p>
               </ListGroup.Item>
             ))}

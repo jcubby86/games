@@ -13,10 +13,13 @@ type Message = {
   cancelVariant?: ButtonVariant;
 };
 
-const listeners: Array<(m: Message) => void> = [];
+const listeners: Array<(m?: Message) => void> = [];
 
 export function showModal(msg: Message) {
   listeners.forEach((l) => l(msg));
+}
+export function hideModal() {
+  listeners.forEach((l) => l());
 }
 
 export function ModalPortal() {
@@ -36,9 +39,13 @@ export function ModalPortal() {
   const cancel = () => setShow(false);
 
   useEffect(() => {
-    const listener = (m: Message) => {
-      setMessage(m);
-      setShow(true);
+    const listener = (m?: Message) => {
+      if (!m) {
+        setShow(false);
+      } else {
+        setMessage(m);
+        setShow(true);
+      }
     };
     listeners.push(listener);
     return () => {

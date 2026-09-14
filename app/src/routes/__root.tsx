@@ -3,7 +3,9 @@ import {
   Link,
   Outlet,
   createRootRouteWithContext,
+  useLocation,
 } from '@tanstack/react-router';
+import { clsx } from 'clsx';
 import { Suspense } from 'react';
 import { Container, Navbar } from 'react-bootstrap';
 
@@ -30,6 +32,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 
 function RouteComponent() {
   const { context, title } = useAppContext();
+  const { pathname } = useLocation();
 
   return (
     <>
@@ -40,14 +43,31 @@ function RouteComponent() {
       <header>
         <Navbar className="bg-dark" data-bs-theme="dark">
           <Container fluid>
-            <Link className="navbar-brand" to="/">
+            <Link
+              className={clsx(
+                'navbar-brand ms-0',
+                pathname === '/' && 'invisible pe-none',
+              )}
+              to="/"
+              tabIndex={pathname === '/' ? -1 : undefined}
+              aria-hidden={pathname === '/'}
+            >
               <Icon icon="house" />
             </Link>
-            {context.player && (
-              <Link className="navbar-brand me-0 text-danger" to="/join">
-                <Icon icon="gear" />
-              </Link>
-            )}
+            <Link
+              className={clsx(
+                'navbar-brand me-0 text-danger',
+                (!context.player || pathname === '/join') &&
+                  'invisible pe-none',
+              )}
+              to="/join"
+              tabIndex={
+                !context.player || pathname === '/join' ? -1 : undefined
+              }
+              aria-hidden={!context.player || pathname === '/join'}
+            >
+              <Icon icon="gear" />
+            </Link>
           </Container>
         </Navbar>
       </header>
