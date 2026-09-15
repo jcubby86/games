@@ -10,22 +10,14 @@ code {
     source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
-* {
-  transition: all 0.15s ease-in-out;
-}
-
 i.bi {
   aspect-ratio: initial;
   font-size: 1.2em;
 }
 
-footer * {
-  transition: initial;
-}
-
 footer i {
   font-size: 1.7em;
-  transition: all 0.15s ease-in-out !important;
+  transition: color 0.15s ease-in-out;
 }
 
 .no-select,
@@ -59,6 +51,17 @@ footer i {
 
 textarea.form-control {
   resize: none;
+}
+
+.app-version {
+  position: fixed;
+  left: 0.5rem;
+  bottom: 0.2rem;
+  font-size: 0.65rem;
+  color: var(--bs-secondary-color);
+  opacity: 0.4;
+  pointer-events: none;
+  user-select: none;
 }
 
 .center-content {
@@ -120,6 +123,8 @@ textarea.form-control {
   box-shadow: 0 1px 16px rgba(var(--bs-primary-rgb), 0.2);
 }
 
+$navbar-padding-y: 0.2rem;
+
 .form-control:focus,
 .form-select:focus,
 .form-check-input:focus {
@@ -136,13 +141,15 @@ textarea.form-control {
     box-shadow: 0 0 14px rgba(var(--bs-#{$color}-rgb), 0.7);
   }
 
+  .link-#{$color} {
+    transition: text-shadow 0.15s ease-in-out;
+  }
+
   .link-#{$color}:hover,
   .link-#{$color}:focus-visible {
     text-shadow: 0 0 10px rgba(var(--bs-#{$color}-rgb), 0.8);
   }
 }
-
-$navbar-padding-y: 0.2rem;
 
 // Import all of Bootstrap's SCSS
 $bootstrap-icons-font-dir: 'bootstrap-icons/font/fonts';
