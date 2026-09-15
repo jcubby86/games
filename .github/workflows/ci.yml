@@ -43,8 +43,10 @@ jobs:
       -
         name: Test
         run: npm run test
+
   nest:
     name: Build and push backend
+    needs: test
     runs-on: ubuntu-latest
     steps:
       -
@@ -84,8 +86,10 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=nest
           cache-to: type=gha,mode=max,scope=nest
+
   app:
     name: Build and push frontend
+    needs: test
     runs-on: ubuntu-latest
     steps:
       -
