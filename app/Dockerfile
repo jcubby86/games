@@ -9,6 +9,8 @@ COPY app/package.json app/package.json
 RUN npm ci
 COPY app app
 WORKDIR /usr/src/repo/app
+ARG APP_VERSION=""
+ENV VITE_APP_VERSION=$APP_VERSION
 RUN npm run build
 
 # production environment

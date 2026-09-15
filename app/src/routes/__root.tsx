@@ -111,6 +111,10 @@ function RouteComponent() {
           <Icon icon="shield-check" className="fs-2" />
         </Link>
       </footer>
+
+      <span className="app-version">
+        v{import.meta.env.VITE_APP_VERSION || '0.0.0'}
+      </span>
     </>
   );
 }
