@@ -36,16 +36,16 @@ function FloatingMessage({
 }: Omit<Message, 'id'>) {
   const ref = useRef<HTMLSpanElement | null>(null);
   const [visible, setVisible] = useState(true);
-  const vx = useRef(calculateSway(sway));
-  const vy = useRef(calculateSway(sway) - window.innerHeight / 2.5);
+  const vxRef = useRef(calculateSway(sway));
+  const vyRef = useRef(calculateSway(sway) - window.innerHeight / 2.5);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
 
-    el.style.setProperty('--float-x', `${vx.current}px`);
+    el.style.setProperty('--float-x', `${vxRef.current}px`);
     el.style.setProperty('--float-duration', `${duration}s`);
-    el.style.setProperty('--float-distance', `${vy.current}px`);
+    el.style.setProperty('--float-distance', `${vyRef.current}px`);
 
     const inner = el.querySelector('.float-up-fade__inner');
     const handle = () => {
