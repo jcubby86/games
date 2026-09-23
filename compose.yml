@@ -6,6 +6,7 @@ services:
       - 3020:80
     environment:
       - NGINX_BACKEND_ADDRESS=http://backend:3000
+      - TZ=${TZ}
     restart: unless-stopped
     depends_on: 
       - backend
@@ -14,8 +15,10 @@ services:
     image: ghcr.io/jcubby86/games-backend:latest
     environment:
       - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/postgres
-      - NODE_ENV=production
       - JWT_SECRET=${JWT_SECRET}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL}
+      - OPENAI_MODEL=${OPENAI_MODEL}
+      - TZ=${TZ}
     restart: unless-stopped
     depends_on:
       db:
@@ -25,6 +28,7 @@ services:
     image: postgres:latest
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - TZ=${TZ}
     volumes:
       - db-data:/var/lib/postgresql
     restart: unless-stopped
