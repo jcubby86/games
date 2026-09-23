@@ -7,12 +7,12 @@ function readNoAi(): boolean {
 }
 
 export const useAiSuggestionsSetting = () => {
-  const [noAi, setNoAiState] = useState(readNoAi);
+  const [storedNoAi, setStoredNoAi] = useState(readNoAi);
 
   const setNoAi = useCallback((value: boolean) => {
     localStorage.setItem(STORAGE_KEY, String(value));
-    setNoAiState(value);
+    setStoredNoAi(value);
   }, []);
 
-  return { noAi, setNoAi };
+  return { noAi: storedNoAi, setNoAi };
 };

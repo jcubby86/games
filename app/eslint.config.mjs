@@ -1,6 +1,6 @@
 // @ts-check
 import { defineConfig } from 'eslint/config';
-import reactPlugin from 'eslint-plugin-react';
+import eslintReact from '@eslint-react/eslint-plugin';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactQuery from '@tanstack/eslint-plugin-query';
 
@@ -17,8 +17,8 @@ export default defineConfig(
     ],
   },
   baseConfig,
-  reactPlugin.configs.flat.recommended,
-  reactHooks.configs.flat.recommended,
+  eslintReact.configs['recommended-typescript'],
+  reactHooks.configs.flat['recommended-latest'],
   reactQuery.configs['flat/recommended'],
   {
     languageOptions: {
@@ -27,16 +27,10 @@ export default defineConfig(
         tsconfigRootDir: import.meta.dirname,
       },
     },
-    settings: {
-      react: {
-        version: 'detect',
-      },
-    },
   },
   {
     rules: {
       '@tanstack/query/exhaustive-deps': 'off',
-      'react/react-in-jsx-scope': 'off',
     },
   },
 );

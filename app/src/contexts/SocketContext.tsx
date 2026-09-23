@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import {
   createContext,
-  useContext,
+  use,
   useEffect,
   useEffectEvent,
   useRef,
@@ -123,7 +123,7 @@ export const SocketContextProvider = ({
   };
 
   return (
-    <SocketContext.Provider
+    <SocketContext
       value={{
         emit,
         on,
@@ -132,12 +132,12 @@ export const SocketContextProvider = ({
       }}
     >
       {children}
-    </SocketContext.Provider>
+    </SocketContext>
   );
 };
 
 export const useSocketContext = () => {
-  const socket = useContext(SocketContext);
+  const socket = use(SocketContext);
   if (!socket) throw new Error('useSocket must be used inside SocketProvider');
   return socket;
 };

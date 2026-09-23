@@ -12,6 +12,7 @@ const List = ({ items }: ListProps) => {
   return (
     <ListGroup>
       {items.map((item: string, index: number) => (
+        // eslint-disable-next-line @eslint-react/no-array-index-key -- plain strings with no stable id; list is static, never reordered
         <ListGroup.Item key={index} className="text-break no-select">
           {item}
         </ListGroup.Item>

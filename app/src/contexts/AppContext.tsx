@@ -3,7 +3,7 @@ import { useNavigate } from '@tanstack/react-router';
 import {
   Dispatch,
   createContext,
-  useContext,
+  use,
   useEffect,
   useReducer,
   useState,
@@ -105,14 +105,14 @@ export const AppContextProvider = ({
   const [title, setTitle] = useState('Games');
 
   return (
-    <AppContext.Provider value={{ context, dispatchContext, title, setTitle }}>
+    <AppContext value={{ context, dispatchContext, title, setTitle }}>
       {children}
-    </AppContext.Provider>
+    </AppContext>
   );
 };
 
 export const useAppContext = (required = false) => {
-  const appContext = useContext(AppContext);
+  const appContext = use(AppContext);
 
   if (!appContext) {
     throw new Error('useAppContext must be used inside AppContextProvider');
