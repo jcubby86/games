@@ -41,7 +41,6 @@
   "overrides": {
     "deepmerge-ts": "^8.0.0",
     "mysql2": "^3.23.1",
-    "multer": "^2.3.0",
     "typescript": "^5.9.3"
   },
   "allowScripts": {
