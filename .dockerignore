@@ -9,3 +9,11 @@
 **/npm-debug.log
 **/coverage
 **/.DS_Store
+app/build
+app/playwright-report
+app/test-results
+app/.tanstack
+app/.vite
+nest/src/generated/prisma
+.generated
+.eslintcache
