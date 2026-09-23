@@ -4,6 +4,33 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      nestjs:
+        patterns:
+          - "@nestjs/*"
+      prisma:
+        patterns:
+          - "prisma"
+          - "@prisma/*"
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+      tanstack-router:
+        patterns:
+          - "@tanstack/react-router"
+          - "@tanstack/router-plugin"
+          - "@tanstack/react-router-devtools"
+      eslint:
+        patterns:
+          - "eslint"
+          - "eslint-*"
+          - "@eslint/*"
+          - "@eslint-react/*"
+          - "@typescript-eslint/*"
+          - "typescript-eslint"
 
   - package-ecosystem: "docker"
     directory: "/app"
