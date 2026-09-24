@@ -70,13 +70,13 @@ describe('SuggestionCacheService', () => {
     suggestionRepository.getSuggestions.mockResolvedValue(drawn);
     suggestionRepository.countAiSuggestions.mockResolvedValue(TARGET_STOCK);
 
-    const result = await service.getSuggestions([Category.STATEMENT], 3, false);
+    const result = await service.getSuggestions([Category.STATEMENT], 3, true);
 
     expect(result).toEqual(drawn);
     expect(suggestionRepository.getSuggestions).toHaveBeenCalledWith(
       [Category.STATEMENT],
       3,
-      false,
+      true,
     );
   });
 
@@ -104,21 +104,21 @@ describe('SuggestionCacheService', () => {
     );
   });
 
-  it('bypasses the AI stock check entirely when noAi is set', async () => {
+  it('bypasses the AI stock check entirely when includeAi is false', async () => {
     const stored = [
       suggestion(Category.STATEMENT, 'a'),
       suggestion(Category.STATEMENT, 'b'),
     ];
     suggestionRepository.getSuggestions.mockResolvedValue(stored);
 
-    const result = await service.getSuggestions([Category.STATEMENT], 5, true);
+    const result = await service.getSuggestions([Category.STATEMENT], 5, false);
     await flushPromises();
 
     expect(result).toEqual(stored);
     expect(suggestionRepository.getSuggestions).toHaveBeenCalledWith(
       [Category.STATEMENT],
       5,
-      true,
+      false,
     );
     expect(suggestionRepository.countAiSuggestions).not.toHaveBeenCalled();
     expect(openAIService.getSuggestions).not.toHaveBeenCalled();

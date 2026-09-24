@@ -175,7 +175,7 @@ npm run dev
 | `OPENAI_MODEL` | Model name to use for suggestions | No | gpt-4o |
 | `SUGGESTION_REFILL_BATCH_SIZE` | Number of suggestions requested per OpenAI call when replenishing the cache; lower for local models (e.g. Ollama) with limited throughput, higher to reduce request overhead against hosted APIs | No | 10 |
 
-AI suggestions are disabled entirely if neither `OPENAI_API_KEY` nor `OPENAI_BASE_URL` is set - the app falls back to a static, pre-seeded pool of suggestions. When enabled, generated suggestions are cached in memory and replenished in the background so requests don't wait on the OpenAI API. Players can also opt out of AI suggestions individually from the Join page; this preference is stored in their browser and sent to the backend as the `no_ai` query parameter on `GET /api/suggestions`.
+AI suggestions are disabled entirely if neither `OPENAI_API_KEY` nor `OPENAI_BASE_URL` is set - the app falls back to a static, pre-seeded pool of suggestions. When enabled, generated suggestions are cached in memory and replenished in the background so requests don't wait on the OpenAI API. Players can also opt out of AI suggestions individually from the Join page; this preference is stored in their browser and sent to the backend as `include_ai=false` on `GET /api/suggestions` (the parameter defaults to `true` when omitted).
 
 ### Docker Compose (`.env`)
 

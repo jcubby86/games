@@ -25,27 +25,20 @@ export const Route = createFileRoute('/story')({
   component: RouteComponent,
 });
 
-const categories = [
-  'MALE_NAME',
-  'FEMALE_NAME',
-  'STATEMENT',
-  'PRESENT_ACTION',
-  'PAST_ACTION',
-];
+const defaultCategory = 'MALE_NAME';
 
 function RouteComponent() {
   useDocumentTitle(StoryVariant.title);
-  const { suggestion, suggestionUuid, updateCategory, nextSuggestion } =
-    useSuggestions({
-      initialCategory: categories[0],
-      quantity: 5,
-      prefetchCategories: categories,
-    });
-
   const { context } = useAppContext(true);
   const entryRef = useRef<HTMLTextAreaElement>(null);
 
   const { playerQuery, setPlayerSubmitted } = usePlayerQuery();
+
+  const { suggestion, suggestionUuid, nextSuggestion, prefetch } =
+    useSuggestions({
+      category: playerQuery.data?.entry?.hint?.category ?? defaultCategory,
+      quantity: 5,
+    });
 
   const postStoryMutation = useMutation({
     mutationFn: async ({ value }: { value: string }) => {
@@ -58,7 +51,10 @@ function RouteComponent() {
     },
     onSuccess: (data) => {
       entryRef.current!.value = '';
-      updateCategory(data.hint?.category);
+      nextSuggestion();
+      if (data.hint) {
+        prefetch(data.hint.category);
+      }
       setPlayerSubmitted();
     },
     onError: (err: unknown) => alertError('Error saving entry', err),

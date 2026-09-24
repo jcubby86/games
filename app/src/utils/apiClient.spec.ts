@@ -29,7 +29,7 @@ describe('apiClient', () => {
     expect(spy).toHaveBeenCalledWith('/api/games?code=ABCD');
   });
 
-  it('getSuggestions sends the token and omits the no_ai param by default', () => {
+  it('getSuggestions sends the token and omits the include_ai param by default', () => {
     const spy = vi.spyOn(axios, 'get').mockResolvedValue({ data: [] });
 
     void getSuggestions('a-token', 'MALE_NAME', 5);
@@ -40,13 +40,13 @@ describe('apiClient', () => {
     );
   });
 
-  it('getSuggestions includes no_ai=true when requested', () => {
+  it('getSuggestions includes include_ai=false when AI is excluded', () => {
     const spy = vi.spyOn(axios, 'get').mockResolvedValue({ data: [] });
 
-    void getSuggestions('a-token', 'MALE_NAME', 5, true);
+    void getSuggestions('a-token', 'MALE_NAME', 5, false);
 
     expect(spy).toHaveBeenCalledWith(
-      '/api/suggestions?category=MALE_NAME&quantity=5&no_ai=true',
+      '/api/suggestions?category=MALE_NAME&quantity=5&include_ai=false',
       { headers: { Authorization: 'Bearer a-token' } },
     );
   });

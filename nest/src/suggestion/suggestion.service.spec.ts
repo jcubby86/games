@@ -42,19 +42,19 @@ describe('SuggestionService', () => {
       expect(suggestionProvider.getSuggestions).toHaveBeenCalledWith(
         [Category.MALE_NAME],
         5,
-        false,
+        true,
       );
     });
 
-    it('forwards explicit quantity and noAi values', async () => {
+    it('forwards explicit quantity and includeAi values', async () => {
       suggestionProvider.getSuggestions.mockResolvedValue([]);
 
-      await service.getSuggestions([Category.MALE_NAME], 2, true);
+      await service.getSuggestions([Category.MALE_NAME], 2, false);
 
       expect(suggestionProvider.getSuggestions).toHaveBeenCalledWith(
         [Category.MALE_NAME],
         2,
-        true,
+        false,
       );
     });
   });
