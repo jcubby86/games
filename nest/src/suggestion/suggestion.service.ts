@@ -28,13 +28,13 @@ export class SuggestionService {
   async getSuggestions(
     categories: string[],
     quantity: number = 5,
-    noAi: boolean = false,
+    includeAi: boolean = true,
   ): Promise<SuggestionDto[]> {
     const validCategories = this.validateCategories(categories);
     return this.suggestionProvider.getSuggestions(
       validCategories,
       quantity,
-      noAi,
+      includeAi,
     );
   }
 

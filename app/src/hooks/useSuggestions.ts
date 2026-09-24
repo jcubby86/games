@@ -41,12 +41,17 @@ function suggestionOptions(
   category: string,
   quantity: number,
   offsetKey: number,
-  noAi: boolean,
+  includeAi: boolean,
 ) {
   return queryOptions({
-    queryKey: ['suggestions', { category, quantity, offsetKey, noAi }],
+    queryKey: ['suggestions', { category, quantity, offsetKey, includeAi }],
     queryFn: async () => {
-      const response = await getSuggestions(token, category, quantity, noAi);
+      const response = await getSuggestions(
+        token,
+        category,
+        quantity,
+        includeAi,
+      );
       return response.data;
     },
     retry: false,
@@ -56,7 +61,7 @@ function suggestionOptions(
 
 export const useSuggestions = ({ category, quantity }: UseSuggestionsArgs) => {
   const queryClient = useQueryClient();
-  const { noAi } = useAiSuggestionsSetting();
+  const { includeAi } = useAiSuggestionsSetting();
   const { context } = useAppContext();
   const token = context.token!;
   const offset = useSyncExternalStore(subscribeToOffsets, () =>
@@ -65,7 +70,7 @@ export const useSuggestions = ({ category, quantity }: UseSuggestionsArgs) => {
   const offsetKey = Math.floor(offset / quantity);
 
   const suggestionQuery = useQuery(
-    suggestionOptions(token, category, quantity, offsetKey, noAi),
+    suggestionOptions(token, category, quantity, offsetKey, includeAi),
   );
 
   const prefetch = useCallback(
@@ -78,12 +83,12 @@ export const useSuggestions = ({ category, quantity }: UseSuggestionsArgs) => {
             prefetchCategory,
             quantity,
             Math.floor(prefetchOffset / quantity),
-            noAi,
+            includeAi,
           ),
         )
         .catch(noop);
     },
-    [queryClient, token, quantity, noAi],
+    [queryClient, token, quantity, includeAi],
   );
 
   useEffect(() => {
@@ -92,9 +97,11 @@ export const useSuggestions = ({ category, quantity }: UseSuggestionsArgs) => {
       return;
     }
     queryClient
-      .query(suggestionOptions(token, category, quantity, offsetKey + 1, noAi))
+      .query(
+        suggestionOptions(token, category, quantity, offsetKey + 1, includeAi),
+      )
       .catch(noop);
-  }, [category, quantity, offset, offsetKey, noAi, queryClient, token]);
+  }, [category, quantity, offset, offsetKey, includeAi, queryClient, token]);
 
   const nextSuggestion = useCallback(() => {
     incrementOffset(category);

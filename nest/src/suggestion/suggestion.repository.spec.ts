@@ -54,7 +54,7 @@ describe('SuggestionRepository', () => {
     const result = await repository.getSuggestions(
       [Category.STATEMENT],
       3,
-      false,
+      true,
     );
 
     expect(result).toEqual([
@@ -66,7 +66,7 @@ describe('SuggestionRepository', () => {
       ...unknown[],
     ];
     expect(strings.join('')).toContain('ORDER BY POWER(random()');
-    expect(values).toEqual([[Category.STATEMENT], false, 3]);
+    expect(values).toEqual([[Category.STATEMENT], true, 3]);
     expect(prisma.suggestion.updateMany).not.toHaveBeenCalled();
   });
 

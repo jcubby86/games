@@ -34,7 +34,7 @@ HUMAN suggestions never go negative; only AI rows pass through `-1`.
 
 **[nest/src/suggestion/suggestion.repository.ts](../nest/src/suggestion/suggestion.repository.ts)**:
 
-- `getSuggestions(categories, quantity, noAi)` replaces the old two-pool
+- `getSuggestions(categories, quantity, includeAi)` replaces the old two-pool
   design (`popAiSuggestions` for AI, a separate `getSuggestions` for HUMAN,
   stitched together by `SuggestionCacheService` with a fallback). It's now
   one weighted draw per request across **HUMAN ∪ liked-AI ∪ unused-AI**:
@@ -49,8 +49,9 @@ HUMAN suggestions never go negative; only AI rows pass through `-1`.
     then flipped to `-1` via a plain Prisma `updateMany` (not raw SQL, so
     `updatedAt` auto-bumps for free — that timestamp is what the cleanup
     cron keys off).
-  - `noAi` excludes AI rows from the `WHERE` clause entirely via a `NOT
-    ${noAi}` guard rather than branching into two separate SQL templates.
+  - `includeAi = false` excludes AI rows from the `WHERE` clause entirely via
+    an `AND ${includeAi}` guard rather than branching into two separate SQL
+    templates.
 - `countAiSuggestions(category)` now counts only `likes = 0` (truly unused)
   rows. It drives `SuggestionCacheService`'s `TARGET_STOCK` top-up loop, and
   liked suggestions are an infinitely-reusable part of the pool that
@@ -76,7 +77,7 @@ HUMAN suggestions never go negative; only AI rows pass through `-1`.
 **[nest/src/suggestion/suggestion-cache.service.ts](../nest/src/suggestion/suggestion-cache.service.ts)**:
 
 - Shrinks to: delegate the pick to `suggestionRepository.getSuggestions(...)`,
-  then (unless `noAi`) fire off a background `checkStock(category)` per
+  then (when `includeAi`) fire off a background `checkStock(category)` per
   requested category that queues a `replenish()` if fresh AI stock has
   dropped below `TARGET_STOCK`. `getSuggestionsForCategory` (the old
   per-category pop-then-fallback-to-HUMAN dance) is gone — the unified

@@ -21,7 +21,7 @@ export const Route = createFileRoute('/create')({
 function RouteComponent() {
   useDocumentTitle('Create Game');
   const { context, dispatchContext } = useAppContext();
-  const { noAi, setNoAi } = useAiSuggestionsSetting();
+  const { includeAi, setIncludeAi } = useAiSuggestionsSetting();
   const [gameType, setGameType] = useState<string | null>(null);
   const [nickname, setNickname] = useState(context.player?.nickname || null);
   const navigate = useNavigate();
@@ -169,8 +169,8 @@ function RouteComponent() {
                 role="switch"
                 id="ai-suggestions-toggle"
                 className="ai-toggle-switch"
-                checked={!noAi}
-                onChange={(e) => setNoAi(!e.target.checked)}
+                checked={includeAi}
+                onChange={(e) => setIncludeAi(e.target.checked)}
               />
             </div>
           </Col>

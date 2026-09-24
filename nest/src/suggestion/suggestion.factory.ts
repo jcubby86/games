@@ -11,7 +11,7 @@ export interface SuggestionProvider {
   getSuggestions(
     categories: Category[],
     quantity?: number,
-    noAi?: boolean,
+    includeAi?: boolean,
   ): Promise<SuggestionDto[]>;
   enabled(): boolean;
 }

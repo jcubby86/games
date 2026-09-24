@@ -62,7 +62,7 @@ the Prisma client into `nest/src/generated/prisma/`.
   (`import { SuggestionDto } from '@games/shared'`), defined in
   `shared/src/game.types.ts`.
 - `getSuggestions()` and `getExamples()` filter to `type: 'HUMAN'` — these
-  stay the reusable, never-deleted curated pool (used for the `noAi` path and
+  stay the reusable, never-deleted curated pool (used for the `includeAi = false` path and
   as few-shot examples), unaffected by AI rows now living in the same table.
 - `countAiSuggestions(category)`: counts AI rows for a category, replacing
   the old `cache.get(category)?.length` check against `TARGET_STOCK`.

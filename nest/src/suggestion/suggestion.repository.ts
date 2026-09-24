@@ -21,7 +21,7 @@ export class SuggestionRepository implements SuggestionProvider {
   async getSuggestions(
     categories: Category[],
     quantity: number = 5,
-    noAi: boolean = false,
+    includeAi: boolean = true,
   ): Promise<SuggestionDto[]> {
     const suggestions = await this.prisma.$queryRaw<RawSuggestionRow[]>`
       SELECT value, category, uuid, likes, type
@@ -29,7 +29,7 @@ export class SuggestionRepository implements SuggestionProvider {
       WHERE category = ANY(${categories}::"Category"[])
         AND (
           type = 'HUMAN'
-          OR (type = 'AI' AND likes <> -1 AND NOT ${noAi})
+          OR (type = 'AI' AND likes <> -1 AND ${includeAi})
         )
       ORDER BY POWER(random(), 1.0 / (likes + 1)) DESC
       LIMIT ${quantity}

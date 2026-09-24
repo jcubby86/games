@@ -33,7 +33,7 @@ export const Route = createFileRoute('/join')({
 function RouteComponent() {
   useDocumentTitle('Join Game');
   const { context, dispatchContext } = useAppContext();
-  const { noAi, setNoAi } = useAiSuggestionsSetting();
+  const { includeAi, setIncludeAi } = useAiSuggestionsSetting();
   const { code: rawCodeQueryParam } = Route.useSearch();
 
   const codeQueryParam = rawCodeQueryParam?.toLowerCase();
@@ -250,8 +250,8 @@ function RouteComponent() {
                 role="switch"
                 id="ai-suggestions-toggle"
                 className="ai-toggle-switch"
-                checked={!noAi}
-                onChange={(e) => setNoAi(!e.target.checked)}
+                checked={includeAi}
+                onChange={(e) => setIncludeAi(e.target.checked)}
               />
             </div>
           </Col>

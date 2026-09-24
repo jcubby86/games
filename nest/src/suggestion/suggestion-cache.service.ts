@@ -43,15 +43,15 @@ export class SuggestionCacheService
   async getSuggestions(
     categories: Category[],
     quantity: number = 5,
-    noAi: boolean = false,
+    includeAi: boolean = true,
   ): Promise<SuggestionDto[]> {
     const suggestions = await this.suggestionRepository.getSuggestions(
       categories,
       quantity,
-      noAi,
+      includeAi,
     );
 
-    if (!noAi) {
+    if (includeAi) {
       for (const category of categories) {
         void this.checkStock(category);
       }

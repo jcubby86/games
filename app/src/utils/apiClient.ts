@@ -96,11 +96,11 @@ export function getSuggestions(
   token: string,
   category: string,
   quantity: number,
-  noAi?: boolean,
+  includeAi = true,
 ) {
-  const noAiParam = noAi ? '&no_ai=true' : '';
+  const includeAiParam = includeAi ? '' : '&include_ai=false';
   return axios.get<SuggestionDto[]>(
-    `/api/suggestions?category=${category}&quantity=${quantity}${noAiParam}`,
+    `/api/suggestions?category=${category}&quantity=${quantity}${includeAiParam}`,
     { headers: { Authorization: `Bearer ${token}` } },
   );
 }
