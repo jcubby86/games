@@ -28,7 +28,7 @@ export const Route = createFileRoute('/name')({
 function RouteComponent() {
   useDocumentTitle(NameVariant.title);
   const { suggestion, suggestionUuid, nextSuggestion } = useSuggestions({
-    initialCategory: 'MALE_NAME,FEMALE_NAME',
+    category: 'MALE_NAME,FEMALE_NAME',
     quantity: 10,
   });
 

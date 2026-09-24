@@ -1,15 +1,40 @@
-import { queryOptions, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useEffectEvent, useState } from 'react';
+import {
+  noop,
+  queryOptions,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
+import { useCallback, useEffect, useSyncExternalStore } from 'react';
 
 import { useAiSuggestionsSetting } from './useAiSuggestionsSetting';
 import { useAppContext } from '../contexts/AppContext';
 import { getSuggestions } from '../utils/apiClient';
 
 type UseSuggestionsArgs = {
-  initialCategory: string;
+  category: string;
   quantity: number;
-  prefetchCategories?: string[];
 };
+
+// Offsets live outside React (not component state) so the rotation survives
+// navigating away and back, matching the cached suggestion batches.
+const offsets = new Map<string, number>();
+const listeners = new Set<() => void>();
+
+function getOffset(category: string) {
+  return offsets.get(category) ?? 0;
+}
+
+function incrementOffset(category: string) {
+  offsets.set(category, getOffset(category) + 1);
+  listeners.forEach((listener) => listener());
+}
+
+function subscribeToOffsets(listener: () => void) {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
 
 function suggestionOptions(
   token: string,
@@ -29,63 +54,51 @@ function suggestionOptions(
   });
 }
 
-export const useSuggestions = ({
-  initialCategory,
-  quantity,
-  prefetchCategories,
-}: UseSuggestionsArgs) => {
+export const useSuggestions = ({ category, quantity }: UseSuggestionsArgs) => {
   const queryClient = useQueryClient();
   const { noAi } = useAiSuggestionsSetting();
   const { context } = useAppContext();
   const token = context.token!;
-  const [category, setCategory] = useState(initialCategory);
-  const [offsets, setOffsets] = useState<{ [key: string]: number }>({});
-  const offset = offsets[category] ?? 0;
+  const offset = useSyncExternalStore(subscribeToOffsets, () =>
+    getOffset(category),
+  );
   const offsetKey = Math.floor(offset / quantity);
 
   const suggestionQuery = useQuery(
     suggestionOptions(token, category, quantity, offsetKey, noAi),
   );
 
-  const prefetch = useEffectEvent(() => {
-    if (!prefetchCategories) {
-      return;
-    }
-    prefetchCategories.forEach((cat) => {
-      void queryClient.prefetchQuery(
-        suggestionOptions(token, cat, quantity, 0, noAi),
-      );
-    });
-  });
-
-  useEffect(() => {
-    prefetch();
-  }, []);
+  const prefetch = useCallback(
+    (prefetchCategory: string) => {
+      const prefetchOffset = getOffset(prefetchCategory);
+      queryClient
+        .query(
+          suggestionOptions(
+            token,
+            prefetchCategory,
+            quantity,
+            Math.floor(prefetchOffset / quantity),
+            noAi,
+          ),
+        )
+        .catch(noop);
+    },
+    [queryClient, token, quantity, noAi],
+  );
 
   useEffect(() => {
     const remainingInBatch = quantity - (offset % quantity);
     if (remainingInBatch > 2) {
       return;
     }
-    void queryClient.prefetchQuery(
-      suggestionOptions(token, category, quantity, offsetKey + 1, noAi),
-    );
+    queryClient
+      .query(suggestionOptions(token, category, quantity, offsetKey + 1, noAi))
+      .catch(noop);
   }, [category, quantity, offset, offsetKey, noAi, queryClient, token]);
 
   const nextSuggestion = useCallback(() => {
-    setOffsets((prev) => ({
-      ...prev,
-      [category]: offset + 1,
-    }));
-  }, [category, offset]);
-
-  const updateCategory = useCallback(
-    (newCategory?: string) => {
-      nextSuggestion();
-      setCategory((prev) => newCategory ?? prev);
-    },
-    [nextSuggestion],
-  );
+    incrementOffset(category);
+  }, [category]);
 
   const currentSuggestion = suggestionQuery.isSuccess
     ? suggestionQuery.data[offset % quantity]
@@ -94,7 +107,7 @@ export const useSuggestions = ({
   return {
     suggestion: currentSuggestion?.value ?? '',
     suggestionUuid: currentSuggestion?.uuid,
-    updateCategory,
     nextSuggestion,
+    prefetch,
   };
 };
