@@ -34,9 +34,22 @@ updates:
           - "@typescript-eslint/*"
           - "typescript-eslint"
       minor-and-patch:
+        # Dependabot ranks this group above wildcard-pattern groups, so exclude them explicitly
+        exclude-patterns:
+          - "@nestjs/*"
+          - "@prisma/*"
+          - "@tanstack/*"
+          - "eslint-*"
+          - "@eslint/*"
+          - "@eslint-react/*"
+          - "@typescript-eslint/*"
         update-types:
           - "minor"
           - "patch"
+    ignore:
+      # TypeScript 7 drops the JS compiler API that typescript-eslint, ts-jest and @nestjs/cli depend on
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "docker"
     directory: "/app"

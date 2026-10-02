@@ -14,10 +14,13 @@
     "target": "ES2023",
     "sourceMap": true,
     "outDir": "./dist",
+    "rootDir": "./",
     "paths": {
       "src/*": ["./src/*"]
     },
     "incremental": true,
+    "types": ["node", "jest"],
+    "strict": false,
     "strictNullChecks": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
