@@ -39,7 +39,7 @@
     "@playwright/test": "^1.63.0",
     "@tanstack/devtools-vite": "^0.8.5",
     "@tanstack/eslint-plugin-query": "^5.91.4",
-    "@tanstack/react-devtools": "^0.10.12",
+    "@tanstack/react-devtools": "^0.10.13",
     "@tanstack/react-query-devtools": "^5.102.8",
     "@tanstack/react-router-devtools": "^1.167.1",
     "@tanstack/router-plugin": "^1.168.41",
