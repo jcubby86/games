@@ -32,7 +32,7 @@
     "react-bootstrap": "^3.0.0-beta.5",
     "react-dom": "^19.2.4",
     "react-error-boundary": "^6.1.0",
-    "socket.io-client": "^4.8.3"
+    "socket.io-client": "^4.8.4"
   },
   "devDependencies": {
     "@eslint-react/eslint-plugin": "^5.23.0",
