@@ -18,11 +18,13 @@ updates:
           - "react-dom"
           - "@types/react"
           - "@types/react-dom"
-      tanstack-router:
+      tanstack:
         patterns:
-          - "@tanstack/react-router"
-          - "@tanstack/router-plugin"
-          - "@tanstack/react-router-devtools"
+          - "@tanstack/*"
+      socket-io:
+        patterns:
+          - "socket.io"
+          - "socket.io-client"
       eslint:
         patterns:
           - "eslint"
@@ -31,6 +33,10 @@ updates:
           - "@eslint-react/*"
           - "@typescript-eslint/*"
           - "typescript-eslint"
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
 
   - package-ecosystem: "docker"
     directory: "/app"
