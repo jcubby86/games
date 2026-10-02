@@ -21,7 +21,7 @@
   "dependencies": {
     "@games/shared": "*",
     "@tanstack/react-query": "^5.90.20",
-    "@tanstack/react-router": "^1.170.32",
+    "@tanstack/react-router": "^1.170.40",
     "axios": "^1.18.0",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
@@ -42,7 +42,7 @@
     "@tanstack/react-devtools": "^0.10.12",
     "@tanstack/react-query-devtools": "^5.102.8",
     "@tanstack/react-router-devtools": "^1.167.1",
-    "@tanstack/router-plugin": "^1.168.38",
+    "@tanstack/router-plugin": "^1.168.41",
     "@testing-library/react": "^16.3.3",
     "@types/react": "^19.2.13",
     "@types/react-dom": "^19.2.3",
