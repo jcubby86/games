@@ -40,14 +40,15 @@
   },
   "overrides": {
     "deepmerge-ts": "^8.0.0",
-    "mysql2": "^3.23.1"
+    "mysql2": "^3.23.1",
+    "multer": "^2.5.0"
   },
   "allowScripts": {
     "esbuild@0.28.2": true,
     "unrs-resolver@1.12.2": true,
     "@parcel/watcher@2.6.0": true,
     "@swc/core@1.16.1": true,
-    "@prisma/engines@7.10.0": true,
-    "prisma@7.10.0": true
+    "@prisma/engines@7.10.1": true,
+    "prisma@7.10.1": true
   }
 }
