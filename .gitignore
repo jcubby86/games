@@ -43,3 +43,4 @@ nest/src/generated/prisma
 .eslintcache
 
 compose.test.yml
+*.code-workspace
