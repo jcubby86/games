@@ -1,6 +1,6 @@
 # Builder stage: install workspace deps, generate Prisma client, build shared + backend
 # Build context is the monorepo root (see .github/workflows/docker-image.yml)
-FROM node:24-slim AS builder
+FROM node:26-slim AS builder
 WORKDIR /usr/src/repo
 RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json tsconfig.base.json ./
@@ -16,7 +16,7 @@ WORKDIR /usr/src/repo
 RUN npm prune --omit=dev
 
 # Runtime stage: smaller image with only production dependencies
-FROM node:24-slim AS runner
+FROM node:26-slim AS runner
 WORKDIR /usr/src/app
 ENV NODE_ENV=production
 RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*

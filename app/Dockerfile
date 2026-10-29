@@ -1,6 +1,6 @@
 # build environment
 # Build context is the monorepo root (see .github/workflows/docker-image.yml)
-FROM node:24-slim AS build
+FROM node:26-slim AS build
 WORKDIR /usr/src/repo
 COPY package.json package-lock.json tsconfig.base.json ./
 COPY shared shared
