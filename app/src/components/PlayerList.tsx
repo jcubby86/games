@@ -1,5 +1,5 @@
 import { Message, PlayerDto, PokeMessageData } from '@games/shared';
-import { useEffect, useEffectEvent, useState } from 'react';
+import { CSSProperties, useEffect, useEffectEvent, useState } from 'react';
 import { Container, ListGroup } from 'react-bootstrap';
 
 import { useAppContext } from '../contexts/AppContext';
@@ -64,6 +64,7 @@ const PlayerList = ({ players, showText }: PlayerListProps) => {
               action
               key={p.uuid}
               className="border d-flex justify-content-between align-items-center no-select"
+              style={{ '--player-color': p.color } as CSSProperties}
               disabled={isCurrentPlayer}
               aria-disabled={isCurrentPlayer}
               onClick={(e) => {
