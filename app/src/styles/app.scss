@@ -37,7 +37,11 @@ footer i {
 }
 
 #player-list .list-group-item:active {
-  background-color: var(--bs-danger-bg-subtle) !important;
+  background-color: color-mix(
+    in srgb,
+    var(--player-color, var(--bs-danger)) 35%,
+    var(--bs-body-bg)
+  ) !important;
   transition: background-color 0.1s;
 }
 
