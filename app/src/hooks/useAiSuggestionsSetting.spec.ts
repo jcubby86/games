@@ -56,4 +56,26 @@ describe('useAiSuggestionsSetting', () => {
     expect(localStorage.getItem(STORAGE_KEY)).toBe('true');
     expect(localStorage.getItem(LEGACY_STORAGE_KEY)).toBeNull();
   });
+
+  it('keeps separate hook instances in sync', () => {
+    const first = renderHook(() => useAiSuggestionsSetting());
+    const second = renderHook(() => useAiSuggestionsSetting());
+
+    act(() => {
+      first.result.current.setIncludeAi(false);
+    });
+
+    expect(second.result.current.includeAi).toBe(false);
+  });
+
+  it('updates when another tab changes the setting', () => {
+    const { result } = renderHook(() => useAiSuggestionsSetting());
+
+    act(() => {
+      localStorage.setItem(STORAGE_KEY, 'false');
+      window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY }));
+    });
+
+    expect(result.current.includeAi).toBe(false);
+  });
 });
