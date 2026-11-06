@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { noop, useMutation } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useRef } from 'react';
 import { Col, Container, Form, Row } from 'react-bootstrap';
@@ -14,6 +14,7 @@ import { SpinnerButton } from '../components/SpinnerButton';
 import StartGame from '../components/StartGame';
 import { useAppContext, useDocumentTitle } from '../contexts/AppContext';
 import { usePlayerQuery } from '../hooks/usePlayerQuery';
+import { useSuggestionLike } from '../hooks/useSuggestionLike';
 import { useSuggestions } from '../hooks/useSuggestions';
 import { useUpdateGameMutation } from '../hooks/useUpdateGameMutation';
 import { postNameEntry } from '../utils/apiClient';
@@ -31,6 +32,7 @@ function RouteComponent() {
     category: 'MALE_NAME,FEMALE_NAME',
     quantity: 10,
   });
+  const { like: likeSuggestion } = useSuggestionLike(suggestionUuid);
 
   const { context } = useAppContext(true);
   const entryRef = useRef<HTMLInputElement>(null);
@@ -71,10 +73,10 @@ function RouteComponent() {
         showModal({
           title: 'Use Placeholder',
           body: `You haven't entered anything. Do you want to use the placeholder "${suggestion}"?`,
-          onConfirm: () =>
-            postNameMutation.mutateAsync({
-              name: suggestion,
-            }),
+          onConfirm: async () => {
+            await postNameMutation.mutateAsync({ name: suggestion });
+            likeSuggestion().catch(noop);
+          },
         });
         return;
       }

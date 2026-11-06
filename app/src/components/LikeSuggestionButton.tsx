@@ -1,10 +1,7 @@
-import { useMutation } from '@tanstack/react-query';
-import { useState } from 'react';
 import { Button } from 'react-bootstrap';
 
 import Icon from './Icon';
-import { useAppContext } from '../contexts/AppContext';
-import { postSuggestionLike } from '../utils/apiClient';
+import { useSuggestionLike } from '../hooks/useSuggestionLike';
 import { alertError } from '../utils/errorHandler';
 
 type LikeSuggestionButtonProps = {
@@ -20,14 +17,7 @@ const LikeSuggestionButton = ({
   className,
   size,
 }: LikeSuggestionButtonProps) => {
-  const { context } = useAppContext();
-  const [liked, setLiked] = useState(false);
-
-  const likeMutation = useMutation({
-    mutationFn: () => postSuggestionLike(context.token!, uuid!),
-    onSuccess: () => setLiked(true),
-    onError: (err: unknown) => alertError('Error saving like', err),
-  });
+  const { liked, like } = useSuggestionLike(uuid);
 
   return (
     <Button
@@ -37,12 +27,12 @@ const LikeSuggestionButton = ({
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
-        if (!uuid || liked || likeMutation.isPending) {
+        if (!uuid || liked) {
           return;
         }
-        likeMutation.mutate();
+        like().catch((err: unknown) => alertError('Error saving like', err));
       }}
-      disabled={disabled || !uuid || liked || likeMutation.isPending}
+      disabled={disabled || !uuid || liked}
       aria-label={liked ? 'Liked' : 'Like this suggestion'}
     >
       <Icon icon={liked ? 'heart-fill' : 'heart'} />
