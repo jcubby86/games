@@ -1,8 +1,8 @@
 import { Button } from 'react-bootstrap';
 
-import Icon from './Icon';
 import { useSuggestionLike } from '../hooks/useSuggestionLike';
 import { alertError } from '../utils/errorHandler';
+import Icon from './Icon';
 
 type LikeSuggestionButtonProps = {
   uuid?: string;

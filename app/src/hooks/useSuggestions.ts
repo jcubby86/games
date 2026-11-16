@@ -6,9 +6,9 @@ import {
 } from '@tanstack/react-query';
 import { useCallback, useEffect, useSyncExternalStore } from 'react';
 
-import { useAiSuggestionsSetting } from './useAiSuggestionsSetting';
 import { useAppContext } from '../contexts/AppContext';
 import { getSuggestions } from '../utils/apiClient';
+import { useAiSuggestionsSetting } from './useAiSuggestionsSetting';
 
 type UseSuggestionsArgs = {
   category: string;

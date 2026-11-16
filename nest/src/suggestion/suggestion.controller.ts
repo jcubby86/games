@@ -12,8 +12,8 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 
-import { SuggestionService } from './suggestion.service';
 import { JwtAuthGuard } from '../auth/auth.guard';
+import { SuggestionService } from './suggestion.service';
 
 @UseGuards(JwtAuthGuard)
 @Controller('api/suggestions')

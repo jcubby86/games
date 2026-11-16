@@ -1,8 +1,8 @@
 import { AxiosError, CanceledError } from 'axios';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { alertError, logError } from './errorHandler';
 import * as ToastPortal from '../components/ToastPortal';
+import { alertError, logError } from './errorHandler';
 
 function axiosErrorWithResponse(status: number, message: string) {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
