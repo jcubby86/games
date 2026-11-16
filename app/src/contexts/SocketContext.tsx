@@ -11,10 +11,10 @@ import {
 } from 'react';
 import { Socket, io } from 'socket.io-client';
 
-import { useAppContext } from './AppContext';
 import { showFloatingMessage } from '../components/FloatingMessagePortal';
 import { usePlayerQuery } from '../hooks/usePlayerQuery';
 import { postPlayer } from '../utils/apiClient';
+import { useAppContext } from './AppContext';
 
 interface SocketContextType {
   emit: (event: string, message: Message<any>) => void;

@@ -1,8 +1,8 @@
 import { clsx } from 'clsx';
 import { Button } from 'react-bootstrap';
 
-import Icon from './Icon';
 import { logError } from '../utils/errorHandler';
+import Icon from './Icon';
 
 interface ShareProps {
   path: string;

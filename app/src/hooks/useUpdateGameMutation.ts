@@ -1,9 +1,9 @@
 import { useMutation } from '@tanstack/react-query';
 
-import { usePlayerQuery } from './usePlayerQuery';
 import { useAppContext } from '../contexts/AppContext';
 import { patchGame } from '../utils/apiClient';
 import { alertError } from '../utils/errorHandler';
+import { usePlayerQuery } from './usePlayerQuery';
 
 export const useUpdateGameMutation = () => {
   const { context } = useAppContext();

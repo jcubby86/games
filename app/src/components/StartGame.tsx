@@ -1,14 +1,14 @@
 import { PlayerDto } from '@games/shared';
 import { Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
 
+import { useAppContext } from '../contexts/AppContext';
+import { useUpdateGameMutation } from '../hooks/useUpdateGameMutation';
+import { PLAY } from '../utils/constants';
 import Glitch from './Glitch';
 import { showModal } from './ModalPortal';
 import PlayerList from './PlayerList';
 import ShareButton from './ShareButton';
 import { SpinnerButton } from './SpinnerButton';
-import { useAppContext } from '../contexts/AppContext';
-import { useUpdateGameMutation } from '../hooks/useUpdateGameMutation';
-import { PLAY } from '../utils/constants';
 
 interface StartGameProps {
   title: string;
