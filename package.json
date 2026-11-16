@@ -38,11 +38,6 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.72.2"
   },
-  "overrides": {
-    "deepmerge-ts": "^8.0.0",
-    "mysql2": "^3.23.1",
-    "multer": "^2.5.0"
-  },
   "allowScripts": {
     "esbuild@0.28.2": true,
     "unrs-resolver@1.12.2": true,
