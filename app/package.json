@@ -35,7 +35,7 @@
     "socket.io-client": "^4.8.4"
   },
   "devDependencies": {
-    "@eslint-react/eslint-plugin": "^5.30.3",
+    "@eslint-react/eslint-plugin": "^5.30.6",
     "@playwright/test": "^1.65.1",
     "@tanstack/devtools-vite": "^0.8.6",
     "@tanstack/eslint-plugin-query": "^5.107.1",
